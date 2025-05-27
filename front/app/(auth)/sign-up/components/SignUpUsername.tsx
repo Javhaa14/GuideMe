@@ -22,11 +22,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-// import { axiosInstance } from "@/lib/utils";
 
 const formSchema = z.object({
   username: z.string().min(4, { message: "Please enter at least 4 letters" }),
 });
+
+type FormValues = z.infer<typeof formSchema>;
 
 export function SignUpUsername({
   setStep,
@@ -35,19 +36,24 @@ export function SignUpUsername({
   setStep: Dispatch<SetStateAction<number>>;
   setUsername: Dispatch<SetStateAction<string>>;
 }) {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
     },
   });
 
+  const onSubmit = (values: FormValues) => {
+    setUsername(values.username);
+    setStep((prevStep) => prevStep + 1);
+  };
+
   return (
     <div>
-      <Card className="w-[407px]">
+      <Card className="w-[440px]">
         <Form {...form}>
           <form
-            // onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-6"
           >
             <CardHeader>

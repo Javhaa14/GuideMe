@@ -7,10 +7,12 @@ export default function AuthLayout({
 }) {
   return (
     <div className="flex h-screen w-screen">
-      <div className="flex w-full md:w-1/2 items-center justify-center bg-[#87bee0]">
+      {/* Left Layout with Background */}
+      <div className="flex w-full md:w-1/2">
         <LeftLayout />
       </div>
 
+      {/* Right Content */}
       <div className="flex w-full md:w-1/2 items-center justify-center bg-white">
         {children}
       </div>
