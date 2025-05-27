@@ -4,18 +4,7 @@ import React from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -24,23 +13,26 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
-const signUpSchema = z.object({
+const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email" }),
   password: z
     .string()
     .min(8, { message: "Password should be more than 8 letters" }),
 });
 
-type SignUpFormValues = z.infer<typeof signUpSchema>;
-
-interface SignUpEmailPasswordProps {
-  username: string;
-}
-
-export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
-  const form = useForm<SignUpFormValues>({
-    resolver: zodResolver(signUpSchema),
+export function LogInEmailPassword() {
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -49,8 +41,8 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
 
   const router = useRouter();
 
-  const onSubmit = (values: SignUpFormValues) => {
-    console.log(values);
+  const onSubmit = (values: z.infer<typeof loginSchema>) => {
+    console.log("Login data: ", values);
     router.push("/");
   };
 
@@ -63,14 +55,11 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
         >
           <CardHeader>
             <CardTitle className="text-[20px] font-semibold">
-              Welcome, {username}
+              Welcome back
             </CardTitle>
-            <CardDescription>
-              Connect your email and set a password
-            </CardDescription>
           </CardHeader>
 
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="flex flex-col gap-3">
             <FormField
               control={form.control}
               name="email"
@@ -105,7 +94,7 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
           </CardContent>
 
           <CardFooter>
-            <Button type="submit" className="w-full h-[44px]">
+            <Button className="w-full h-[44px]" type="submit">
               Continue
             </Button>
           </CardFooter>

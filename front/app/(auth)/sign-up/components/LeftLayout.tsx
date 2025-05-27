@@ -15,7 +15,7 @@ const LeftLayout = () => {
 
       <div className="relative z-20 flex flex-col w-full h-full">
         <div className="flex items-center gap-2 absolute top-8 left-28">
-          <TentTree />
+          <TentTree color="white" />
           <p className="text-white text-base font-bold">Guide</p>
         </div>
 
