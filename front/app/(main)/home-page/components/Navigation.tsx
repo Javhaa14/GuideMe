@@ -1,5 +1,13 @@
 "use client";
 
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { TentTree } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -57,7 +65,25 @@ export const Navigation = () => {
           variant="primary"
         />
         <NavButton label="Log In" path="/log-in" variant="dark" />
-        <NavButton label="Settings" path="settings" variant="dark" />
+
+        <div className="flex items-center gap-3">
+          <Select
+            onValueChange={(value) => {
+              if (value === "Logout") {
+                router.push("/log-in");
+              }
+            }}
+          >
+            <SelectTrigger className="w-[180px] border-none shadow-none">
+              <NavButton label="Settings" path="settings" variant="dark" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="Logout">Log out</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </nav>
   );
