@@ -35,8 +35,7 @@ export const GuideProfile = ({
           <div
             className={`w-3 h-2 rounded-full ml-3 ${
               status == "active" ? "bg-green-500" : "bg-red-600"
-            }`}
-          ></div>
+            }`}></div>
         </div>
         <div className="w-full h-[1px] border-[1px] border-gray-300"></div>
         <p className="text-[14px] text-black">{about}</p>

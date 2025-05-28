@@ -57,6 +57,7 @@ export default function Home() {
       price: 90,
       rating: 5,
       status: "inactive",
+      image: "",
     },
     {
       name: "Javhaa",
@@ -80,7 +81,7 @@ export default function Home() {
           return (
             <GuideProfile
               status={v.status}
-              image={v.image || ""}
+              image={v.image}
               rating={v.rating}
               price={v.price}
               key={i}
