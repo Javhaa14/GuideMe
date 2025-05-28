@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Footer } from "./components/Footer";
 import { Guides } from "./components/Guides";
 import { ImageCarousel } from "./components/ImageCarousel";
