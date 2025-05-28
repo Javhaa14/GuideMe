@@ -14,7 +14,7 @@ export default function Home() {
   const [paymentId, setPaymentId] = useState(null);
   const qrgenerate = async () => {
     setStatus("");
-    const data = await axios.get(`http://${"172.17.17.9"}:9999`);
+    const data = await axios.get(`http://localhost:9999`);
     setQr(data.data.qr);
     setPaymentId(data.data.id);
   };
@@ -22,7 +22,7 @@ export default function Home() {
   useEffect(() => {
     if (!paymentId) return;
 
-    const ws = new WebSocket("ws://172.17.17.9:9999");
+    const ws = new WebSocket("ws://localhost:9999");
     ws.onopen = () => {
       ws.send(JSON.stringify({ type: "watch", paymentId }));
     };
