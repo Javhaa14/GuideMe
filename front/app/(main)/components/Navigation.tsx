@@ -30,12 +30,12 @@ const NavButton = ({
   };
 
   return (
-    <button
+    <span
       onClick={() => router.push(path)}
-      className={`${baseStyle} ${variants[variant]}`}
+      className={`${baseStyle} ${variants[variant]} cursor-pointer`}
     >
       {label}
-    </button>
+    </span>
   );
 };
 
@@ -53,17 +53,13 @@ export const Navigation = () => {
       </div>
 
       <div className="hidden md:flex items-center gap-6">
-        <NavButton label="Guides" path="/guides" />
-        <NavButton label="Travelers" path="/travelers" />
+        <NavButton label="Guides" path="/Guidesinfo" />
+        <NavButton label="Travelers" path="/Travelersinfo" />
         <NavButton label="About" path="/about" />
       </div>
 
       <div className="flex items-center gap-3">
-        <NavButton
-          label="Guide болох"
-          path="/create-profile"
-          variant="primary"
-        />
+        <NavButton label="Guide болох" path="/guideProfile" variant="primary" />
         <NavButton label="Log In" path="/log-in" variant="dark" />
 
         <div className="flex items-center gap-3">
