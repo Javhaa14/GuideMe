@@ -19,7 +19,7 @@ app.use(
 app.get("/", async (req, res) => {
   const id = v4();
 
-  const qr = await QRcode.toDataURL(`http://172.17.17.9/scanqr?id=${id}`);
+  const qr = await QRcode.toDataURL(`http://localhost:${port}/scanqr?id=${id}`);
   qrs[id] = false;
   console.log(qrs, "hhh");
 
