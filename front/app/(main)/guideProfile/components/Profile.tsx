@@ -1,5 +1,5 @@
 'use client';
-import { Camera } from 'lucide-react';
+import { Camera, Divide } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -24,6 +24,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import axios from 'axios';
+import { Checkbox } from "@/components/ui/checkbox"
+
 type CountryType = {
   name: {
     common: string;
@@ -53,6 +55,12 @@ const formSchema = z.object({
   country: z.string({
     message: 'Select country to continue',
   }),
+  activities: z.string({
+    message: '',
+  }),
+  car:z.boolean({
+    message:"Car",
+  }).default(false).optional(),
 });
 
 export function Profile() {
@@ -62,6 +70,7 @@ export function Profile() {
       username: '',
       about: '',
       social: '',
+ 
     },
   });
   const [data, setData] = useState<CountryType[]>([]);
@@ -98,7 +107,7 @@ export function Profile() {
           control={form.control}
           name="photo"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className='relative'>
               <FormLabel>Add photo</FormLabel>
               <FormControl>
                 <div className="size-[160px] border-[1px] border-dashed rounded-full flex justify-center items-center relative">
@@ -122,7 +131,7 @@ export function Profile() {
                   )}
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className=' absolute top-47' />
             </FormItem>
           )}
         />
@@ -130,7 +139,7 @@ export function Profile() {
           control={form.control}
           name="username"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className='relative'>
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input
@@ -139,16 +148,16 @@ export function Profile() {
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className=' absolute top-17' />
             </FormItem>
           )}
         />
-        <div className="flex gap-4 w-full">
+        <div className="flex gap-4 w-full ">
           <FormField
             control={form.control}
             name="gender"
             render={({ field }) => (
-              <FormItem {...field} className="w-full">
+              <FormItem {...field} className="w-full relative">
                 <FormLabel>Gender</FormLabel>
                 <FormControl>
                   <Select
@@ -168,7 +177,7 @@ export function Profile() {
                     </SelectContent>
                   </Select>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className=' absolute top-17' />
               </FormItem>
             )}
           />
@@ -176,7 +185,7 @@ export function Profile() {
             control={form.control}
             name="country"
             render={({ field }) => (
-              <FormItem className="w-full">
+              <FormItem className="w-full relative">
                 <FormLabel>Country</FormLabel>
                 <FormControl>
                   <Select
@@ -200,17 +209,17 @@ export function Profile() {
                     </SelectContent>
                   </Select>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className=' absolute top-17' />
               </FormItem>
             )}
           />
+          
         </div>
-        <div className="flex gap-4 w-full">
-          <FormField
+        <FormField
             control={form.control}
             name="language"
             render={({ field }) => (
-              <FormItem className="w-full">
+              <FormItem className="w-full relative">
                 <FormLabel>Language</FormLabel>
                 <FormControl>
                   <Input
@@ -223,11 +232,12 @@ export function Profile() {
               </FormItem>
             )}
           />
+        <div className="flex gap-4 w-full items-center">
           <FormField
             control={form.control}
             name="price"
             render={({ field }) => (
-              <FormItem className="w-full">
+              <FormItem className="w-full relative">
                 <FormLabel>Price</FormLabel>
                 <FormControl>
                   <Input
@@ -236,17 +246,42 @@ export function Profile() {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className=' absolute top-17' />
               </FormItem>
             )}
           />
+          <FormField
+          control={form.control}
+          name="car"
+          render={({ field }) => (
+            <div className="space-y-1 leading-none">
+              <p className='text-white'>car</p>
+             <FormItem className="flex items-center  w-full h-[40px] rounded-md border p-4 relative">
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  Car
+                </FormLabel>
+              </div>
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl> <FormMessage className=' absolute top-17' />
+            </FormItem></div>
+          )}
+        />
+             
+            
         </div>
+       
+        
         <FormField
           control={form.control}
-          name="social"
+          name="about"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Social media URL</FormLabel>
+            <FormItem className='relative'>
+              <FormLabel>About</FormLabel>
               <FormControl>
                 <Input
                   className="w-[510px] h-[40px]"
@@ -254,25 +289,24 @@ export function Profile() {
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className=' absolute top-17' />
             </FormItem>
           )}
         />
-
-        <FormField
+         <FormField
           control={form.control}
-          name="about"
+          name="activities"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>About</FormLabel>
+            <FormItem className='relative'>
+              <FormLabel>activities</FormLabel>
               <FormControl>
                 <Input
                   className="w-[510px] h-[40px]"
-                  placeholder="https://"
+                  placeholder='activities'
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className=' absolute top-17' />
             </FormItem>
           )}
         />
