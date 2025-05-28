@@ -98,7 +98,7 @@ export const TouristProfile = () => {
           control={form.control}
           name="photo"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className='relative'>
               <FormLabel>Add photo</FormLabel>
               <FormControl>
                 <div className="size-[160px] border-[1px] border-dashed rounded-full flex justify-center items-center relative">
@@ -122,7 +122,7 @@ export const TouristProfile = () => {
                   )}
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className=' absolute top-47' />
             </FormItem>
           )}
         />
@@ -130,7 +130,7 @@ export const TouristProfile = () => {
           control={form.control}
           name="username"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className='relative'> 
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input
@@ -139,7 +139,7 @@ export const TouristProfile = () => {
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className=' absolute top-17' />
             </FormItem>
           )}
         />
@@ -148,7 +148,7 @@ export const TouristProfile = () => {
             control={form.control}
             name="gender"
             render={({ field }) => (
-              <FormItem {...field} className="w-full">
+              <FormItem {...field} className="w-full relative">
                 <FormLabel>Gender</FormLabel>
                 <FormControl>
                   <Select
@@ -168,7 +168,7 @@ export const TouristProfile = () => {
                     </SelectContent>
                   </Select>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className=' absolute top-17' />
               </FormItem>
             )}
           />
@@ -176,7 +176,7 @@ export const TouristProfile = () => {
             control={form.control}
             name="country"
             render={({ field }) => (
-              <FormItem className="w-full">
+              <FormItem className="w-full relative">
                 <FormLabel>Country</FormLabel>
                 <FormControl>
                   <Select
@@ -200,7 +200,7 @@ export const TouristProfile = () => {
                     </SelectContent>
                   </Select>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className=' absolute top-17' />
               </FormItem>
             )}
           />
@@ -210,7 +210,7 @@ export const TouristProfile = () => {
             control={form.control}
             name="language"
             render={({ field }) => (
-              <FormItem className="w-full">
+              <FormItem className="w-full relative">
                 <FormLabel>Language</FormLabel>
                 <FormControl>
                   <Input
@@ -219,33 +219,17 @@ export const TouristProfile = () => {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className=' absolute top-17' />
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Price</FormLabel>
-                <FormControl>
-                  <Input
-                    className="w-full h-[40px]"
-                    placeholder=" price"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          
         </div>
         <FormField
           control={form.control}
           name="social"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className='relative'>
               <FormLabel>Social media URL</FormLabel>
               <FormControl>
                 <Input
@@ -254,7 +238,7 @@ export const TouristProfile = () => {
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className=' absolute top-17' />
             </FormItem>
           )}
         />
@@ -263,7 +247,7 @@ export const TouristProfile = () => {
           control={form.control}
           name="about"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className='relative'>
               <FormLabel>About</FormLabel>
               <FormControl>
                 <Input
@@ -272,7 +256,7 @@ export const TouristProfile = () => {
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className=' absolute top-17' />
             </FormItem>
           )}
         />
