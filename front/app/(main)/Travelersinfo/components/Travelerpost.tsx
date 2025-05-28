@@ -40,6 +40,7 @@ export default function Travelerspost({ post }: any) {
           post.image.map((val: any, i: any) => {
             return (
               <Image
+                key={i}
                 src={val}
                 alt="Post"
                 width={200}
