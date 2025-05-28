@@ -6,7 +6,6 @@ import { ImageCarousel } from "./components/ImageCarousel";
 import { Navigation } from "./components/Navigation";
 import { Videos } from "./components/Videos";
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 export default function Home() {
   return (
@@ -15,7 +14,6 @@ export default function Home() {
       <ImageCarousel />
       <Guides />
       <Videos />
-
       <Footer />
     </div>
   );
