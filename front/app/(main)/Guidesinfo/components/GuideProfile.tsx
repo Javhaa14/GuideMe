@@ -19,7 +19,9 @@ export const GuideProfile = ({
 }) => {
   return (
     <div className="w-[500px] h-[200px] border-[1px] border-black rounded-lg flex flex-row gap-2">
-      <img src={image} className="w-[300px] h-[200px] rounded-lg"></img>
+      <img
+        src={image == "" ? "/user.jpg" : image}
+        className="w-[300px] h-[200px] rounded-lg"></img>
       <div className="flex flex-col justify-between py-2 w-full px-5">
         <div className="flex flex-row w-full justify-between">
           <div className="flex flex-col gap-1 w-full">
