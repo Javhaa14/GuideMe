@@ -1,12 +1,5 @@
 "use client";
 
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
 import { Settings, TentTree } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -38,7 +31,7 @@ const NavButton = ({
   );
 };
 
-export const Navigation = () => {
+export const SettingsNavigation = () => {
   const router = useRouter();
 
   return (
@@ -54,35 +47,6 @@ export const Navigation = () => {
       <div className="hidden md:flex items-center gap-6">
         <NavButton label="Guides" path="/guides" />
         <NavButton label="Travelers" path="/travelers" />
-      </div>
-
-      <div className="flex items-center gap-3">
-        <NavButton
-          label="Guide болох"
-          path="/create-profile"
-          variant="primary"
-        />
-        <NavButton label="Log In" path="/log-in" variant="dark" />
-
-        <div className="flex items-center gap-3">
-          <Select
-            onValueChange={(value) => {
-              if (value === "Logout") {
-                router.push("/log-in");
-              }
-            }}
-          >
-            <SelectTrigger className="w-[70px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
-              <Settings path="/settings" color="white" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="Settings">Settings</SelectItem>
-                <SelectItem value="Logout">Log out</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
       </div>
     </nav>
   );
