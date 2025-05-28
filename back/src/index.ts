@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 const app = express();
+const port = process.env.PORT || 9999;
 
 app.use(json());
 app.use(
@@ -16,6 +17,6 @@ app.use(
 app.get("/", (req, res) => {
   res.send("Hello");
 });
-app.listen(9999, () => {
-  console.log("running at  http://localhost:9999/");
+app.listen(port, () => {
+  console.log(`running at  http://localhost:${port}/`);
 });
