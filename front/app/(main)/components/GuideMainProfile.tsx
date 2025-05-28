@@ -1,7 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import axios from "axios";
 
 type GuideProfie = {
   firstName: string;
@@ -71,6 +80,36 @@ const sampleGuide: GuideProfie = {
 
 export default function GuideMainProfile() {
   const [guide, setGuide] = useState<GuideProfie>(sampleGuide);
+  const [qr, setQr] = useState("");
+  const [status, setStatus] = useState("");
+  const [paymentId, setPaymentId] = useState(null);
+  const qrgenerate = async () => {
+    // Clear previous data
+    setQr("");
+    setPaymentId(null);
+    setStatus("");
+
+    // Fetch new QR code
+    const data = await axios.get(`http://localhost:9999`);
+    setQr(data.data.qr);
+    setPaymentId(data.data.id);
+  };
+
+  useEffect(() => {
+    if (!paymentId) return;
+
+    const ws = new WebSocket("ws://localhost:9999");
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: "watch", paymentId }));
+    };
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.status === true) {
+        setStatus("payment success");
+        ws.close();
+      }
+    };
+  }, [paymentId]);
   return (
     <div className="w-max p-5 h-screen flex flex-col">
       {/* coverImage */}
@@ -93,8 +132,34 @@ export default function GuideMainProfile() {
           />
         </div>
         <div className="text-center md:text-left relative">
-          <h1 className="text-2xl font-bold">{guide.firstName}</h1>
-          <h1 className="text-2xl font-bold">{guide.lastName}</h1>
+          <div className="flex w-full justify-between">
+            <div className="flex-col">
+              <h1 className="text-2xl font-bold">{guide.firstName}</h1>
+              <h1 className="text-2xl font-bold">{guide.lastName}</h1>
+            </div>
+            <Dialog>
+              <DialogTrigger>
+                <span
+                  onClick={qrgenerate}
+                  className="cursor-pointer flex justify-center items-center rounded-2xl w-[100px] h-[30px] text-white bg-blue-400">
+                  Create Trip
+                </span>
+              </DialogTrigger>
+              <DialogContent className="w-[350px]">
+                <DialogHeader>
+                  <DialogTitle>Please scan this QR code and pay </DialogTitle>
+                  <DialogDescription className="flex flex-col justify-center items-center">
+                    {qr && (
+                      <img className="size-[200px]" src={qr} alt="qr"></img>
+                    )}
+                    {status && (
+                      <p className="text-green-500">Payment successfull</p>
+                    )}
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          </div>
           <p className="text-gray-600">{guide.gender}</p>
           <p className="text-gray-600">{guide.location}</p>
           <p className="mt-2 text-sm text-gray-700">{guide.motto}</p>
