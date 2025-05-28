@@ -39,11 +39,11 @@ const NavButton = ({
   );
 };
 
-export const Navigation = () => {
+export const SettingsNav = () => {
   const router = useRouter();
 
   return (
-    <nav className="flex items-center justify-between px-8 py-4 bg-white shadow-lg">
+    <nav className="flex items-center justify-between px-50 py-4 bg-white shadow-lg">
       <div
         className="flex items-center gap-3 cursor-pointer"
         onClick={() => router.push("/")}
@@ -58,37 +58,26 @@ export const Navigation = () => {
       </div>
 
       <div className="flex items-center gap-3">
-        <NavButton label="Guide болох" path="/guideProfile" variant="primary" />
-        <NavButton
-          label="Tourist болох"
-          path="/touristProfile"
-          variant="primary"
-        />
-        <NavButton label="Log In" path="/log-in" variant="dark" />
-
         <div className="flex items-center gap-3">
           <Select
             onValueChange={(value) => {
-              if (value === "logout") {
+              if (value === "Logout") {
                 router.push("/log-in");
-              } else if (value === "settings") {
-                router.push("/Settings");
               }
             }}
           >
             <SelectTrigger className="w-[70px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
-              <Settings color="white" />
+              <Settings path="/settings" color="white" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="settings">Settings</SelectItem>
-                <SelectItem value="logout">Log out</SelectItem>
+                <SelectItem value="Settings">Settings</SelectItem>
+                <SelectItem value="Logout">Log out</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
         </div>
       </div>
-
       <div
         onClick={() => router.push("/notification")}
         className="cursor-pointer p-2 hover:bg-gray-100 rounded-full"
