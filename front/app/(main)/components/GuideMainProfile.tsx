@@ -108,8 +108,7 @@ export default function GuideMainProfile() {
         {guide.Trip.map((Trip) => (
           <div
             key={Trip.id}
-            className="rounded-lg overflow-hidden shadow hover:shadow-lg transition"
-          >
+            className="rounded-lg overflow-hidden shadow hover:shadow-lg transition">
             <div className="relative w-full h-48">
               <Image
                 src={Trip.image}
