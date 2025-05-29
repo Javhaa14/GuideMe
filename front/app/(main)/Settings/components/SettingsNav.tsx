@@ -6,9 +6,8 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
-import { Bell, NotebookIcon, Settings, TentTree } from "lucide-react";
+import { Bell, Settings, TentTree } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const NavButton = ({
