@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import QRcode from "qrcode";
 import cors from "cors";
 import { v4 } from "uuid";
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import { WebSocketServer, WebSocket } from "ws";
 const app = express();
 const port = process.env.PORT || 9999;
@@ -56,4 +58,29 @@ ws.on("connection", (socket) => {
   });
 
   socket.send(JSON.stringify({ message: "success", clients }));
+});
+
+const httpServer = createServer(app);
+ 
+const io = new Server(httpServer, {
+  cors: {
+    origin: 'http://localhost:3000', // Next.js origin
+    methods: ['GET', 'POST'],
+  },
+});
+ 
+io.on('connection', (socket) => {
+  console.log('✅ User connected:', socket.id);
+ 
+  socket.on('chat message', (msg: string) => {
+    io.emit('chat message', msg);
+  });
+ 
+  socket.on('disconnect', () => {
+    console.log('❌ User disconnected:', socket.id);
+  });
+});
+ 
+httpServer.listen(4000, () => {
+  console.log('🚀 Socket.io server running on http://localhost:4000');
 });
