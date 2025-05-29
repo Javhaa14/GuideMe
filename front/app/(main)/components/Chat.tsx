@@ -1,49 +1,49 @@
-'use client';
- 
-import { useEffect, useState, useRef } from 'react';
-import io from 'socket.io-client';
- 
-const socket = io('http://localhost:4000');
- 
+"use client";
+
+import { useEffect, useState, useRef } from "react";
+import io from "socket.io-client";
+
+const socket = io("https://guideme-8o9f.onrender.com");
+
 type ChatMessage = {
   user: string;
   text: string;
 };
- 
+
 export default function Chat() {
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [input, setInput] = useState('');
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
- 
+
   useEffect(() => {
     const user =
-      prompt('🧑 Таны нэр:') || `User-${Math.floor(Math.random() * 1000)}`;
+      prompt("🧑 Таны нэр:") || `User-${Math.floor(Math.random() * 1000)}`;
     setName(user);
     setUsername(user);
- 
-    socket.on('chat message', (msg: ChatMessage) => {
+
+    socket.on("chat message", (msg: ChatMessage) => {
       setMessages((prev) => [...prev, msg]);
     });
- 
+
     return () => {
-      socket.off('chat message');
+      socket.off("chat message");
     };
   }, []);
- 
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
- 
+
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
-      socket.emit('chat message', { user: name, text: input });
-      setInput('');
+      socket.emit("chat message", { user: name, text: input });
+      setInput("");
     }
   };
- 
+
   return (
     <div className="max-w-2xl mx-auto py-10 px-4 ">
       <h1 className="text-2xl font-bold mb-4 text-center">💬 Real-time Chat</h1>
@@ -52,13 +52,13 @@ export default function Chat() {
           <div
             key={i}
             className={`flex w-full mb-2 ${
-              msg.user === username ? 'justify-end' : 'justify-start'
+              msg.user === username ? "justify-end" : "justify-start"
             }`}>
             <span
               className={`flex  items-center px-3 py-2 w-fit h-[20px] rounded-4xl ${
                 msg.user === username
-                  ? 'bg-amber-500  text-end '
-                  : 'bg-green-500  text-start '
+                  ? "bg-amber-500  text-end "
+                  : "bg-green-500  text-start "
               } `}>
               {msg.text}
             </span>
@@ -82,4 +82,3 @@ export default function Chat() {
     </div>
   );
 }
- 
