@@ -1,4 +1,4 @@
-import { CheckedGuides } from "@/components/checkedGuides";
+import { CheckedGuides } from "@/app/(main)/notification/components/checkedGuides";
 
 const TravelersPost = () => {
   return (

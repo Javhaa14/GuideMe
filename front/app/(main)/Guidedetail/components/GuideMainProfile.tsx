@@ -11,7 +11,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import axios from "axios";
-import Chat from "./Chat";
+import Chat from "../../components/Chat";
+import { Review } from "./Review";
 
 type GuideProfie = {
   firstName: string;
@@ -84,14 +85,11 @@ export default function GuideMainProfile() {
   const [qr, setQr] = useState("");
   const [status, setStatus] = useState("");
   const [paymentId, setPaymentId] = useState(null);
-  const [chat ,setChat] = useState(false);
+  const [chat, setChat] = useState(false);
   const qrgenerate = async () => {
-    // Clear previous data
     setQr("");
     setPaymentId(null);
     setStatus("");
-
-    // Fetch new QR code
     const data = await axios.get(`http://localhost:9999`);
     setQr(data.data.qr);
     setPaymentId(data.data.id);
@@ -114,9 +112,13 @@ export default function GuideMainProfile() {
   }, [paymentId]);
   return (
     <div className="w-max p-5 h-screen flex flex-col relative">
-      <div className={`w-fit h-fit mx-[20px]  rounded-md bg-green-500 absolute z-1 right-[20px] bottom-[20px] ${chat === false && "hidden" }`}>
-              <Chat/>
-            </div>
+      <div
+        className={`w-fit h-fit mx-[20px]  rounded-md bg-green-500 absolute z-1 right-[20px] bottom-[20px] ${
+          chat === false && "hidden"
+        }`}
+      >
+        <Chat />
+      </div>
       {/* coverImage */}
       <div className="w-full h-1/3 relative">
         <Image
@@ -144,34 +146,38 @@ export default function GuideMainProfile() {
             </div>
             <div className="flex justify-center items-center gap-[20px]">
               <span
-                  onClick={()=>{setChat(!chat)}}
-                  className="cursor-pointer flex justify-center items-center rounded-2xl w-[100px] h-[30px] text-white bg-blue-400">
-                  chat
-                </span>
-            <Dialog>
-              <DialogTrigger>
-                <span
-                  onClick={qrgenerate}
-                  className="cursor-pointer flex justify-center items-center rounded-2xl w-[100px] h-[30px] text-white bg-blue-400">
-                  Create Trip
-                </span>
-              </DialogTrigger>
-              <DialogContent className="w-[350px]">
-                <DialogHeader>
-                  <DialogTitle>Please scan this QR code and pay </DialogTitle>
-                  <DialogDescription className="flex flex-col justify-center items-center">
-                    {qr && (
-                      <img className="size-[200px]" src={qr} alt="qr"></img>
-                    )}
-                    {status && (
-                      <p className="text-green-500">Payment successfull</p>
-                    )}
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+                onClick={() => {
+                  setChat(!chat);
+                }}
+                className="cursor-pointer flex justify-center items-center rounded-2xl w-[100px] h-[30px] text-white bg-blue-400"
+              >
+                chat
+              </span>
+              <Dialog>
+                <DialogTrigger>
+                  <span
+                    onClick={qrgenerate}
+                    className="cursor-pointer flex justify-center items-center rounded-2xl w-[100px] h-[30px] text-white bg-blue-400"
+                  >
+                    Create Trip
+                  </span>
+                </DialogTrigger>
+                <DialogContent className="w-[350px]">
+                  <DialogHeader>
+                    <DialogTitle>Please scan this QR code and pay </DialogTitle>
+                    <DialogDescription className="flex flex-col justify-center items-center">
+                      {qr && (
+                        <img className="size-[200px]" src={qr} alt="qr"></img>
+                      )}
+                      {status && (
+                        <p className="text-green-500">Payment successfull</p>
+                      )}
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+              <Review guideName="Baldanpurev Eldenpurev" />
             </div>
-            
           </div>
           <p className="text-gray-600">{guide.gender}</p>
           <p className="text-gray-600">{guide.location}</p>
@@ -186,7 +192,8 @@ export default function GuideMainProfile() {
         {guide.Trip.map((Trip) => (
           <div
             key={Trip.id}
-            className="rounded-lg overflow-hidden shadow hover:shadow-lg transition">
+            className="rounded-lg overflow-hidden shadow hover:shadow-lg transition"
+          >
             <div className="relative w-full h-48">
               <Image
                 src={Trip.image}
