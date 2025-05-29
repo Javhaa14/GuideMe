@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import axios from "axios";
+import Chat from "./Chat";
 
 type GuideProfie = {
   firstName: string;
@@ -83,6 +84,7 @@ export default function GuideMainProfile() {
   const [qr, setQr] = useState("");
   const [status, setStatus] = useState("");
   const [paymentId, setPaymentId] = useState(null);
+  const [chat ,setChat] = useState(false);
   const qrgenerate = async () => {
     // Clear previous data
     setQr("");
@@ -111,7 +113,10 @@ export default function GuideMainProfile() {
     };
   }, [paymentId]);
   return (
-    <div className="w-max p-5 h-screen flex flex-col">
+    <div className="w-max p-5 h-screen flex flex-col relative">
+      <div className={`w-fit h-fit mx-[20px]  rounded-md bg-green-500 absolute z-1 right-[20px] bottom-[20px] ${chat === false && "hidden" }`}>
+              <Chat/>
+            </div>
       {/* coverImage */}
       <div className="w-full h-1/3 relative">
         <Image
@@ -137,6 +142,12 @@ export default function GuideMainProfile() {
               <h1 className="text-2xl font-bold">{guide.firstName}</h1>
               <h1 className="text-2xl font-bold">{guide.lastName}</h1>
             </div>
+            <div className="flex justify-center items-center gap-[20px]">
+              <span
+                  onClick={()=>{setChat(!chat)}}
+                  className="cursor-pointer flex justify-center items-center rounded-2xl w-[100px] h-[30px] text-white bg-blue-400">
+                  chat
+                </span>
             <Dialog>
               <DialogTrigger>
                 <span
@@ -159,6 +170,8 @@ export default function GuideMainProfile() {
                 </DialogHeader>
               </DialogContent>
             </Dialog>
+            </div>
+            
           </div>
           <p className="text-gray-600">{guide.gender}</p>
           <p className="text-gray-600">{guide.location}</p>
