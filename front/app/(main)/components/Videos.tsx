@@ -5,16 +5,16 @@ export const Videos = () => {
     <div className="p-8">
       <h2 className="text-4xl font-bold text-gray-800 mb-10">🌟 Video</h2>
 
-      <div className="w-full h-[900px] mx-auto border rounded overflow-hidden">
+      <div className="w-full h-[800px] flex justify-center mx-auto border rounded overflow-hidden">
         <iframe
-          width="1800px"
-          height="900px"
+          width="2400px"
+          height="800px"
           src="https://www.youtube.com/embed/N_UahGd75EY?si=5Oe_Ge32Qq3VoQQ_"
           title="YouTube video player"
-          frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen></iframe>
+          allowFullScreen
+        ></iframe>
       </div>
     </div>
   );

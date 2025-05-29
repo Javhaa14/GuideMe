@@ -1,5 +1,7 @@
+"use client";
 import { MapPin, Star } from "lucide-react";
 import React from "react";
+import { useRouter } from "next/navigation";
 
 export const Guides = () => {
   const guides = [
@@ -29,17 +31,20 @@ export const Guides = () => {
       rating: 5,
     },
   ];
-
+  const router = useRouter();
   return (
     <div className="p-6 sm:p-10 bg-gray-50 h-fit">
       <div className="flex justify-between items-center mb-10">
         <h2 className="text-4xl font-bold text-gray-800">🌟 Top Guides</h2>
-        <a
-          href="#"
-          className="text-green-600 text-sm font-medium hover:underline hover:text-blue-800 transition"
+        <p
+          onClick={() => router.push("/Guidesinfo")}
+          className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-blue-800 hover:underline transition cursor-pointer"
         >
-          See more →
-        </a>
+          See more
+          <span className="transition-transform group-hover:translate-x-1">
+            →
+          </span>
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -3,6 +3,7 @@ import { GuideProfile } from "./components/GuideProfile";
 import { Filter } from "./components/Filter";
 import { ListFilter, Search } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const filters = [
@@ -123,7 +124,7 @@ export default function Home() {
 
     setGuides(filteredGuides);
   };
-
+  const router = useRouter();
   return (
     <div className="flex flex-col w-screen h-full items-center bg-white gap-10 pt-[40px] px-[20px]">
       <div className="w-[400px] text-black h-[30px] flex items-center border-[1px] border-black rounded-xl">
@@ -131,7 +132,8 @@ export default function Home() {
         <input placeholder="Where you gonna travel?" className="w-full ml-2" />
         <div
           onClick={togglePop}
-          className="bg-blue-400 w-[80px] flex items-center justify-center rounded-r-xl h-full cursor-pointer">
+          className="bg-blue-400 w-[80px] flex items-center justify-center rounded-r-xl h-full cursor-pointer"
+        >
           <ListFilter />
         </div>
       </div>
@@ -148,7 +150,11 @@ export default function Home() {
           ))}
         </div>
       )}
-      <div className="grid grid-cols-2 gap-5 w-full px-30 h-fit">
+      <div
+        onClick={() => router.push("/Guidedetail")}
+        //  onClick={() => router.push(`/Guidedetail/${v.id}`)}
+        className="grid grid-cols-2 gap-5 w-full px-30 h-fit"
+      >
         {guides.map((v, i) => (
           <GuideProfile
             status={v.status}
