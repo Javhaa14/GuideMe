@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 import Chat from "../../components/Chat";
 import { Review } from "./Review";
+import { Subscription } from "./Subscription";
 
 type GuideProfie = {
   firstName: string;
@@ -177,6 +178,7 @@ export default function GuideMainProfile() {
                 </DialogContent>
               </Dialog>
               <Review guideName="Baldanpurev Eldenpurev" />
+              <Subscription />
             </div>
           </div>
           <p className="text-gray-600">{guide.gender}</p>
