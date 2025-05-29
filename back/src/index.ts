@@ -7,7 +7,7 @@ import QRcode from "qrcode";
 import { v4 } from "uuid";
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || "https://guideme-8o9f.onrender.com";
 
 app.use(json());
 app.use(
