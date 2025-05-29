@@ -1,6 +1,7 @@
 import { Filter } from "lucide-react";
 import { FilterButton } from "./filterButton";
 import { GuideListInPost } from "./guideListInPost";
+import { Tripdone } from "./Tripdone";
 
 const mocData = [
   {
@@ -43,6 +44,7 @@ export const CheckedGuides = () => {
             />
           </div>
         ))}
+        <Tripdone />
       </div>
     </div>
   );
