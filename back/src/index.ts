@@ -7,7 +7,7 @@ import QRcode from "qrcode";
 import { v4 } from "uuid";
 
 const app = express();
-const port = process.env.PORT || "https://guideme-8o9f.onrender.com";
+const port = process.env.PORT || 4000;
 
 app.use(json());
 app.use(
@@ -23,9 +23,9 @@ let clients: Record<string, WebSocket> = {};
 
 app.get("/", async (req, res) => {
   const id = v4();
-  const qr = await QRcode.toDataURL(
-    `https://your-deployed-url.com/scanqr?id=${id}`
-  );
+  const baseUrl = "https://guideme-8o9f.onrender.com";
+
+  const qr = await QRcode.toDataURL(`${baseUrl}/scanqr?id=${id}`);
   qrs[id] = false;
   res.send({ qr, id });
 });
