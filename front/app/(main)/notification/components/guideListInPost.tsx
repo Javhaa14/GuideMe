@@ -1,8 +1,8 @@
+import { Separator } from "@radix-ui/react-select";
 import Image from "next/image";
 import Link from "next/link";
 import { FaFacebookF } from "react-icons/fa6";
 import { FaInstagram } from "react-icons/fa6";
-import { Separator } from "./ui/separator";
 
 type Props = {
   profileImage: string;

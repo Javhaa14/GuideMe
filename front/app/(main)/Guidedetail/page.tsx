@@ -1,5 +1,5 @@
 import Image from "next/image";
-import GuideMainProfile from "../components/GuideMainProfile";
+import GuideMainProfile from "./components/GuideMainProfile";
 
 export default function Home() {
   return (
