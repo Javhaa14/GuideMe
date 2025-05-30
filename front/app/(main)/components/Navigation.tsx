@@ -76,7 +76,7 @@ export const Navigation = () => {
               }
             }}
           >
-            <SelectTrigger className="w-[70px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
+            <SelectTrigger className="w-[100px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
               <Settings color="white" />
             </SelectTrigger>
             <SelectContent>

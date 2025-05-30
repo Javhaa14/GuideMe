@@ -6,9 +6,8 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
-import { Bell, NotebookIcon, Settings, TentTree } from "lucide-react";
+import { Bell, Settings, TentTree } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const NavButton = ({
@@ -66,7 +65,7 @@ export const SettingsNav = () => {
               }
             }}
           >
-            <SelectTrigger className="w-[70px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
+            <SelectTrigger className="w-[100px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
               <Settings path="/settings" color="white" />
             </SelectTrigger>
             <SelectContent>
