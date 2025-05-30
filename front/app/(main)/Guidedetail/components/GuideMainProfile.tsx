@@ -17,32 +17,6 @@ import { Subscription } from "./Subscription";
 import { CreateTripDialog } from "./CreateTripDialog";
 
 
-type GuideProfie = {
-  firstName: string;
-  lastName: string;
-  motto: string;
-  profileImage: string;
-  coverImage: string;
-  languageKnowledge: string;
-  id: number;
-  rating: number;
-  comment: string;
-  location: string;
-  gender: string;
-  cardNumber: string;
-  socialAddress: string;
-  price: number;
-  about: string;
-  car: string;
-  Trip: TourPost[];
-};
-
-type TourPost = {
-  id: number;
-  image: string;
-  caption: string;
-  date: string;
-};
 const sampleGuide: GuideProfie = {
   id: 123,
   firstName: "Baldanpurev",
@@ -83,36 +57,37 @@ const sampleGuide: GuideProfie = {
   ],
 };
 
+type GuideProfie = {
+  firstName: string;
+  lastName: string;
+  motto: string;
+  profileImage: string;
+  coverImage: string;
+  languageKnowledge: string;
+  id: number;
+  rating: number;
+  comment: string;
+  location: string;
+  gender: string;
+  cardNumber: string;
+  socialAddress: string;
+  price: number;
+  about: string;
+  car: string;
+  Trip: TourPost[];
+};
+type TourPost = {
+  id: number;
+  image: string;
+  caption: string;
+  date: string;
+};
+
 export default function GuideMainProfile() {
   const [guide, setGuide] = useState<GuideProfie>(sampleGuide);
-  const [qr, setQr] = useState("");
-  const [status, setStatus] = useState("");
-  const [paymentId, setPaymentId] = useState(null);
+
   const [chat, setChat] = useState(false);
-  const qrgenerate = async () => {
-    setQr("");
-    setPaymentId(null);
-    setStatus("");
-    const data = await axios.get(`http://localhost:9999`);
-    setQr(data.data.qr);
-    setPaymentId(data.data.id);
-  };
 
-  useEffect(() => {
-    if (!paymentId) return;
-
-    const ws = new WebSocket("ws://localhost:9999");
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ type: "watch", paymentId }));
-    };
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.status === true) {
-        setStatus("payment success");
-        ws.close();
-      }
-    };
-  }, [paymentId]);
   return (
     <div className="w-max p-5 h-screen flex flex-col relative">
       <div
@@ -144,8 +119,8 @@ export default function GuideMainProfile() {
         <div className="text-center md:text-left relative">
           <div className="flex w-full justify-between">
             <div className="flex-col">
-              <h1 className="text-2xl font-bold">{guide.firstName}</h1>
-              <h1 className="text-2xl font-bold">{guide.lastName}</h1>
+              <span className="text-2xl font-bold">{guide.firstName}</span>
+              <span className="text-2xl font-bold">{guide.lastName}</span>
             </div>
             <div className="flex justify-center items-center gap-[20px]">
               <span
@@ -156,38 +131,16 @@ export default function GuideMainProfile() {
               >
                 chat
               </span>
-              <Dialog>
-                <DialogTrigger>
-                  <span
-                    onClick={qrgenerate}
-                    className="cursor-pointer flex justify-center items-center rounded-2xl w-[100px] h-[30px] text-white bg-blue-400"
-                  >
-                    Create Trip
-                  </span>
-                </DialogTrigger>
-                <DialogContent className="w-[350px]">
-                  <DialogHeader>
-                    <DialogTitle>Please scan this QR code and pay </DialogTitle>
-                    <DialogDescription className="flex flex-col justify-center items-center">
-                      {qr && (
-                        <img className="size-[200px]" src={qr} alt="qr"></img>
-                      )}
-                      {status && (
-                        <p className="text-green-500">Payment successfull</p>
-                      )}
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+
               <Review guideName="Baldanpurev Eldenpurev" />
               <Subscription />
             </div>
           </div>
-          <p className="text-gray-600">{guide.gender}</p>
-          <p className="text-gray-600">{guide.location}</p>
-          <p className="mt-2 text-sm text-gray-700">{guide.motto}</p>
+          <span className="text-gray-600 block">{guide.gender}</span>
+          <span className="text-gray-600 block">{guide.location}</span>
+          <span className="mt-2 text-sm text-gray-700">{guide.motto}</span>
           <div className="flex gap-4 text-sm text-gray-600 mt-2 justify-center md:justify-start">
-            <p>{guide.languageKnowledge}</p>
+            <span>{guide.languageKnowledge}</span>
           </div>
         </div>
       </div>
@@ -236,10 +189,10 @@ export default function GuideMainProfile() {
               />
             </div>
             <div className="p-2">
-              <p className="text-sm font-medium">{Trip.caption}</p>
-              <p className="text-xs text-gray-500">
+              <span className="text-sm font-medium">{Trip.caption}</span>
+              <span className="text-xs text-gray-500">
                 {new Date(Trip.date).toLocaleDateString()}
-              </p>
+              </span>
             </div>
           </div>
         ))}
