@@ -16,6 +16,7 @@ import { Review } from "./Review";
 import { Subscription } from "./Subscription";
 import { CreateTripDialog } from "./CreateTripDialog";
 
+
 type GuideProfie = {
   firstName: string;
   lastName: string;
@@ -219,6 +220,30 @@ export default function GuideMainProfile() {
         </DialogTrigger>
         <CreateTripDialog />
       </Dialog>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+        {guide.Trip.map((Trip) => (
+          <div
+            key={Trip.id}
+            className="rounded-lg overflow-hidden shadow hover:shadow-lg transition"
+          >
+            <div className="relative w-full h-48">
+              <Image
+                src={Trip.image}
+                alt={Trip.caption}
+                layout="fill"
+                objectFit="cover"
+              />
+            </div>
+            <div className="p-2">
+              <p className="text-sm font-medium">{Trip.caption}</p>
+              <p className="text-xs text-gray-500">
+                {new Date(Trip.date).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
