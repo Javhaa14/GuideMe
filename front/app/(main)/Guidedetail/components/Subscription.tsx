@@ -1,4 +1,3 @@
-"use client";
 import {
   Dialog,
   DialogContent,
@@ -15,8 +14,9 @@ export const Subscription = () => {
   const [step, setStep] = useState(1);
   const [paymentId, setPaymentId] = useState(null);
   const [status, setStatus] = useState("");
-
   const [qr, setQr] = useState("");
+  const [open, setOpen] = useState(false); // control dialog state
+
   const handleplan = async (e: any, plan: string | null) => {
     e.stopPropagation();
 
@@ -27,9 +27,8 @@ export const Subscription = () => {
     setPaymentId(null);
     setStatus("");
 
-    // You can send the selected plan to your backend if needed
     const data = await axios.get(`https://guideme-8o9f.onrender.com`, {
-      params: { plan }, // send selected plan to backend (optional)
+      params: { plan },
     });
 
     setQr(data.data.qr);
@@ -39,7 +38,7 @@ export const Subscription = () => {
   useEffect(() => {
     if (!paymentId) return;
 
-    const ws = new WebSocket("https://guideme-8o9f.onrender.com");
+    const ws = new WebSocket("wss://guideme-8o9f.onrender.com"); // should be wss for secure
     ws.onopen = () => {
       ws.send(JSON.stringify({ type: "watch", paymentId }));
     };
@@ -50,10 +49,24 @@ export const Subscription = () => {
         ws.close();
       }
     };
+
+    return () => {
+      ws.close();
+    };
   }, [paymentId]);
+
+  useEffect(() => {
+    if (!open) {
+      setStep(1);
+      setQr("");
+      setPaymentId(null);
+      setStatus("");
+    }
+  }, [open]);
+
   return (
-    <Dialog>
-      <DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
         <span className="cursor-pointer flex justify-center items-center rounded-2xl w-[100px] h-[30px] text-white bg-blue-400">
           Subscription
         </span>
@@ -62,7 +75,6 @@ export const Subscription = () => {
         <DialogHeader>
           <DialogTitle></DialogTitle>
           <div className="flex w-fit flex-col justify-center items-center">
-            {" "}
             <Card handleplan={handleplan} step={step} qr={qr} status={status} />
           </div>
         </DialogHeader>
