@@ -1,9 +1,9 @@
-'use client';
-import { Camera, Divide } from 'lucide-react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
+"use client";
+import { Camera, Divide } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -11,10 +11,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useEffect, useState } from 'react';
-import { Select } from '@radix-ui/react-select';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
+import { Select } from "@radix-ui/react-select";
 import {
   SelectContent,
   SelectGroup,
@@ -22,9 +22,9 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import axios from 'axios';
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/select";
+import axios from "axios";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type CountryType = {
   name: {
@@ -34,43 +34,45 @@ type CountryType = {
 
 const formSchema = z.object({
   username: z.string().min(2, {
-    message: 'Username must be at least 2 characters. Please enter name',
+    message: "Username must be at least 2 characters. Please enter name",
   }),
   language: z.string().min(2, {
-    message: 'language',
+    message: "language",
   }),
   price: z.string().min(2, {
-    message: 'price',
+    message: "price",
   }),
   about: z.string().min(2, {
-    message: 'Please enter info about yourself',
+    message: "Please enter info about yourself",
   }),
-  photo: z.string({ required_error: 'Must upload image' }),
+  photo: z.string({ required_error: "Must upload image" }),
   social: z.string().min(2, {
-    message: 'Please enter a social link',
+    message: "Please enter a social link",
   }),
   gender: z.string({
-    message: 'Select gender to continue',
+    message: "Select gender to continue",
   }),
   country: z.string({
-    message: 'Select country to continue',
+    message: "Select country to continue",
   }),
   activities: z.string({
-    message: '',
+    message: "",
   }),
-  car:z.boolean({
-    message:"Car",
-  }).default(false).optional(),
+  car: z
+    .boolean({
+      message: "Car",
+    })
+    .default(false)
+    .optional(),
 });
 
 export function Profile() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
-      about: '',
-      social: '',
- 
+      username: "",
+      about: "",
+      social: "",
     },
   });
   const [data, setData] = useState<CountryType[]>([]);
@@ -96,7 +98,7 @@ export function Profile() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    console.log(url, 'this');
+    console.log(url, "this");
   }
 
   return (
@@ -107,7 +109,7 @@ export function Profile() {
           control={form.control}
           name="photo"
           render={({ field }) => (
-            <FormItem className='relative'>
+            <FormItem className="relative">
               <FormLabel>Add photo</FormLabel>
               <FormControl>
                 <div className="size-[160px] border-[1px] border-dashed rounded-full flex justify-center items-center relative">
@@ -131,7 +133,7 @@ export function Profile() {
                   )}
                 </div>
               </FormControl>
-              <FormMessage className=' absolute top-47' />
+              <FormMessage className=" absolute top-47" />
             </FormItem>
           )}
         />
@@ -139,7 +141,7 @@ export function Profile() {
           control={form.control}
           name="username"
           render={({ field }) => (
-            <FormItem className='relative'>
+            <FormItem className="relative">
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input
@@ -148,7 +150,7 @@ export function Profile() {
                   {...field}
                 />
               </FormControl>
-              <FormMessage className=' absolute top-17' />
+              <FormMessage className=" absolute top-17" />
             </FormItem>
           )}
         />
@@ -163,21 +165,22 @@ export function Profile() {
                   <Select
                     {...field}
                     onValueChange={field.onChange}
-                    value={field.value || ''}>
+                    value={field.value || ""}
+                  >
                     <SelectTrigger className="w-full h-[40px]">
                       <SelectValue placeholder="Select your gender" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Gender</SelectLabel>
-                        <SelectItem value={'male'}>male</SelectItem>
-                        <SelectItem value={'female'}>female</SelectItem>
-                        <SelectItem value={'other'}>other</SelectItem>
+                        <SelectItem value={"male"}>male</SelectItem>
+                        <SelectItem value={"female"}>female</SelectItem>
+                        <SelectItem value={"other"}>other</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
                 </FormControl>
-                <FormMessage className=' absolute top-17' />
+                <FormMessage className=" absolute top-17" />
               </FormItem>
             )}
           />
@@ -191,7 +194,8 @@ export function Profile() {
                   <Select
                     {...field}
                     onValueChange={field.onChange}
-                    value={field.value || ''}>
+                    value={field.value || ""}
+                  >
                     <SelectTrigger className="w-full h-[40px]">
                       <SelectValue placeholder="Select a country" />
                     </SelectTrigger>
@@ -209,29 +213,28 @@ export function Profile() {
                     </SelectContent>
                   </Select>
                 </FormControl>
-                <FormMessage className=' absolute top-17' />
+                <FormMessage className=" absolute top-17" />
               </FormItem>
             )}
           />
-          
         </div>
         <FormField
-            control={form.control}
-            name="language"
-            render={({ field }) => (
-              <FormItem className="w-full relative">
-                <FormLabel>Language</FormLabel>
-                <FormControl>
-                  <Input
-                    className="w-full h-[40px]"
-                    placeholder="language knowledge"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          control={form.control}
+          name="language"
+          render={({ field }) => (
+            <FormItem className="w-full relative">
+              <FormLabel>Language</FormLabel>
+              <FormControl>
+                <Input
+                  className="w-full h-[40px]"
+                  placeholder="language knowledge"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <div className="flex gap-4 w-full items-center">
           <FormField
             control={form.control}
@@ -246,41 +249,38 @@ export function Profile() {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage className=' absolute top-17' />
+                <FormMessage className=" absolute top-17" />
               </FormItem>
             )}
           />
           <FormField
-          control={form.control}
-          name="car"
-          render={({ field }) => (
-            <div className="space-y-1 leading-none">
-              <p className='text-white'>car</p>
-             <FormItem className="flex items-center  w-full h-[40px] rounded-md border p-4 relative">
+            control={form.control}
+            name="car"
+            render={({ field }) => (
               <div className="space-y-1 leading-none">
-                <FormLabel>
-                  Car
-                </FormLabel>
+                <p className="text-white">car</p>
+                <FormItem className="flex items-center  w-full h-[40px] rounded-md border p-4 relative">
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Car</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>{" "}
+                  <FormMessage className=" absolute top-17" />
+                </FormItem>
               </div>
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl> <FormMessage className=' absolute top-17' />
-            </FormItem></div>
-          )}
-        />
-             
-            
+            )}
+          />
         </div>
-       
-        
+
         <FormField
           control={form.control}
           name="about"
           render={({ field }) => (
-            <FormItem className='relative'>
+            <FormItem className="relative">
               <FormLabel>About</FormLabel>
               <FormControl>
                 <Input
@@ -289,24 +289,24 @@ export function Profile() {
                   {...field}
                 />
               </FormControl>
-              <FormMessage className=' absolute top-17' />
+              <FormMessage className=" absolute top-17" />
             </FormItem>
           )}
         />
-         <FormField
+        <FormField
           control={form.control}
           name="activities"
           render={({ field }) => (
-            <FormItem className='relative'>
+            <FormItem className="relative">
               <FormLabel>activities</FormLabel>
               <FormControl>
                 <Input
                   className="w-[510px] h-[40px]"
-                  placeholder='activities'
+                  placeholder="activities"
                   {...field}
                 />
               </FormControl>
-              <FormMessage className=' absolute top-17' />
+              <FormMessage className=" absolute top-17" />
             </FormItem>
           )}
         />
