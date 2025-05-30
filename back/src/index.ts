@@ -12,7 +12,7 @@ const port = process.env.PORT || 4000;
 app.use(json());
 app.use(
   cors({
-    origin: "http://localhost:3000", // Replace with frontend domain later
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );
