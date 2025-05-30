@@ -1,3 +1,4 @@
+import Chatbot from "@/components/ui/Chatbot";
 import { Footer } from "./components/Footer";
 import { Guides } from "./components/Guides";
 import { ImageCarousel } from "./components/ImageCarousel";
@@ -11,6 +12,7 @@ export default function Home() {
       <ImageCarousel />
       <Guides />
       <Videos />
+      <Chatbot />
       <Footer />
     </div>
   );
