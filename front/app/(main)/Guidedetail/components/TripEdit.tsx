@@ -50,7 +50,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export function CreateTripDialog() {
+export function TripEdit() {
   const [countries, setCountries] = useState<CountryType[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -216,7 +216,7 @@ export function CreateTripDialog() {
 
           <DialogFooter>
             <Button type="submit" className="w-full">
-              CREATE A NEW TRIP
+              SAVE
             </Button>
           </DialogFooter>
         </form>

@@ -1,31 +1,50 @@
 "use client";
 
+import React, { useState } from "react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import axios from "axios";
 import Chat from "../../components/Chat";
 import { Review } from "./Review";
 import { Subscription } from "./Subscription";
-import { CreateTripDialog } from "./CreateTripDialog";
+import { Globe, MapPin, MessageCircle, VenusAndMars } from "lucide-react";
+import { NewTrip } from "./NewTrip";
+import { Trip } from "./Trip";
 
+type TourPost = {
+  id: number;
+  image: string;
+  caption: string;
+  date: string;
+};
 
-const sampleGuide: GuideProfie = {
+type GuideProfile = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  profileImage: string;
+  coverImage: string;
+  motto: string;
+  languageKnowledge: string;
+  gender: string;
+  rating: number;
+  price: number;
+  comment: string;
+  cardNumber: string;
+  socialAddress: string;
+  about: string;
+  car: string;
+  location: string;
+  Trip: TourPost[];
+};
+
+const sampleGuide: GuideProfile = {
   id: 123,
   firstName: "Baldanpurev",
   lastName: "Eldenpurev",
   profileImage: "/profileImg.jpeg",
-  coverImage: "/coverImage.jpg",
+  coverImage: "/altai.png",
   motto:
     "Passionate about sharing the beauty of Mongolian nature. Let's explore the world together!",
-  languageKnowledge: "Englsh, French, Mandarin",
+  languageKnowledge: "English, French, Mandarin",
   gender: "male",
   rating: 5,
   price: 22,
@@ -38,7 +57,7 @@ const sampleGuide: GuideProfie = {
   Trip: [
     {
       id: 1,
-      image: "/terelj.jpg",
+      image: "/horse.png",
       caption: "Let's explore the Terelj in comfort!",
       date: "2025-07-20",
     },
@@ -50,153 +69,81 @@ const sampleGuide: GuideProfie = {
     },
     {
       id: 3,
-      image: "/terelj.jpg",
+      image: "/lake.png",
       caption: "Explore and experience the Khuvsgol lake!",
       date: "2025-07-21",
     },
   ],
 };
 
-type GuideProfie = {
-  firstName: string;
-  lastName: string;
-  motto: string;
-  profileImage: string;
-  coverImage: string;
-  languageKnowledge: string;
-  id: number;
-  rating: number;
-  comment: string;
-  location: string;
-  gender: string;
-  cardNumber: string;
-  socialAddress: string;
-  price: number;
-  about: string;
-  car: string;
-  Trip: TourPost[];
-};
-type TourPost = {
-  id: number;
-  image: string;
-  caption: string;
-  date: string;
-};
-
 export default function GuideMainProfile() {
-  const [guide, setGuide] = useState<GuideProfie>(sampleGuide);
-
+  const [guide] = useState<GuideProfile>(sampleGuide);
   const [chat, setChat] = useState(false);
 
   return (
-    <div className="w-max p-5 h-screen flex flex-col relative">
-      <div
-        className={`w-fit h-fit mx-[20px]  rounded-md bg-green-500 absolute z-1 right-[20px] bottom-[20px] ${
-          chat === false && "hidden"
-        }`}
-      >
-        <Chat />
-      </div>
-      {/* coverImage */}
-      <div className="w-full h-1/3 relative">
-        <Image
-          src={guide.coverImage}
-          alt="cover"
-          layout="fill"
-          objectFit="cover"
-        />
-      </div>
-      {/* Profile Section */}
-      <div className="flex flex-col p-4">
-        <div className="relative w-32 h-32 rounded-full border-4 border-white overflow-hidden">
+    <div className="w-screen px-4 md:px-20 pt-4 pb-20">
+      {chat && (
+        <div className="w-fit h-fit mx-5 rounded-md bg-green-500 absolute z-10 right-5 bottom-5">
+          <Chat />
+        </div>
+      )}
+
+      <div className="rounded-2xl overflow-hidden shadow-xl border bg-white">
+        <div className="relative w-full h-72 md:h-96">
           <Image
-            src={guide.profileImage}
-            alt="Profile"
-            layout="fill"
-            objectFit="cover"
+            src={guide.coverImage}
+            alt="Cover"
+            fill
+            className="object-cover"
+            priority
           />
         </div>
-        <div className="text-center md:text-left relative">
-          <div className="flex w-full justify-between">
-            <div className="flex-col">
-              <span className="text-2xl font-bold">{guide.firstName}</span>
-              <span className="text-2xl font-bold">{guide.lastName}</span>
-            </div>
-            <div className="flex justify-center items-center gap-[20px]">
-              <span
-                onClick={() => {
-                  setChat(!chat);
-                }}
-                className="cursor-pointer flex justify-center items-center rounded-2xl w-[100px] h-[30px] text-white bg-blue-400"
-              >
-                chat
-              </span>
 
-              <Review guideName="Baldanpurev Eldenpurev" />
+        <div className="relative px-10 pb-12 pt-24 bg-white">
+          <div className="absolute -top-24 left-10 w-40 h-40 rounded-full border-4 border-white shadow-xl overflow-hidden">
+            <Image
+              src={guide.profileImage}
+              alt="Profile"
+              fill
+              className="object-cover"
+            />
+          </div>
+
+          <div className="ml-60">
+            <h1 className="text-4xl font-extrabold text-gray-900">
+              {guide.firstName} {guide.lastName}
+            </h1>
+            <p className="text-lg max-w-4xl text-gray-700 mt-3 leading-relaxed">
+              🌿 {guide.motto}
+            </p>
+            <p className="text-base text-gray-500 mt-3 flex gap-1">
+              <MapPin size={20} color="black" /> {guide.location}
+            </p>
+            <p className="text-base text-gray-500 mt-3 flex gap-1">
+              <Globe size={20} color="black" /> {guide.languageKnowledge}
+            </p>
+            <p className="text-sm md:text-base text-gray-700 mt-3 flex gap-1">
+              <VenusAndMars size={20} color="black" /> {guide.gender}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-6 mt-6 justify-end">
+              <button
+                onClick={() => setChat(!chat)}
+                className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Chat
+              </button>
+              <Review guideName={`${guide.firstName} ${guide.lastName}`} />
               <Subscription />
             </div>
           </div>
-          <span className="text-gray-600 block">{guide.gender}</span>
-          <span className="text-gray-600 block">{guide.location}</span>
-          <span className="mt-2 text-sm text-gray-700">{guide.motto}</span>
-          <div className="flex gap-4 text-sm text-gray-600 mt-2 justify-center md:justify-start">
-            <span>{guide.languageKnowledge}</span>
-          </div>
         </div>
       </div>
-      {/* Activities Grid */}
-      <Dialog>
-        <DialogTrigger>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
-            {guide.Trip.map((Trip) => (
-              <div
-                key={Trip.id}
-                className="rounded-lg overflow-hidden shadow hover:shadow-lg transition"
-              >
-                <div className="relative w-full h-48">
-                  <Image
-                    src={Trip.image}
-                    alt={Trip.caption}
-                    layout="fill"
-                    objectFit="cover"
-                  />
-                </div>
-                <div className="p-2">
-                  <p className="text-sm font-medium">{Trip.caption}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(Trip.date).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </DialogTrigger>
-        <CreateTripDialog />
-      </Dialog>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
-        {guide.Trip.map((Trip) => (
-          <div
-            key={Trip.id}
-            className="rounded-lg overflow-hidden shadow hover:shadow-lg transition"
-          >
-            <div className="relative w-full h-48">
-              <Image
-                src={Trip.image}
-                alt={Trip.caption}
-                layout="fill"
-                objectFit="cover"
-              />
-            </div>
-            <div className="p-2">
-              <span className="text-sm font-medium">{Trip.caption}</span>
-              <span className="text-xs text-gray-500">
-                {new Date(Trip.date).toLocaleDateString()}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
+      <NewTrip />
+
+      <Trip />
     </div>
   );
 }
