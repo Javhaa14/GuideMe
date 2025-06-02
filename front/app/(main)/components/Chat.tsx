@@ -101,9 +101,9 @@ export default function Chat() {
                   </div>
                 ) : (
                   <div className="flex">
-                    {profileImage ? (
+                    {msg.profileImage ? (
                       <img
-                        src={profileImage}
+                        src={msg.profileImage}
                         alt="profile"
                         className="w-6 h-6 rounded-full"
                       />
