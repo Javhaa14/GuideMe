@@ -1,13 +1,15 @@
 import { Footer } from "../components/Footer";
-import { Navigation } from "../components/Navigation";
 import GuideMainProfile from "./components/GuideMainProfile";
-import { GuideTrips } from "./components/GuideTrips";
+import { GuideProfileNav } from "./components/GuideProfileNav";
+import TouristSee from "./components/TouristSee";
 
 export default function Home() {
   return (
     <div className="flex flex-col">
+      <GuideProfileNav />
       {/* <GuideMainProfile /> */}
-      <GuideTrips />
+      <TouristSee />
+      <Footer />
     </div>
   );
 }
