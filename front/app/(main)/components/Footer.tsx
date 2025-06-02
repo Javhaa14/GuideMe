@@ -1,10 +1,14 @@
+"use client"
+import ChatBot from "@/components/ui/Chatbot";
 import { TentTree } from "lucide-react";
 import { Mail } from "lucide-react";
 import { Phone } from "lucide-react";
+import { useState } from "react";
 
 export const Footer = () => {
+
   return (
-    <div className="bg-green-400 text-black py-10 w-screen h-[280px]">
+    <div className="bg-green-400 text-black py-10 w-screen h-[280px] relative">
       <div className="flex px-20 w-screen justify-between">
         <div className="gap-3 pr-30">
           <div className="gap-2 flex pb-3">
@@ -54,6 +58,8 @@ export const Footer = () => {
           </div>
         </div>
       </div>
+     
+
     </div>
   );
 };
