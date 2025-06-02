@@ -1,104 +1,262 @@
 'use client';
 import { useState } from 'react';
-import {
-  format,
-  addDays,
-  isBefore,
-  isAfter,
-  isSameDay,
-  eachDayOfInterval,
-} from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
-export default function CalendarBooking() {
-  const [bookedDates, setBookedDates] = useState<string[]>([]);
-  const [tempSelectedDates, setTempSelectedDates] = useState<string[]>([]);
+type AvailabilityStatus = 'available' | 'busy' | 'booked';
 
-  const today = new Date();
-  const endDate = addDays(today, 30);
+interface DateStatus {
+  [key: string]: AvailabilityStatus;
+}
 
-  // зөвхөн өнөөдрөөс хойших 30 хоног
-  const availableDates = eachDayOfInterval({ start: today, end: endDate });
+export default function Component() {
+  const [currentDate, setCurrentDate] = useState(new Date(2025, 6, 2));
+  const [selectedDate, setSelectedDate] = useState(new Date(2025, 5, 2));
+  const [selectedStatus, setSelectedStatus] =
+    useState<AvailabilityStatus>('available');
+  const [dateStatuses, setDateStatuses] = useState<DateStatus>({});
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 
-  const toggleSelectDate = (date: Date) => {
-    const dateStr = format(date, 'yyyy-MM-dd');
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-    if (bookedDates.includes(dateStr)) return;
+  const statusConfig = {
+    available: {
+      label: 'Available',
+      color: 'bg-green-500',
+      textColor: 'text-green-700',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200',
+    },
+    busy: {
+      label: 'Busy',
+      color: 'bg-yellow-500',
+      textColor: 'text-yellow-700',
+      bgColor: 'bg-yellow-50',
+      borderColor: 'border-yellow-200',
+    },
+    booked: {
+      label: 'Booked',
+      color: 'bg-red-500',
+      textColor: 'text-red-700',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-200',
+    },
+  };
 
-    if (tempSelectedDates.includes(dateStr)) {
-      setTempSelectedDates(tempSelectedDates.filter((d) => d !== dateStr));
-    } else {
-      setTempSelectedDates([...tempSelectedDates, dateStr]);
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days = [];
+
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
     }
+
+    // Add all days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(day);
+    }
+
+    return days;
   };
 
-  const handleSubmit = () => {
-    setBookedDates([...bookedDates, ...tempSelectedDates]);
-    setTempSelectedDates([]);
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    setCurrentDate((prev) => {
+      const newDate = new Date(prev);
+      if (direction === 'prev') {
+        newDate.setMonth(prev.getMonth() - 1);
+      } else {
+        newDate.setMonth(prev.getMonth() + 1);
+      }
+      return newDate;
+    });
   };
 
-  const isPast = (date: Date) => isBefore(date, today);
+  const getDateKey = (year: number, month: number, day: number) => {
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleDateClick = (day: number) => {
+    const dateKey = getDateKey(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day
+    );
+    setDateStatuses((prev) => ({
+      ...prev,
+      [dateKey]: selectedStatus,
+    }));
+  };
+
+  const getDateStatus = (day: number): AvailabilityStatus | null => {
+    const dateKey = getDateKey(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day
+    );
+    return dateStatuses[dateKey] || null;
+  };
+
+  const getSelectedDateStatus = (): AvailabilityStatus | null => {
+    const dateKey = getDateKey(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate()
+    );
+    return dateStatuses[dateKey] || null;
+  };
+
+  const days = getDaysInMonth(currentDate);
 
   return (
-    <div className="max-w-2xl mx-auto p-4 mt-10">
-      <h1 className="text-3xl font-bold text-center mb-6">
-        Захиалгын календар (30 хоног)
-      </h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 p-8 flex items-center justify-center gap-8">
+      {/* Calendar and Controls */}
+      <div className="flex flex-col gap-6">
+        {/* Status Switcher */}
+        <Card className="bg-white border border-gray-200 shadow-lg rounded-2xl">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Set Availability Status
+            </h3>
+            <div className="flex gap-2">
+              {(Object.keys(statusConfig) as AvailabilityStatus[]).map(
+                (status) => (
+                  <Button
+                    key={status}
+                    variant={selectedStatus === status ? 'default' : 'outline'}
+                    size="sm"
+                    className={`flex items-center gap-2 ${
+                      selectedStatus === status
+                        ? `${statusConfig[status].color} hover:${statusConfig[status].color}/90 text-white`
+                        : `${statusConfig[status].textColor} ${statusConfig[status].borderColor} hover:${statusConfig[status].bgColor}`
+                    }`}
+                    onClick={() => setSelectedStatus(status)}>
+                    <div
+                      className={`w-3 h-3 rounded-full ${statusConfig[status].color}`}
+                    />
+                    {statusConfig[status].label}
+                  </Button>
+                )
+              )}
+            </div>
+            <p className="text-sm text-gray-500 mt-3">
+              Select a status above, then click on calendar dates to set your
+              availability.
+            </p>
+          </CardContent>
+        </Card>
 
-      <div className="grid grid-cols-7 gap-2 border rounded-lg p-4 bg-white shadow">
-        {['Да', 'Мя', 'Лх', 'Пү', 'Ба', 'Бя', 'Ня'].map((day, i) => (
-          <div
-            key={i}
-            className="text-center font-semibold text-sm text-gray-600">
-            {day}
-          </div>
-        ))}
+        {/* Calendar Grid */}
+        <Card className="w-96 bg-white border border-gray-200 shadow-xl rounded-2xl">
+          <CardContent className="p-6">
+            {/* Calendar Header */}
+            <div className="flex items-center justify-between mb-6">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-gray-600 hover:bg-gray-100"
+                onClick={() => navigateMonth('prev')}>
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
 
-        {availableDates.map((date) => {
-          const dateStr = format(date, 'yyyy-MM-dd');
-          const isBooked = bookedDates.includes(dateStr);
-          const isSelected = tempSelectedDates.includes(dateStr);
+              <h3 className="text-xl font-semibold text-gray-900">
+                {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+              </h3>
 
-          const isBeforeToday = isBefore(date, today);
-          const isToday = isSameDay(date, today);
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-gray-600 hover:bg-gray-100"
+                onClick={() => navigateMonth('next')}>
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
 
-          const isDisabled = isBooked || isBeforeToday;
+            {/* Day Names */}
+            <div className="grid grid-cols-7 gap-1 mb-2">
+              {dayNames.map((day) => (
+                <div
+                  key={day}
+                  className="h-8 flex items-center justify-center text-sm font-medium text-gray-500">
+                  {day}
+                </div>
+              ))}
+            </div>
 
-          let bgClass = 'bg-green-100 hover:bg-green-300';
-          if (isBooked || isBeforeToday)
-            bgClass = 'bg-gray-400 text-white cursor-not-allowed';
-          else if (isSelected) bgClass = 'bg-blue-500 text-white';
+            {/* Calendar Days */}
+            <div className="grid grid-cols-7 gap-1">
+              {days.map((day, index) => {
+                if (!day) {
+                  return <div key={index} className="h-10" />;
+                }
 
-          return (
-            <button
-              key={dateStr}
-              onClick={() => toggleSelectDate(date)}
-              disabled={isDisabled}
-              className={`h-14 flex items-center justify-center rounded-lg border text-sm ${bgClass}`}>
-              {format(date, 'd')}
-            </button>
-          );
-        })}
+                const status = getDateStatus(day);
+                const config = status ? statusConfig[status] : null;
+
+                return (
+                  <button
+                    key={index}
+                    className={`h-10 flex items-center justify-center text-sm font-medium rounded cursor-pointer transition-all relative ${
+                      config
+                        ? `${config.bgColor} ${config.textColor} ${config.borderColor} border`
+                        : 'text-gray-900 hover:bg-gray-100'
+                    }`}
+                    onClick={() => handleDateClick(day)}>
+                    {day}
+                    {status && (
+                      <div
+                        className={`absolute bottom-1 right-1 w-2 h-2 rounded-full ${
+                          config!.color
+                        }`}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Legend */}
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Legend</h4>
+              <div className="flex gap-4 text-xs">
+                {(Object.keys(statusConfig) as AvailabilityStatus[]).map(
+                  (status) => (
+                    <div key={status} className="flex items-center gap-1">
+                      <div
+                        className={`w-2 h-2 rounded-full ${statusConfig[status].color}`}
+                      />
+                      <span className="text-gray-600">
+                        {statusConfig[status].label}
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={handleSubmit}
-          disabled={tempSelectedDates.length === 0}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50">
-          Захиалга илгээх
-        </button>
-      </div>
-
-      {bookedDates.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-2">Баталгаажсан өдрүүд:</h2>
-          <ul className="list-disc list-inside">
-            {bookedDates.map((d, i) => (
-              <li key={i}>{format(new Date(d), 'yyyy-MM-dd (EEE)')}</li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }
