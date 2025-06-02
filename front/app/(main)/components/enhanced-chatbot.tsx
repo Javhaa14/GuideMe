@@ -50,7 +50,7 @@ export default function EnhancedChatBot({
   useEffect(() => {
     if (isOpen && !socket) {
       // Initialize socket connection
-      socket = io("https://guideme-8o9f.onrender.com");
+      socket = io("http://localhost:4000");
 
       socket.on("connect", () => {
         setIsConnected(true);
