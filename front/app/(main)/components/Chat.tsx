@@ -6,6 +6,7 @@ const socket = io("https://guideme-8o9f.onrender.com");
 type ChatMessage = {
   user: string;
   text: string;
+  profileImage: string;
 };
 
 export default function Chat() {
@@ -50,7 +51,11 @@ export default function Chat() {
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
-      socket.emit("chat message", { user: username, text: input });
+      socket.emit("chat message", {
+        user: username,
+        text: input,
+        profileImage: profileImage,
+      });
       setInput("");
     }
   };
