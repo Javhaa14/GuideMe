@@ -7,10 +7,13 @@ const postchema = new mongoose.Schema({
     required: true,
   },
   Date: String,
-  Location: String,
+  Country: String,
+  City: String,
   Images: [String],
   people: Number,
+  startDate: String,
+  endDate: String,
   createdAt: { type: Date, default: Date.now },
   updatedAt: Date,
 });
-export const Commentmodel = mongoose.model("Comment", postchema);
+export const Postmodel = mongoose.model("Post", postchema);
