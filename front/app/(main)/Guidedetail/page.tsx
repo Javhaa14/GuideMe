@@ -6,9 +6,9 @@ import TouristSee from "./components/TouristSee";
 export default function Home() {
   return (
     <div className="flex flex-col">
-      <GuideProfileNav />
-      {/* <GuideMainProfile /> */}
-      <TouristSee />
+      {/* <GuideProfileNav /> */}
+      <GuideMainProfile />
+      {/* <TouristSee /> */}
       <Footer />
     </div>
   );
