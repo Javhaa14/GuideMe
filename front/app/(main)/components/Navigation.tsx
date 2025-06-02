@@ -10,6 +10,29 @@ import {
 } from "@/components/ui/select";
 import { Bell, NotebookIcon, Settings, TentTree } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+// Simple translations object (you can expand this or fetch dynamically)
+const translations = {
+  en: {
+    guides: "Guides",
+    travelers: "Travelers",
+    becomeGuide: "Become a Guide",
+    becomeTourist: "Become a Tourist",
+    login: "Log In",
+    settings: "Settings",
+    logout: "Log out",
+  },
+  mn: {
+    guides: "Гайдууд",
+    travelers: "Аялагчид",
+    becomeGuide: "Гайд болох",
+    becomeTourist: "Аялагч болох",
+    login: "Нэвтрэх",
+    settings: "Тохиргоо",
+    logout: "Гарах",
+  },
+};
 
 const NavButton = ({
   label,
@@ -38,9 +61,11 @@ const NavButton = ({
     </span>
   );
 };
-
 export const Navigation = () => {
   const router = useRouter();
+  const [language, setLanguage] = useState<"en" | "mn">("en");
+
+  const t = translations[language];
 
   return (
     <nav className="flex items-center justify-between px-8 py-4 bg-white shadow-lg">
@@ -53,40 +78,59 @@ export const Navigation = () => {
       </div>
 
       <div className="hidden md:flex items-center gap-6">
-        <NavButton label="Guides" path="/Guidesinfo" />
-        <NavButton label="Travelers" path="/Travelersinfo" />
+        <NavButton label={t.guides} path="/Guidesinfo" />
+        <NavButton label={t.travelers} path="/Travelersinfo" />
       </div>
 
       <div className="flex items-center gap-3">
-        <NavButton label="Guide болох" path="/guideProfile" variant="primary" />
         <NavButton
-          label="Tourist болох"
+          label={t.becomeGuide}
+          path="/guideProfile"
+          variant="primary"
+        />
+        <NavButton
+          label={t.becomeTourist}
           path="/touristProfile"
           variant="primary"
         />
-        <NavButton label="Log In" path="/log-in" variant="dark" />
+        <NavButton label={t.login} path="/log-in" variant="dark" />
 
-        <div className="flex items-center gap-3">
-          <Select
-            onValueChange={(value) => {
-              if (value === "logout") {
-                router.push("/log-in");
-              } else if (value === "settings") {
-                router.push("/Settings");
-              }
-            }}
-          >
-            <SelectTrigger className="w-[100px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
-              <Settings color="white" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="settings">Settings</SelectItem>
-                <SelectItem value="logout">Log out</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Language Selector */}
+        <Select
+          onValueChange={(value) => setLanguage(value as "en" | "mn")}
+          defaultValue={language}
+        >
+          <SelectTrigger className="w-[100px] border border-gray-300 p-2 rounded-md">
+            <SelectValue placeholder="Language" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="mn">Монгол</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+
+        {/* Settings Dropdown */}
+        <Select
+          onValueChange={(value) => {
+            if (value === "logout") {
+              router.push("/log-in");
+            } else if (value === "settings") {
+              router.push("/Settings");
+            }
+          }}
+        >
+          <SelectTrigger className="w-[100px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
+            <Settings color="white" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="settings">{t.settings}</SelectItem>
+              <SelectItem value="logout">{t.logout}</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
 
       <div
