@@ -7,9 +7,14 @@ import QRcode from "qrcode";
 import { v4 } from "uuid";
 import { userRouter } from "./routes/user";
 import { tripPlanRouter } from "./routes/TripPlan";
+import OpenAI from "openai";
+import dotenv from "dotenv";
+
+dotenv.config();
+
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = 4000;
 
 app.use(json());
 app.use(
@@ -54,9 +59,15 @@ const httpServer = createServer(app);
 const ws = new WebSocketServer({ server: httpServer });
 ws.on("connection", (socket) => {
   socket.on("message", (value) => {
-    const message = JSON.parse(value.toString());
-    if (message.type === "watch" && message.paymentId) {
-      clients[message.paymentId] = socket;
+    const str = value.toString();
+
+    try {
+      const message = JSON.parse(str);
+      if (message.type === "watch" && message.paymentId) {
+        clients[message.paymentId] = socket;
+      }
+    } catch (err) {
+      console.log("Received non-JSON message:", str);
     }
   });
 });
@@ -69,19 +80,57 @@ const io = new SocketIOServer(httpServer, {
   },
 });
 
+// Run server
+httpServer.listen(port, () => {
+  console.log(`🚀 Server running on http://localhost:${port}`);
+});
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 io.on("connection", (socket) => {
   console.log("✅ Chat user connected:", socket.id);
+  let chatHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
 
+  // 1. AI Chatbot
+  socket.on("ai chatbot", async (msg: string) => {
+    chatHistory.push({ role: "user", content: msg });
+
+    const systemMessage: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
+      role: "system",
+      content: `
+You are an AI assistant for the GuideMe website. 
+Only provide information related to travel, destinations, hotels, transportation, and travel tips that are relevant to the GuideMe platform.
+Nad it can be in any language first detect which language is it then check.
+If a question is unrelated (like programming, celebrities, or personal advice), respond with: 
+"I'm here to help only with travel-related questions on GuideMe."`,
+    };
+
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [systemMessage, ...chatHistory],
+      });
+
+      const aiMessage =
+        completion.choices[0].message?.content ?? "Sorry, I can't answer that.";
+      chatHistory.push({ role: "assistant", content: aiMessage });
+      socket.emit("ai chatbot", aiMessage);
+    } catch (error) {
+      console.error("❌ OpenAI error:", error);
+      socket.emit("ai chatbot", "Sorry, something went wrong.");
+    }
+  });
+
+  // 2. User-to-User Chat
   socket.on("chat message", (msg: string) => {
+    // You can customize this with rooms, sender ID, etc.
     io.emit("chat message", msg);
   });
 
   socket.on("disconnect", () => {
     console.log("❌ Chat user disconnected:", socket.id);
+    chatHistory = [];
   });
-});
-
-// Run server
-httpServer.listen(port, () => {
-  console.log(`🚀 Server running on http://localhost:${port}`);
 });
