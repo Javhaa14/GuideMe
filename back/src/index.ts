@@ -7,11 +7,13 @@ import QRcode from "qrcode";
 import { v4 } from "uuid";
 import OpenAI from "openai";
 import dotenv from "dotenv";
-dotenv.config();
+import { postRouter } from "./routes/post";
+import { connectMongoDB } from "./connectDB";
 
+dotenv.config();
 const app = express();
 const port = 4000;
-
+connectMongoDB();
 app.use(json());
 app.use(
   cors({
@@ -19,6 +21,7 @@ app.use(
     credentials: true,
   })
 );
+app.use("/post", postRouter);
 
 // QR System
 let qrs: Record<string, boolean> = {};
