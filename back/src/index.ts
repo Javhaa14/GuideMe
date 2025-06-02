@@ -5,6 +5,8 @@ import { WebSocketServer, WebSocket } from "ws";
 import { Server as SocketIOServer } from "socket.io";
 import QRcode from "qrcode";
 import { v4 } from "uuid";
+import { userRouter } from "./routes/user";
+import { tripPlanRouter } from "./routes/TripPlan";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -16,6 +18,9 @@ app.use(
     credentials: true,
   })
 );
+
+app.use("/user", userRouter);
+app.use("/tripPlan", tripPlanRouter);
 
 // QR System
 let qrs: Record<string, boolean> = {};

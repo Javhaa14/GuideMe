@@ -6,16 +6,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      trim: true,
+      lowercase: true,
     },
     password: {
       type: String,
       required: true,
-      min: 8,
+      minlength: 8,
     },
     role: {
       type: String,
@@ -23,6 +26,10 @@ const userSchema = new mongoose.Schema(
       default: "Tourist",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+  }
 );
-export const UserModel = mongoose.model("User", userSchema);
+
+export const UserModel =
+  mongoose.models.User || mongoose.model("User", userSchema);
