@@ -40,7 +40,7 @@ function ChatBot() {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg border border-gray-200">
+    <div className={` max-w-xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg border border-gray-200`}>
       <h2 className="text-2xl font-bold text-blue-700 text-center mb-4">
         🌍 GuideMe Travel Assistant
       </h2>
