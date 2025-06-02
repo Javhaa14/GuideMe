@@ -99,6 +99,16 @@
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.551 0.027 264.364); /* preferred over chroma-0 */
 }
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 
 @layer base {
   * {
