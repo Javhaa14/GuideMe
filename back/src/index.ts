@@ -6,12 +6,12 @@ import { Server as SocketIOServer } from "socket.io";
 import QRcode from "qrcode";
 import { v4 } from "uuid";
 
-import { tripPlanRouter } from "./routes/TripPlan";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import { postRouter } from "./routes/post";
 import { connectMongoDB } from "./connectDB";
 import { userRouter } from "./routes/User";
+import { tripPlanRouter } from "./routes/TripPlan";
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;

@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
-const tprofileschema = new mongoose.Schema({
+const touristschema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Tourist",
+    ref: "User",
     required: true,
   },
   languages: [String],
@@ -12,4 +12,4 @@ const tprofileschema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: Date,
 });
-export const Tprofilemodel = mongoose.model("Tprofile", tprofileschema);
+export const Touristmodel = mongoose.model("Tourist", touristschema);
