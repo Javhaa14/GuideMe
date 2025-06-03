@@ -5,7 +5,6 @@ import { WebSocketServer, WebSocket } from "ws";
 import { Server as SocketIOServer } from "socket.io";
 import QRcode from "qrcode";
 import { v4 } from "uuid";
-
 import { tripPlanRouter } from "./routes/TripPlan";
 import OpenAI from "openai";
 import dotenv from "dotenv";
