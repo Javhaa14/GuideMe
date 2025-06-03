@@ -21,13 +21,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { axiosInstance } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email" }),
   password: z
     .string()
-    .min(8, { message: "Password should be more than 8 letters" }),
+    .min(8, { message: "Password should be more than 8 characters" }),
 });
 
 export function LogInEmailPassword() {
@@ -41,9 +42,33 @@ export function LogInEmailPassword() {
 
   const router = useRouter();
 
-  const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    console.log("Login data: ", values);
-    router.push("/");
+  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
+    try {
+      const response = await axiosInstance.post(
+        "/auth/signin",
+        {
+          email: values.email,
+          password: values.password,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      const { success, message } = response.data;
+
+      if (success) {
+        router.push("/");
+      } else {
+        form.setError("email", { type: "manual", message });
+        form.setError("password", { type: "manual", message });
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || "Login failed. Try again.";
+      form.setError("email", { type: "manual", message: errorMessage });
+      form.setError("password", { type: "manual", message: errorMessage });
+    }
   };
 
   return (

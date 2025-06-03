@@ -22,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { axiosInstance } from "@/lib/utils";
 
 const formSchema = z.object({
   username: z.string().min(4, { message: "Please enter at least 4 letters" }),
@@ -43,9 +44,32 @@ export function SignUpUsername({
     },
   });
 
-  const onSubmit = (values: FormValues) => {
-    setUsername(values.username);
-    setStep((prevStep) => prevStep + 1);
+  const onSubmit = async (values: FormValues) => {
+    try {
+      const res = await axiosInstance.post("/auth/check-user", {
+        username: values.username,
+      });
+
+      // Username available
+      setUsername(values.username);
+      setStep((prevStep) => prevStep + 1);
+    } catch (error: any) {
+      if (
+        error.response &&
+        error.response.status === 409 &&
+        error.response.data.message === "Username already taken"
+      ) {
+        form.setError("username", {
+          type: "manual",
+          message: "This username is already taken",
+        });
+      } else {
+        form.setError("username", {
+          type: "manual",
+          message: "Error checking username. Try again.",
+        });
+      }
+    }
   };
 
   return (
