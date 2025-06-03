@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const gprofileschema = new mongoose.Schema({
+const guideschema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Tourist",
@@ -50,4 +50,4 @@ const gprofileschema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: Date,
 });
-export const Gprofilemodel = mongoose.model("Gprofile", gprofileschema);
+export const Guidemodel = mongoose.model("Guide", guideschema);
