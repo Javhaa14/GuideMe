@@ -1,16 +1,17 @@
-import mongoose from 'mongoose';
+import mongoose, { mongo } from 'mongoose';
 
 const guideProfileSchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Tourist',
-    },
     profile: {
-      type: String,
+      type: mongoose.Schema.ObjectId,
       ref: 'Tprofile',
       enum: ['TProfile', 'GProfile'],
       default: 'TProfile',
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Tourist',
+      required: true,
     },
     name: { type: String, required: true },
     gender: { type: String, enum: ['male', 'female', 'other'], required: true },

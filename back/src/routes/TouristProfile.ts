@@ -1,6 +1,12 @@
 import { Router } from 'express';
-import { createTouristProfile } from '../controller/TouristProfile';
+import {
+  createTouristProfile,
+  getTouristProfile,
+} from '../controller/TouristProfile';
 
 export const TouristProfileRouter = Router();
 
-TouristProfileRouter.post('/', createTouristProfile as any);
+TouristProfileRouter.post('/', createTouristProfile as any).get(
+  '/',
+  getTouristProfile as any
+);
