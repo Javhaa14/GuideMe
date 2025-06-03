@@ -5,7 +5,7 @@ import {
   getAllTripPlans,
   getTripPlanById,
   updateTripPlan,
-} from "../controller/TripPlan";
+} from "../controller/tripPlan";
 
 export const tripPlanRouter = Router();
 

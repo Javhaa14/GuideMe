@@ -25,6 +25,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+import { axiosInstance } from "@/lib/utils";
+
 const signUpSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email" }),
   password: z
@@ -49,9 +51,41 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
 
   const router = useRouter();
 
-  const onSubmit = (values: SignUpFormValues) => {
-    console.log(values);
-    router.push("/");
+  const onSubmit = async (values: SignUpFormValues) => {
+    try {
+      const response = await axiosInstance.post("/auth/signup", {
+        email: values.email,
+        username: username,
+        password: values.password,
+      });
+
+      const message = response.data.message;
+
+      if (message === "email already registered") {
+        form.setError("email", {
+          type: "manual",
+          message: "This email is already registered",
+        });
+      } else if (message === "User created successfully") {
+        // LocalStorage эсвэл cookie-д хадгалах
+        localStorage.setItem("username", username);
+
+        // Дараагийн хуудсанд чиглүүлэх
+        router.push("/");
+      } else {
+        form.setError("email", {
+          type: "manual",
+          message: "Unexpected server response",
+        });
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || "Something went wrong. Try again.";
+      form.setError("email", {
+        type: "manual",
+        message: errorMessage,
+      });
+    }
   };
 
   return (

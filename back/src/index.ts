@@ -10,8 +10,10 @@ import dotenv from "dotenv";
 import { postRouter } from "./routes/post";
 import { connectMongoDB } from "./connectDB";
 import { touristRouter } from "./routes/touristProfile";
-import { userRouter } from "./routes/User";
-import { tripPlanRouter } from "./routes/TripPlan";
+import { userRouter } from "./routes/user";
+import { tripPlanRouter } from "./routes/tripPlan";
+import { authRouter } from "./routes/auth";
+
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
@@ -24,6 +26,7 @@ app.use(
   })
 );
 app.use("/post", postRouter);
+app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
 // app.use('/GuideProfile', GuideProfileRouter);
