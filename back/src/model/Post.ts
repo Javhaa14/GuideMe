@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const postchema = new mongoose.Schema({
-  touristId: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Tourist",
     required: true,

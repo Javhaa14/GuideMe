@@ -11,7 +11,8 @@ import dotenv from "dotenv";
 import { postRouter } from "./routes/post";
 import { connectMongoDB } from "./connectDB";
 import { userRouter } from "./routes/User";
-import { tripPlanRouter } from "./routes/TripPlan";
+import { tripPlanRouter } from "./routes/tripPlan";
+import { touristRouter } from "./routes/touristProfile";
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
@@ -24,8 +25,9 @@ app.use(
   })
 );
 app.use("/post", postRouter);
-
 app.use("/user", userRouter);
+app.use("/tprofile", touristRouter);
+
 app.use("/tripPlan", tripPlanRouter);
 
 // QR System
