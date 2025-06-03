@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { CalendarDays, MapPin, UsersRound } from "lucide-react";
 
-export default function Travelerspost({ post }: any) {
+export default function Travelerpost({ post }: any) {
   const [likes, setLikes] = useState(post.likes || 0);
 
   const handleLike = () => {

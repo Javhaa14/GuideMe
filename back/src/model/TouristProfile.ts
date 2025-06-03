@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-
 const TouristProfileSchema = new mongoose.Schema(
   {
     userId: {

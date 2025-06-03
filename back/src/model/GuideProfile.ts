@@ -1,6 +1,5 @@
 import mongoose, { mongo } from 'mongoose';
 
-
 const guideProfileSchema = new mongoose.Schema(
   {
     profile: {

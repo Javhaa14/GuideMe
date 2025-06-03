@@ -12,6 +12,8 @@ import { connectMongoDB } from "./connectDB";
 import { userRouter } from "./routes/User";
 import { tripPlanRouter } from "./routes/TripPlan";
 import { authRouter } from "./routes/auth";
+import { GuideProfileRouter } from "./routes/GuideProfile";
+import { TouristProfileRouter } from "./routes/TouristProfile";
 
 dotenv.config();
 const app = express();
@@ -29,6 +31,8 @@ app.use("/post", postRouter);
 app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
 app.use("/auth", authRouter);
+app.use("/GuideProfile", GuideProfileRouter);
+app.use("/TouristProfile", TouristProfileRouter);
 
 // QR System
 let qrs: Record<string, boolean> = {};
