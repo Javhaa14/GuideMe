@@ -1,53 +1,44 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from 'mongoose';
 
-const gprofileschema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Tourist",
-    required: true,
-  },
-  profile: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Tprofile",
-    required: true,
-  },
-  location: String,
-  firstName: String,
-  lastName: String,
-  gender: String,
-  price: {
-    type: String,
-    validate: {
-      validator: function (value: string) {
-        return value === "FREE" || !isNaN(Number(value));
+const guideProfileSchema = new mongoose.Schema(
+  {
+    profile: {
+      type: String,
+      enum: ['TProfile', 'GProfile'],
+      default: 'TProfile',
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Tourist',
+      required: true,
+    },
+    name: { type: String, required: true },
+    gender: { type: String, enum: ['male', 'female', 'other'], required: true },
+    country: { type: String, required: true },
+    language: { type: String, required: true },
+    about: { type: String },
+    activities: [{ type: String }],
+    photoUrl: { type: String },
+    price: {
+      type: String,
+      validate: {
+        validator: function (value: string) {
+          return value === 'FREE' || !isNaN(Number(value));
+        },
+        message: "Price must be 'FREE' or a number string",
       },
-      message: "Price must be 'FREE' or a number string",
+    },
+    socialAddress: { type: String, required: true },
+    car: {
+      type: Boolean,
+      default: false,
+      required: true,
     },
   },
-  languages: [String],
-  status: {
-    type: String,
-    enum: ["available", "inavailable", "busy"],
-    default: "available",
-    required: true,
-  },
-  rating: Number,
-  comments: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Comment",
-    required: true,
-  },
-  experience: String,
-  about: String,
-  SocialAddress: String,
-  Car: {
-    type: String,
-    enum: ["baigaa", "baihgu"],
-    default: "baihgu",
-    required: true,
-  },
-  activities: [String],
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: Date,
-});
-export const Gprofilemodel = mongoose.model("Gprofile", gprofileschema);
+  { timestamps: true }
+);
+
+export const guideProfileModel = mongoose.model(
+  'GuideProfile',
+  guideProfileSchema
+);
