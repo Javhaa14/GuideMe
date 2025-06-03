@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 
 const TouristProfileSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Tourist',
+      required: true,
+    },
     name: {
       type: String,
       required: true,

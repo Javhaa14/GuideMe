@@ -16,3 +16,18 @@ export const createTouristProfile = async (req: Request, res: Response) => {
     });
   }
 };
+export const getTouristProfile = async (_req: Request, res: Response) => {
+  try {
+    const touristProfile = await TouristModel.find();
+    return res.status(200).json({
+      success: true,
+      touristProfile,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+};
