@@ -53,6 +53,8 @@ export const getPosts = async (_: Request, res: Response) => {
     }
   }
 };
+console.log("hi");
+
 export const getPostsByUserId = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
