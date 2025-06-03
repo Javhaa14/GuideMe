@@ -6,8 +6,8 @@ import Chat from "../../components/Chat";
 import { Review } from "./Review";
 import { Subscription } from "./Subscription";
 import { Globe, MapPin, MessageCircle, VenusAndMars } from "lucide-react";
-import { NewTrip } from "./NewTrip";
 import { Trip } from "./Trip";
+import { TouristSeeTrip } from "./TouristSeeTrip";
 
 type TourPost = {
   id: number;
@@ -76,7 +76,7 @@ const sampleGuide: GuideProfile = {
   ],
 };
 
-export default function GuideMainProfile() {
+export default function TouristSee() {
   const [guide] = useState<GuideProfile>(sampleGuide);
   const [chat, setChat] = useState(false);
 
@@ -141,9 +141,7 @@ export default function GuideMainProfile() {
         </div>
       </div>
 
-      <NewTrip />
-
-      <Trip />
+      <TouristSeeTrip />
     </div>
   );
 }

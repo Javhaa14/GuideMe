@@ -38,13 +38,13 @@ const NavButton = ({
   );
 };
 
-export const SettingsNav = () => {
+export const GuideProfileNav = () => {
   const router = useRouter();
 
   return (
-    <nav className="flex items-center justify-between px-50 py-4 bg-white shadow-lg">
+    <nav className="flex items-center justify-between px-20 py-4 bg-white shadow-lg cursor-pointer">
       <div
-        className="flex items-center gap-3 cursor-pointer"
+        className="flex items-center gap-3r"
         onClick={() => router.push("/")}
       >
         <TentTree color="black" size={28} />
@@ -56,32 +56,34 @@ export const SettingsNav = () => {
         <NavButton label="Travelers" path="/Travelersinfo" />
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex gap-3">
         <div className="flex items-center gap-3">
           <Select
             onValueChange={(value) => {
-              if (value === "Logout") {
+              if (value === "logout") {
                 router.push("/log-in");
+              } else if (value === "settings") {
+                router.push("/Settings");
               }
             }}
           >
-            <SelectTrigger className="w-[100px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
-              <Settings path="/settings" color="white" />
+            <SelectTrigger className="w-[70px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
+              <Settings color="white" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="Settings">Settings</SelectItem>
-                <SelectItem value="Logout">Log out</SelectItem>
+                <SelectItem value="settings">Settings</SelectItem>
+                <SelectItem value="logout">Log out</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
         </div>
-      </div>
-      <div
-        onClick={() => router.push("/notification")}
-        className="cursor-pointer p-2 hover:bg-gray-100 rounded-full"
-      >
-        <Bell color="black" />
+        <div
+          onClick={() => router.push("/notification")}
+          className="cursor-pointer p-2 rounded-full bg-gray-800 hover:bg-gray-700"
+        >
+          <Bell color="white" size={20} />
+        </div>
       </div>
     </nav>
   );

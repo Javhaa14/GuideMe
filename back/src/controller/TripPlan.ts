@@ -1,0 +1,108 @@
+import { Request, Response } from "express";
+import { TripPlanModel } from "../model/TripPlan";
+
+export const createTripPlan = async (req: Request, res: Response) => {
+  try {
+    const tripPlan = await TripPlanModel.create(req.body);
+    return res.status(201).json({
+      success: true,
+      tripPlan,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+};
+
+export const getAllTripPlans = async (_req: Request, res: Response) => {
+  try {
+    const tripPlans = await TripPlanModel.find().populate("GuideId");
+    return res.status(200).json({
+      success: true,
+      tripPlans,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+};
+
+export const getTripPlanById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const tripPlan = await TripPlanModel.findById(id).populate("GuideId");
+    if (!tripPlan) {
+      return res.status(404).json({
+        success: false,
+        message: "Trip Plan not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      tripPlan,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+};
+
+export const updateTripPlan = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const tripPlan = await TripPlanModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    }).populate("GuideId");
+
+    if (!tripPlan) {
+      return res.status(404).json({
+        success: false,
+        message: "Trip Plan not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      tripPlan,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+};
+
+export const deleteTripPlan = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const tripPlan = await TripPlanModel.findByIdAndDelete(id);
+    if (!tripPlan) {
+      return res.status(404).json({
+        success: false,
+        message: "Trip Plan not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Trip Plan deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+};
