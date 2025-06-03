@@ -20,13 +20,14 @@ import {
   Sun,
   Calendar,
 } from "lucide-react";
+import axios from "axios";
 
 // Updated Zod schema with optional fields
 const postSchema = z.object({
   content: z.string().min(1, "Share your travel story!"),
   images: z.array(z.string()).optional(),
   country: z.string().min(1, "Country is required"),
-  city: z.string().optional(), // Made optional
+  city: z.string().optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   people: z.number().min(1, "At least one person required"),
@@ -42,7 +43,6 @@ export default function CreatePost() {
 
   const {
     register,
-    control,
     handleSubmit,
     watch,
     setValue,
@@ -86,23 +86,63 @@ export default function CreatePost() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-    console.log("✅ Submitted:", data);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsSubmitting(false);
-    setIsExpanded(false);
-    reset();
+    const formattedData = {
+      ...data,
+      startDate: data.startDate?.toISOString(),
+      endDate: data.endDate?.toISOString(),
+      touristId: "683dfd9234d59dade921e3c7",
+    };
+    try {
+      await axios.post("http://localhost:4000/post", formattedData);
+      console.log("✅ Post created successfully");
+      reset();
+      setIsExpanded(false);
+    } catch (err) {
+      console.error("❌ Post failed:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
-    const newImages = Array.from(files).map((file) =>
-      URL.createObjectURL(file)
-    );
-    setValue("images", [...(watchImages || []), ...newImages]);
+    if (!files || files.length === 0) return;
+
+    const uploadedUrls: string[] = [];
+
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "guideme"); // Change this to your actual unsigned preset
+
+      try {
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const data = await res.json();
+
+        if (data.secure_url) {
+          uploadedUrls.push(data.secure_url);
+        } else {
+          console.error("Image upload failed:", data);
+        }
+      } catch (error) {
+        console.error("Error uploading to Cloudinary:", error);
+      }
+    }
+
+    // Update form state with uploaded image URLs
+    setValue("images", [...(watchImages || []), ...uploadedUrls]);
+    console.log("Updated images in form:", [
+      ...(watchImages || []),
+      ...uploadedUrls,
+    ]);
   };
 
   const removeImage = (index: number) => {
@@ -136,8 +176,7 @@ export default function CreatePost() {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/50 overflow-hidden"
-      >
+        className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
         <div className="p-8 space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
@@ -211,8 +250,7 @@ export default function CreatePost() {
                         <button
                           type="button"
                           onClick={() => removeImage(i)}
-                          className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-200"
-                        >
+                          className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-200">
                           <X size={14} />
                         </button>
                       </div>
@@ -241,8 +279,7 @@ export default function CreatePost() {
                       </label>
                       <select
                         {...register("country")}
-                        className="w-full p-3 border border-green-200 rounded-xl focus:ring-2 focus:ring-green-300 focus:border-green-400 bg-white/80 transition-all duration-200"
-                      >
+                        className="w-full p-3 border border-green-200 rounded-xl focus:ring-2 focus:ring-green-300 focus:border-green-400 bg-white/80 transition-all duration-200">
                         <option value="">🌍 Select your destination</option>
                         {countries.map((c) => (
                           <option key={c} value={c}>
@@ -266,8 +303,7 @@ export default function CreatePost() {
                       <select
                         {...register("city")}
                         className="w-full p-3 border border-green-200 rounded-xl focus:ring-2 focus:ring-green-300 focus:border-green-400 bg-white/80 transition-all duration-200"
-                        disabled={!watchCountry}
-                      >
+                        disabled={!watchCountry}>
                         <option value="">🏙️ Choose a city (optional)</option>
                         {cities.map((c) => (
                           <option key={c} value={c}>
@@ -391,15 +427,13 @@ export default function CreatePost() {
                 <button
                   type="button"
                   onClick={() => setIsExpanded(false)}
-                  className="px-6 py-3 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
-                >
+                  className="px-6 py-3 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium">
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!watchContent.trim() || isSubmitting}
-                  className="relative px-8 py-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white rounded-xl hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 transition-all duration-300 font-semibold shadow-lg hover:shadow-2xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
-                >
+                  className="relative px-8 py-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white rounded-xl hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 transition-all duration-300 font-semibold shadow-lg hover:shadow-2xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden">
                   {isSubmitting ? (
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
