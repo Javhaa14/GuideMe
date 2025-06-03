@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Filter } from "./components/Filter";
-import Travelerspost from "./components/Travelerpost";
+import Travelerspost from "../components/Travelerpost";
 
 export default function Home() {
   const filters = [
