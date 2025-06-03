@@ -5,13 +5,13 @@ import { WebSocketServer, WebSocket } from "ws";
 import { Server as SocketIOServer } from "socket.io";
 import QRcode from "qrcode";
 import { v4 } from "uuid";
-import { userRouter } from "./routes/user";
+
 import { tripPlanRouter } from "./routes/TripPlan";
 import OpenAI from "openai";
 import dotenv from "dotenv";
+import { userRouter } from "./routes/User";
 
 dotenv.config();
-
 
 const app = express();
 const port = 4000;
