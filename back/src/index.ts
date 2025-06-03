@@ -9,13 +9,13 @@ import { v4 } from "uuid";
 import { tripPlanRouter } from "./routes/TripPlan";
 import OpenAI from "openai";
 import dotenv from "dotenv";
+import { postRouter } from "./routes/post";
+import { connectMongoDB } from "./connectDB";
 import { userRouter } from "./routes/User";
-
 dotenv.config();
-
 const app = express();
 const port = 4000;
-
+connectMongoDB();
 app.use(json());
 app.use(
   cors({
@@ -23,6 +23,7 @@ app.use(
     credentials: true,
   })
 );
+app.use("/post", postRouter);
 
 app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
