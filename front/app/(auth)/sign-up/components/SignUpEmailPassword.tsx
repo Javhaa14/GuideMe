@@ -1,11 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useContext } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,6 +23,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { axiosInstance } from "@/lib/utils";
+import { AuthContext } from "@/app/context/AuthContext.";
 
 const signUpSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email" }),
@@ -38,8 +39,8 @@ interface SignUpEmailPasswordProps {
   username: string;
 }
 
-export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
-  const form = useForm<SignUpFormValues>({
+export function SignUpEmailPassword({ username }: { username: string }) {
+  const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       email: "",
@@ -47,18 +48,49 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
     },
   });
 
+  const { setUser } = useContext(AuthContext);
   const router = useRouter();
 
-  const onSubmit = (values: SignUpFormValues) => {
-    console.log(values);
-    router.push("/");
+  const handleSignUp = async (values: z.infer<typeof signUpSchema>) => {
+    try {
+      const response = await axiosInstance.post("/auth/signup", {
+        email: values.email,
+        username,
+        password: values.password,
+      });
+
+      const message = response.data.message;
+
+      if (message === "email already registered") {
+        form.setError("email", {
+          type: "manual",
+          message: "This email is already registered",
+        });
+      } else if (message === "User created successfully") {
+        setUser(response.data.user);
+        localStorage.setItem("username", username);
+        router.push("/create-profile");
+      } else {
+        form.setError("email", {
+          type: "manual",
+          message: "Unexpected server response",
+        });
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || "Something went wrong. Try again.";
+      form.setError("email", {
+        type: "manual",
+        message: errorMessage,
+      });
+    }
   };
 
   return (
     <Card className="w-[440px]">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(handleSignUp)}
           className="flex flex-col gap-6"
         >
           <CardHeader>

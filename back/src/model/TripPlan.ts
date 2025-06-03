@@ -2,29 +2,21 @@ import mongoose from "mongoose";
 
 const tripPlanSchema = new mongoose.Schema(
   {
-    id: {
-      type: Number,
-      required: true,
-      unique: true,
-    },
-    GuideId: {
+    guideId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Guide",
+      ref: "Gprofile",
       required: true,
     },
-    Date: {
-      type: String,
-      required: true,
-    },
-    Location: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    About: {
+    date: {
       type: String,
     },
-    Image: {
+    location: {
+      type: String,
+    },
+    about: {
+      type: String,
+    },
+    image: {
       type: String,
     },
     people: {
@@ -33,9 +25,8 @@ const tripPlanSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      required: true,
     },
-    Activities: {
+    activities: {
       type: [String],
     },
   },

@@ -22,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { axiosInstance } from "@/lib/utils";
 
 const formSchema = z.object({
   username: z.string().min(4, { message: "Please enter at least 4 letters" }),
@@ -43,9 +44,35 @@ export function SignUpUsername({
     },
   });
 
-  const onSubmit = (values: FormValues) => {
-    setUsername(values.username);
-    setStep((prevStep) => prevStep + 1);
+  // const onSubmit = (values: FormValues) => {
+  //   setUsername(values.username);
+  //   setStep((prevStep) => prevStep + 1);
+  // };
+
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const response = await axiosInstance.post("/auth/check-user", {
+        username: values.username,
+      });
+
+      const message = response.data.message;
+
+      if (message === "username available") {
+        setUsername(values.username);
+        setStep(1);
+      } else if (message === "username already taken") {
+        form.setError("username", {
+          type: "manual",
+          message: "This username is already taken",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      form.setError("username", {
+        type: "manual",
+        message: "Something went wrong. Please try again.",
+      });
+    }
   };
 
   return (
@@ -53,7 +80,7 @@ export function SignUpUsername({
       <Card className="w-[440px]">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(handleSubmit)}
             className="flex flex-col gap-6"
           >
             <CardHeader>

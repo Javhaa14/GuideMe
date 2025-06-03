@@ -19,7 +19,7 @@ export const createTripPlan = async (req: Request, res: Response) => {
 
 export const getAllTripPlans = async (_req: Request, res: Response) => {
   try {
-    const tripPlans = await TripPlanModel.find().populate("GuideId");
+    const tripPlans = await TripPlanModel.find().populate("guideId");
     return res.status(200).json({
       success: true,
       tripPlans,

@@ -5,12 +5,14 @@ import { WebSocketServer, WebSocket } from "ws";
 import { Server as SocketIOServer } from "socket.io";
 import QRcode from "qrcode";
 import { v4 } from "uuid";
-import { tripPlanRouter } from "./routes/TripPlan";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import { postRouter } from "./routes/post";
 import { connectMongoDB } from "./connectDB";
 import { userRouter } from "./routes/User";
+import { tripPlanRouter } from "./routes/TripPlan";
+import { authRouter } from "./routes/auth";
+
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
@@ -26,6 +28,7 @@ app.use("/post", postRouter);
 
 app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
+app.use("/auth", authRouter);
 
 // QR System
 let qrs: Record<string, boolean> = {};

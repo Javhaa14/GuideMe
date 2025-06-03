@@ -21,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { axiosInstance } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
@@ -41,16 +42,44 @@ export function LogInEmailPassword() {
 
   const router = useRouter();
 
-  const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    console.log("Login data: ", values);
-    router.push("/");
+  // const onSubmit = (values: z.infer<typeof loginSchema>) => {
+  //   console.log("Login data: ", values);
+  //   router.push("/");
+  // };
+
+  const handleLogin = async (values: z.infer<typeof loginSchema>) => {
+    try {
+      const response = await axiosInstance.post(
+        "/auth",
+        {
+          email: values.email,
+          password: values.password,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      const { message, success } = response.data;
+
+      if (success) {
+        router.push("/");
+      } else {
+        form.setError("email", { type: "manual", message });
+        form.setError("password", { type: "manual", message });
+      }
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || "Login failed";
+      form.setError("email", { type: "manual", message: errorMessage });
+      form.setError("password", { type: "manual", message: errorMessage });
+    }
   };
 
   return (
     <Card className="w-[440px]">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(handleLogin)}
           className="flex flex-col gap-6"
         >
           <CardHeader>
