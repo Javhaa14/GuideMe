@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const gprofileschema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Tourist",
+    ref: "User",
     required: true,
   },
   profile: {

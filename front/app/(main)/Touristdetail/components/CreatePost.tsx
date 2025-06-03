@@ -27,7 +27,7 @@ const postSchema = z.object({
   content: z.string().min(1, "Share your travel story!"),
   images: z.array(z.string()).optional(),
   country: z.string().min(1, "Country is required"),
-  city: z.string().optional(), // Made optional
+  city: z.string().optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   people: z.number().min(1, "At least one person required"),
@@ -43,7 +43,6 @@ export default function CreatePost() {
 
   const {
     register,
-    control,
     handleSubmit,
     watch,
     setValue,
@@ -94,12 +93,8 @@ export default function CreatePost() {
       endDate: data.endDate?.toISOString(),
       touristId: "683dfd9234d59dade921e3c7",
     };
-
-    const { images, ...postData } = formattedData;
-    console.log(formattedData);
-
     try {
-      await axios.post("https://guideme-8o9f.onrender.com/post", postData);
+      await axios.post("http://localhost:4000/post", formattedData);
       console.log("✅ Post created successfully");
       reset();
       setIsExpanded(false);
@@ -110,13 +105,44 @@ export default function CreatePost() {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
-    const newImages = Array.from(files).map((file) =>
-      URL.createObjectURL(file)
-    );
-    setValue("images", [...(watchImages || []), ...newImages]);
+    if (!files || files.length === 0) return;
+
+    const uploadedUrls: string[] = [];
+
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "guideme"); // Change this to your actual unsigned preset
+
+      try {
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const data = await res.json();
+
+        if (data.secure_url) {
+          uploadedUrls.push(data.secure_url);
+        } else {
+          console.error("Image upload failed:", data);
+        }
+      } catch (error) {
+        console.error("Error uploading to Cloudinary:", error);
+      }
+    }
+
+    // Update form state with uploaded image URLs
+    setValue("images", [...(watchImages || []), ...uploadedUrls]);
+    console.log("Updated images in form:", [
+      ...(watchImages || []),
+      ...uploadedUrls,
+    ]);
   };
 
   const removeImage = (index: number) => {

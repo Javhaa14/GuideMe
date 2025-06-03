@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const postchema = new mongoose.Schema({
   touristId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Tourist",
+    ref: "User",
     required: true,
   },
   content: String,
@@ -12,8 +12,8 @@ const postchema = new mongoose.Schema({
   city: String,
   images: [String],
   people: Number,
-  startDate: Object,
-  endDate: Object,
+  startDate: Date,
+  endDate: Date,
   createdAt: { type: Date, default: Date.now },
   updatedAt: Date,
 });

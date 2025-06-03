@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const tprofileschema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Tourist",
+    ref: "User",
     required: true,
   },
   languages: [String],
