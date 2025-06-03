@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Chat from "../../components/Chat";
-import { useForm } from "react-hook-form";
 import {
   Globe,
   MapPin,
@@ -13,7 +12,12 @@ import {
 } from "lucide-react";
 import CreatePost from "./CreatePost";
 import { useState } from "react";
-
+type TripMemory = {
+  id: number;
+  image: string;
+  caption: string;
+  date: string;
+};
 type TravelerProfile = {
   id: number;
   firstName: string;
@@ -28,14 +32,14 @@ type TravelerProfile = {
   postsCount: number;
   followersCount: number;
   followingCount: number;
+  TripMemories: TripMemory[];
 };
-
 const sampleTraveler: TravelerProfile = {
   id: 123,
   firstName: "Baldanpurev",
   lastName: "Eldenpurev",
-  profileImage: "/placeholder.svg?height=200&width=200",
-  coverImage: "/placeholder.svg?height=200&width=200",
+  profileImage: "/placeholder.svg",
+  coverImage: "/placeholder.svg",
   languageKnowledge: "English, French, Mandarin",
   gender: "Male",
   about:
@@ -45,6 +49,20 @@ const sampleTraveler: TravelerProfile = {
   postsCount: 24,
   followersCount: 156,
   followingCount: 89,
+  TripMemories: [
+    {
+      id: 1,
+      image: "/gobi.png",
+      caption: "Camel riding in the Gobi desert!",
+      date: "2025-05-15",
+    },
+    {
+      id: 2,
+      image: "/Monastery.png",
+      caption: "Exploring ancient monasteries in Uvurkhangai!",
+      date: "2025-06-01",
+    },
+  ],
 };
 
 export default function TravelerProfile() {
@@ -64,8 +82,7 @@ export default function TravelerProfile() {
                 </h3>
                 <button
                   onClick={() => setChat(false)}
-                  className="text-white hover:text-gray-200 transition-colors"
-                >
+                  className="text-white hover:text-gray-200 transition-colors">
                   x
                 </button>
               </div>
@@ -194,8 +211,7 @@ export default function TravelerProfile() {
                 <div className="flex flex-col sm:flex-row gap-4 mt-8">
                   <button
                     onClick={() => setChat(!chat)}
-                    className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
-                  >
+                    className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
                     <MessageCircle className="w-6 h-6" />
                     Start Conversation
                   </button>
@@ -209,7 +225,32 @@ export default function TravelerProfile() {
             </div>
           </div>
         </div>
-
+        {/* Traveler's Trip Memories Section */}
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold mb-4">My Travel Memories</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {sampleTraveler.TripMemories.map((trip) => (
+              <div
+                key={trip.id}
+                className="rounded-xl overflow-hidden shadow-lg border bg-white">
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={trip.image}
+                    alt={trip.caption}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <p className="text-md font-medium text-gray-900">
+                    {trip.caption}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">{trip.date}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
         {/* Create Post Section */}
         <div className="mt-8">
           <CreatePost />
