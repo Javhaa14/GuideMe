@@ -3,8 +3,7 @@ import mongoose, { mongo } from 'mongoose';
 const guideProfileSchema = new mongoose.Schema(
   {
     profile: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'Tprofile',
+      type: String,
       enum: ['TProfile', 'GProfile'],
       default: 'TProfile',
     },
@@ -38,6 +37,7 @@ const guideProfileSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 export const guideProfileModel = mongoose.model(
   'GuideProfile',
   guideProfileSchema

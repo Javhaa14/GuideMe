@@ -27,10 +27,6 @@ const TouristProfileSchema = new mongoose.Schema(
     about: {
       type: String,
     },
-    activities: {
-      type: String,
-      default: '',
-    },
     photo: {
       type: String,
     },

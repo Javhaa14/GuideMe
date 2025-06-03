@@ -110,6 +110,7 @@ export function Profile() {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_ENDPOINT}/GuideProfile`,
         {
+          userId: '683e88280c00dfbcb4332d8a',
           socialAddress: values.social,
           profile: 'GProfile',
           name: values.username,
