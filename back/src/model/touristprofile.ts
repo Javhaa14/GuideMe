@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const TouristProfileSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Tourist",
+      ref: 'Tourist',
       required: true,
     },
     name: {
@@ -13,7 +13,7 @@ const TouristProfileSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      enum: ["male", "female", "other"],
+      enum: ['male', 'female', 'other'],
       required: true,
     },
     country: {
@@ -37,6 +37,6 @@ const TouristProfileSchema = new mongoose.Schema(
 );
 
 export const TouristModel = mongoose.model(
-  "TouristProfile",
+  'TouristProfile',
   TouristProfileSchema
 );
