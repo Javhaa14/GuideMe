@@ -23,7 +23,7 @@ export const createPost = async (req: Request, res: Response) => {
       content,
       touristId,
     });
-
+    console.log(post, "post");
     res.status(200).send({
       success: true,
       post,
