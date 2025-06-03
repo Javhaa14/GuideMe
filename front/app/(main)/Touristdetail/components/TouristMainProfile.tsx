@@ -71,14 +71,15 @@ const sampleTraveler: TravelerProfile = {
 export default function TravelerProfile() {
   const [traveler] = useState<TravelerProfile>(sampleTraveler);
   const [chat, setChat] = useState(false);
-
+  const [post, setPost] = useState([]);
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:4000/post/683dfd9234d59dade921e3c7`
+          `http://localhost:4000/post/683e58ba60f8d25ee9dc85d9`
         );
         console.log("✅ Posts fetched:", res.data);
+        setPost(res.data);
       } catch (err) {
         console.error("❌ Post fetch failed:", err);
       }
@@ -99,7 +100,8 @@ export default function TravelerProfile() {
                 </h3>
                 <button
                   onClick={() => setChat(false)}
-                  className="text-white hover:text-gray-200 transition-colors">
+                  className="text-white hover:text-gray-200 transition-colors"
+                >
                   x
                 </button>
               </div>
@@ -228,7 +230,8 @@ export default function TravelerProfile() {
                 <div className="flex flex-col sm:flex-row gap-4 mt-8">
                   <button
                     onClick={() => setChat(!chat)}
-                    className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
+                    className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
                     <MessageCircle className="w-6 h-6" />
                     Start Conversation
                   </button>
@@ -270,7 +273,11 @@ export default function TravelerProfile() {
         </div> */}
         <div className="mt-10">
           <h2 className="text-2xl font-bold mb-4">Your posts</h2>
-          <div className="flex flex-col">{/* <Travelerpost /> */}</div>
+          <div className="flex flex-col">
+            {post.map((v, i) => {
+              return <Travelerpost key={i} post={v} />;
+            })}
+          </div>
         </div>
         {/* Create Post Section */}
         <div className="mt-8">
