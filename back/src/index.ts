@@ -1,23 +1,20 @@
-import express, { json } from 'express';
-import cors from 'cors';
-import { createServer } from 'http';
-import { WebSocketServer, WebSocket } from 'ws';
-import { Server as SocketIOServer } from 'socket.io';
-import QRcode from 'qrcode';
-import { v4 } from 'uuid';
-import { userRouter } from './routes/User';
-import { tripPlanRouter } from './routes/TripPlan';
-import OpenAI from 'openai';
-import dotenv from 'dotenv';
-import { GuideProfileRouter } from './routes/GuideProfile';
-import { connectDB } from './db';
-import { TouristProfileRouter } from './routes/TouristProfile';
-
+import express, { json } from "express";
+import cors from "cors";
+import { createServer } from "http";
+import { WebSocketServer, WebSocket } from "ws";
+import { Server as SocketIOServer } from "socket.io";
+import QRcode from "qrcode";
+import { v4 } from "uuid";
+import { tripPlanRouter } from "./routes/TripPlan";
+import OpenAI from "openai";
+import dotenv from "dotenv";
+import { postRouter } from "./routes/post";
+import { connectMongoDB } from "./connectDB";
+import { userRouter } from "./routes/User";
 dotenv.config();
-
 const app = express();
-const port = 4000;
-connectDB();
+const port = process.env.PORT || 4000;
+connectMongoDB();
 app.use(json());
 app.use(
   cors({
@@ -25,6 +22,7 @@ app.use(
     credentials: true,
   })
 );
+app.use("/post", postRouter);
 
 app.use('/user', userRouter);
 app.use('/tripPlan', tripPlanRouter);
