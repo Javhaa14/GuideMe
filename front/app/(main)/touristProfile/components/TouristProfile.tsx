@@ -88,8 +88,32 @@ export const TouristProfile = () => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     console.log(url, 'this');
+    createTouristProfile(values);
   }
 
+  const createTouristProfile = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_ENDPOINT}/TouristProfile`,
+        {
+          userId: '683e58ba60f8d25ee9dc85d9',
+          socialAddress: values.social,
+          profile: 'TProfile',
+          name: values.username,
+          gender: values.gender,
+          country: values.country,
+          language: values.language,
+          about: values.about,
+          photoUrl: values.photo,
+          price: values.price,
+        }
+      );
+
+      console.log('Success', res.data);
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
