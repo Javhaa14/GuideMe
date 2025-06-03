@@ -3,12 +3,12 @@ import mongoose from "mongoose";
 const commentschema = new mongoose.Schema({
   touristId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Tourist",
+    ref: "User",
     required: true,
   },
   guideId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Gprofile",
+    ref: "User",
     required: true,
   },
   rating: Number,

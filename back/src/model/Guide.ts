@@ -3,12 +3,12 @@ import mongoose from "mongoose";
 const guideschema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Tourist",
+    ref: "User",
     required: true,
   },
   profile: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Tprofile",
+    ref: "Tourist",
     required: true,
   },
   location: String,
