@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { TouristModel } from '../model/TouristProfile';
+import { Tprofilemodel } from '../model/TouristProfile';
 
 export const createTouristProfile = async (req: Request, res: Response) => {
   try {
-    const guideProfile = await TouristModel.create(req.body);
+    const guideProfile = await Tprofilemodel.create(req.body);
     return res.status(201).json({
       success: true,
       guideProfile,
@@ -18,7 +18,7 @@ export const createTouristProfile = async (req: Request, res: Response) => {
 };
 export const getTouristProfile = async (_req: Request, res: Response) => {
   try {
-    const touristProfile = await TouristModel.find();
+    const touristProfile = await Tprofilemodel.find();
     return res.status(200).json({
       success: true,
       touristProfile,
