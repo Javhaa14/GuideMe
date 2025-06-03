@@ -6,11 +6,12 @@ const guideschema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  profile: {
+  touristProfile: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Tourist",
     required: true,
   },
+
   location: String,
   firstName: String,
   lastName: String,
