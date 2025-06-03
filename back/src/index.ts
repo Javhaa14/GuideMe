@@ -14,7 +14,7 @@ import { connectMongoDB } from "./connectDB";
 import { userRouter } from "./routes/User";
 dotenv.config();
 const app = express();
-const port = 4000;
+const port = process.env.PORT || 4000;
 connectMongoDB();
 app.use(json());
 app.use(
