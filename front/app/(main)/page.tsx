@@ -6,7 +6,7 @@ import { Guides } from "./components/Guides";
 import { ImageCarousel } from "./components/ImageCarousel";
 import { Navigation } from "./components/Navigation";
 import { Videos } from "./components/Videos";
-import {  useRef, useState } from "react";
+import { useRef, useState } from "react";
 import FloatingChatButton from "./components/FloatingChatButton";
 
 export default function Home() {
@@ -16,15 +16,12 @@ export default function Home() {
     setOpen(!open);
   };
 
-
   return (
     <div className="flex flex-col relative min-h-screen">
-      <Navigation />
       <ImageCarousel />
       <Guides />
       <Videos />
       <FloatingChatButton />
-      <Footer/>
     </div>
   );
 }
