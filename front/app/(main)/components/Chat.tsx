@@ -5,6 +5,7 @@ import type React from "react";
 import { useEffect, useState, useRef } from "react";
 import { Send, User } from "lucide-react";
 import io from "socket.io-client";
+import axios from "axios";
 
 const socket = io("https://guideme-8o9f.onrender.com");
 
@@ -13,32 +14,32 @@ type ChatMessage = {
   text: string;
   profileImage: string;
 };
-
-export default function Chat() {
+type UserPayload = {
+  _id: string;
+  username: string;
+  role: string;
+};
+export default function Chat({ user }: { user: UserPayload }) {
   const [username, setUsername] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
+  const fetchProfile = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/tprofile/${user._id}`
+      );
+      console.log("✅ Posts fetched:", res.data);
+      setProfileImage(res.data.profileimage);
+    } catch (err) {
+      console.error("❌ Post fetch failed:", err);
+    }
+  };
   useEffect(() => {
-    const storedUsername = localStorage.getItem("username") || "";
-    const storedProfileImage = localStorage.getItem("profileImage") || null;
-
-    if (!storedUsername) {
-      const user =
-        prompt("🧑 Таны нэр:") || `User-${Math.floor(Math.random() * 1000)}`;
-      setUsername(user);
-      localStorage.setItem("username", user);
-    } else {
-      setUsername(storedUsername);
-    }
-
-    if (storedProfileImage) {
-      setProfileImage(storedProfileImage);
-    }
-
+    fetchProfile();
+    setUsername(user.username);
     socket.on("chat message", (msg: ChatMessage) => {
       setMessages((prev) => [...prev, msg]);
     });
@@ -138,7 +139,7 @@ export default function Chat() {
                 {/* Username Tooltip */}
                 {hoveredIndex === i && (
                   <div
-                    className={`absolute -top-8 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg z-10 whitespace-nowrap ${
+                    className={`absolute -top-8 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg z-50 whitespace-nowrap ${
                       isCurrentUser ? "right-0" : "left-0"
                     }`}
                   >
