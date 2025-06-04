@@ -91,7 +91,7 @@ export default function CreatePost() {
       ...data,
       startDate: data.startDate?.toISOString(),
       endDate: data.endDate?.toISOString(),
-      touristId: "683dfd9234d59dade921e3c7",
+      userId: "683f39f82fc687ca435d9a32",
     };
     try {
       await axios.post("http://localhost:4000/post", formattedData);

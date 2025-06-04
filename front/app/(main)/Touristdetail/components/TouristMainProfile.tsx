@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import CreatePost from "./CreatePost";
 import { useEffect, useState } from "react";
-import TravelersPost from "../../notification/page";
 import Travelerpost from "../../components/Travelerpost";
 import axios from "axios";
 type TripMemory = {
@@ -71,14 +70,15 @@ const sampleTraveler: TravelerProfile = {
 export default function TravelerProfile() {
   const [traveler] = useState<TravelerProfile>(sampleTraveler);
   const [chat, setChat] = useState(false);
-
+  const [post, setPost] = useState([]);
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:4000/post/683dfd9234d59dade921e3c7`
+          `http://localhost:4000/post/683f39f82fc687ca435d9a32`
         );
         console.log("✅ Posts fetched:", res.data);
+        setPost(res.data);
       } catch (err) {
         console.error("❌ Post fetch failed:", err);
       }
@@ -270,7 +270,11 @@ export default function TravelerProfile() {
         </div> */}
         <div className="mt-10">
           <h2 className="text-2xl font-bold mb-4">Your posts</h2>
-          <div className="flex flex-col">{/* <Travelerpost /> */}</div>
+          <div className="flex flex-col">
+            {post.map((v, i) => {
+              return <Travelerpost key={i} post={v} />;
+            })}
+          </div>
         </div>
         {/* Create Post Section */}
         <div className="mt-8">
