@@ -174,15 +174,28 @@ export function LogInEmailPassword() {
               </Button>
             </CardFooter>
 
-            <div className="flex justify-center gap-2 py-4 text-sm border-t border-white/10 text-white/70">
-              <span>Don’t have an account?</span>
-              <button
-                type="button"
-                onClick={() => router.push("/sign-up")}
-                className="font-medium text-purple-300 hover:text-purple-200"
-              >
-                Sign up
-              </button>
+            <div className="flex flex-col items-center justify-center gap-2 py-4 text-sm border-t border-white/10 text-white/70">
+              <div className="flex gap-4">
+                <span>Don’t have an account?</span>
+                <button
+                  type="button"
+                  onClick={() => router.push("/sign-up")}
+                  className="font-medium text-purple-300 hover:text-purple-200"
+                >
+                  Sign up
+                </button>
+              </div>
+
+              <div className="flex gap-4">
+                <span>Forget password?</span>
+                <button
+                  type="button"
+                  onClick={() => router.push("/forget-pass")}
+                  className="font-medium text-purple-300 hover:text-purple-200"
+                >
+                  Forget password
+                </button>
+              </div>
             </div>
           </form>
         </Form>
