@@ -18,7 +18,7 @@ export default function Travelerpost({ post }: any) {
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-gradient-to-r from-blue-50 to-white rounded-xl shadow-xl border border-blue-200 p-6 my-6 transition-transform hover:scale-[1.02]">
+    <div className="max-w-xl w-[800px] mx-auto bg-gradient-to-r from-blue-50 to-white rounded-xl shadow-xl border border-blue-200 p-6 my-6 transition-transform hover:scale-[1.02]">
       {/* User info */}
       <div className="flex items-center space-x-4 mb-5">
         <Image
@@ -32,7 +32,12 @@ export default function Travelerpost({ post }: any) {
           <h4 className="font-semibold text-gray-900 text-lg">
             {post.userInfo.username}
           </h4>
-          <p className="text-gray-500 text-sm">{post.createdAt}</p>
+          <p className="text-gray-500 text-sm">
+            {new Date(post.createdAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}
+          </p>
         </div>
       </div>
 
@@ -41,12 +46,22 @@ export default function Travelerpost({ post }: any) {
         <div className="flex items-center gap-1">
           <CalendarDays size={18} />
           <span>
-            {post.startDate}-{post.endDate}
+            {new Date(post.startDate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}
+            -
+            {new Date(post.endDate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}
           </span>
         </div>
         <div className="flex items-center gap-1">
           <MapPin size={18} />
-          <span>{post.tprofileInfo.location}</span>
+          <span>
+            {post.city},{post.country}
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <UsersRound size={18} />
@@ -59,12 +74,11 @@ export default function Travelerpost({ post }: any) {
 
       {/* Images carousel */}
       <div className="flex space-x-4 overflow-x-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 mb-6">
-        {post.image &&
-          post.image.map((val: any, i: number) => (
+        {post.images &&
+          post.images.map((val: any, i: number) => (
             <div
               key={i}
-              className="relative w-48 h-28 flex-shrink-0 rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform cursor-pointer"
-            >
+              className="relative w-48 h-28 flex-shrink-0 rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform cursor-pointer">
               <Image
                 src={val}
                 alt={`Post image ${i + 1}`}
@@ -82,8 +96,7 @@ export default function Travelerpost({ post }: any) {
           className={`flex items-center gap-2 font-semibold ${
             liked ? "text-red-500" : "text-blue-500"
           } transition-colors hover:text-red-500`}
-          aria-label="Like button"
-        >
+          aria-label="Like button">
           <Heart
             size={22}
             className={`transition-transform ${
