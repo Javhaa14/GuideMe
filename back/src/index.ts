@@ -14,6 +14,7 @@ import { userRouter } from "./routes/user";
 import { tripPlanRouter } from "./routes/tripPlan";
 import { authRouter } from "./routes/auth";
 
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 const app = express();
@@ -26,6 +27,8 @@ app.use(
     credentials: true,
   })
 );
+app.use(cookieParser());
+
 app.use("/post", postRouter);
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
