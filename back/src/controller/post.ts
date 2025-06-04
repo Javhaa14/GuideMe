@@ -30,12 +30,64 @@ export const createPost = async (req: Request, res: Response) => {
 };
 export const getPosts = async (_: Request, res: Response) => {
   try {
-    const posts = await Postmodel.find()
-      .populate({
-        path: "userId",
-        select: "gender languages location profileimage username email",
-      })
-      .lean();
+    const posts = await Postmodel.aggregate([
+      // No $match stage here, so fetches all posts
+
+      {
+        $lookup: {
+          from: "tourists",
+          localField: "userId",
+          foreignField: "_id",
+          as: "tprofileInfo",
+        },
+      },
+      {
+        $unwind: {
+          path: "$tprofileInfo",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "tprofileInfo._id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      {
+        $unwind: {
+          path: "$userInfo",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          content: 1,
+          country: 1,
+          city: 1,
+          images: 1,
+          people: 1,
+          likes: 1,
+          likedBy: 1,
+          startDate: 1,
+          endDate: 1,
+          createdAt: 1,
+
+          "tprofileInfo.gender": 1,
+          "tprofileInfo.languages": 1,
+          "tprofileInfo.location": 1,
+          "tprofileInfo.profileimage": 1,
+          "tprofileInfo.backgroundimage": 1,
+          "tprofileInfo.socialAddress": 1,
+          "tprofileInfo.about": 1,
+
+          "userInfo.username": 1,
+          "userInfo.email": 1,
+          "userInfo.role": 1,
+        },
+      },
+    ]);
 
     if (!posts.length) {
       console.warn("4. WARNING: Empty post array returned");
