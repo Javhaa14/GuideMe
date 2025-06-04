@@ -14,6 +14,7 @@ import { userRouter } from "./routes/user";
 import { tripPlanRouter } from "./routes/tripPlan";
 import { authRouter } from "./routes/auth";
 
+
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
@@ -30,7 +31,7 @@ app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
 // app.use('/GuideProfile', GuideProfileRouter);
-app.use("/TouristProfile", touristRouter);
+app.use("/tprofile", touristRouter);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // QR System
