@@ -31,8 +31,6 @@ export const createPost = async (req: Request, res: Response) => {
 export const getPosts = async (_: Request, res: Response) => {
   try {
     const posts = await Postmodel.aggregate([
-      // No $match stage here, so fetches all posts
-
       {
         $lookup: {
           from: "tourists",
@@ -63,6 +61,7 @@ export const getPosts = async (_: Request, res: Response) => {
       },
       {
         $project: {
+          userId: 1,
           content: 1,
           country: 1,
           city: 1,
@@ -153,6 +152,7 @@ export const getPostsByUserId = async (req: Request, res: Response) => {
       },
       {
         $project: {
+          userId: 1,
           content: 1,
           country: 1,
           city: 1,
