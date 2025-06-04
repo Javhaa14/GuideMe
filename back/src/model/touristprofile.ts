@@ -1,15 +1,42 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const tprofileschema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Tourist",
-    required: true,
+const TouristProfileSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Tourist',
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    gender: {
+      type: String,
+      enum: ['male', 'female', 'other'],
+      required: true,
+    },
+    country: {
+      type: String,
+      required: true,
+    },
+    language: {
+      type: String,
+      required: true,
+    },
+    about: {
+      type: String,
+    },
+    photo: {
+      type: String,
+    },
   },
-  languages: [String],
-  location: String,
-  profileimage: String,
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: Date,
-});
-export const Tprofilemodel = mongoose.model("Tprofile", tprofileschema);
+  {
+    timestamps: true,
+  }
+);
+
+export const TouristModel = mongoose.model(
+  'TouristProfile',
+  TouristProfileSchema
+);

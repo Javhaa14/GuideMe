@@ -1,14 +1,14 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const gprofileschema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Tourist",
+    ref: 'Tourist',
     required: true,
   },
   profile: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Tprofile",
+    ref: 'Tprofile',
     required: true,
   },
   location: String,
@@ -19,7 +19,7 @@ const gprofileschema = new mongoose.Schema({
     type: String,
     validate: {
       validator: function (value: string) {
-        return value === "FREE" || !isNaN(Number(value));
+        return value === 'FREE' || !isNaN(Number(value));
       },
       message: "Price must be 'FREE' or a number string",
     },
@@ -27,14 +27,14 @@ const gprofileschema = new mongoose.Schema({
   languages: [String],
   status: {
     type: String,
-    enum: ["available", "inavailable", "busy"],
-    default: "available",
+    enum: ['available', 'inavailable', 'busy'],
+    default: 'available',
     required: true,
   },
   rating: Number,
   comments: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Comment",
+    ref: 'Comment',
     required: true,
   },
   experience: String,
@@ -42,12 +42,12 @@ const gprofileschema = new mongoose.Schema({
   SocialAddress: String,
   Car: {
     type: String,
-    enum: ["baigaa", "baihgu"],
-    default: "baihgu",
+    enum: ['baigaa', 'baihgu'],
+    default: 'baihgu',
     required: true,
   },
   activities: [String],
   createdAt: { type: Date, default: Date.now },
   updatedAt: Date,
 });
-export const Gprofilemodel = mongoose.model("Gprofile", gprofileschema);
+export const Gprofilemodel = mongoose.model('Gprofile', gprofileschema);
