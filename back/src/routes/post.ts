@@ -6,4 +6,4 @@ export const postRouter = express.Router();
 postRouter
   .post("/", createPost)
   .get("/", getPosts)
-  .get("/:userId", getPostsByUserId);
+  .get("/:userId", getPostsByUserId as any);
