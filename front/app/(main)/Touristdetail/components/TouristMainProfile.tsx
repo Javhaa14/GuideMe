@@ -122,7 +122,7 @@ export default function TravelerProfile() {
               </div>
             </div>
             <div className="flex w-full">
-              <Chat />
+              <Chat user={user!} />
             </div>
           </div>
         </div>
