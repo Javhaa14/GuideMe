@@ -12,6 +12,8 @@ import { connectMongoDB } from "./connectDB";
 import { touristRouter } from "./routes/touristProfile";
 import { userRouter } from "./routes/user";
 import { tripPlanRouter } from "./routes/tripPlan";
+import { authRouter } from "./routes/auth";
+
 
 dotenv.config();
 const app = express();
@@ -25,6 +27,7 @@ app.use(
   })
 );
 app.use("/post", postRouter);
+app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
 // app.use('/GuideProfile', GuideProfileRouter);
