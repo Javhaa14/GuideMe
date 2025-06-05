@@ -27,11 +27,15 @@ const guideschema = new mongoose.Schema({
     required: true,
   },
   rating: Number,
-  comments: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Comment",
-    required: true,
-  },
+
+  // ✅ Changed to an array of ObjectIds referencing Comment model
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment",
+    },
+  ],
+
   experience: String,
   about: String,
   SocialAddress: String,

@@ -16,6 +16,7 @@ import { authRouter } from "./routes/auth";
 
 import cookieParser from "cookie-parser";
 import { commentRouter } from "./routes/comments";
+import { guideRouter } from "./routes/guideProfile";
 
 dotenv.config();
 const app = express();
@@ -35,8 +36,7 @@ app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
 app.use("/comment", commentRouter);
-
-// app.use('/GuideProfile', GuideProfileRouter);
+app.use("/gprofile", guideRouter);
 app.use("/tprofile", touristRouter);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
