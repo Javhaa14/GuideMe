@@ -24,7 +24,7 @@ export type TouristProfile = {
   createdAt: string;
   updatedAt: string;
 };
-type Post = {
+export type Post = {
   _id: string;
   city: string;
   content: string;
@@ -44,7 +44,7 @@ type Post = {
     role: string;
   };
 };
-type UserPayload = {
+export type UserPayload = {
   _id: string;
   username: string;
   role: string;
@@ -115,8 +115,7 @@ export default function TravelerProfile() {
                 </h3>
                 <button
                   onClick={() => setChat(false)}
-                  className="text-white hover:text-gray-200 transition-colors"
-                >
+                  className="text-white hover:text-gray-200 transition-colors">
                   x
                 </button>
               </div>
