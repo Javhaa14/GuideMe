@@ -27,8 +27,6 @@ const guideschema = new mongoose.Schema({
     required: true,
   },
   rating: Number,
-
-  // ✅ Changed to an array of ObjectIds referencing Comment model
   comments: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -41,8 +39,8 @@ const guideschema = new mongoose.Schema({
   SocialAddress: String,
   car: {
     type: String,
-    enum: ["baigaa", "baihgu"],
-    default: "baihgu",
+    enum: ["true", "false"],
+    default: "false",
     required: true,
   },
   activities: [String],

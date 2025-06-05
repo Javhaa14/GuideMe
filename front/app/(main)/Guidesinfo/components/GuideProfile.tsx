@@ -8,6 +8,7 @@ export const GuideProfile = ({
   rating,
   image,
   status,
+  onclick,
 }: {
   name: string;
   location: string;
@@ -16,9 +17,12 @@ export const GuideProfile = ({
   rating: number;
   image: string;
   status: string;
+  onclick: () => void;
 }) => {
   return (
-    <div className="w-[500px] h-[200px] border-[1px] border-black rounded-lg flex flex-row gap-2">
+    <div
+      onClick={onclick}
+      className="w-[500px] h-[200px] border-[1px] border-black rounded-lg flex flex-row gap-2">
       <img
         src={image == "" ? "/user.jpg" : image}
         className="w-[300px] h-[200px] rounded-lg"></img>

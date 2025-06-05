@@ -24,74 +24,183 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import axios from "axios";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  TouristProfile,
+  UserPayload,
+} from "../../Touristdetail/components/TouristMainProfile";
+import {
+  CountryType,
+  LanguageOption,
+} from "../../touristProfile/components/TouristProfile";
+// wherever you're using it (e.g., GuideProfile.tsx)
+import dynamic from "next/dynamic";
+import type { OptionType } from "./Selectwrapper";
+import { MultiValue, SingleValue, ActionMeta } from "react-select";
 
-type CountryType = {
-  name: {
-    common: string;
-  };
-};
+const MultiSelect = dynamic(
+  () => import("./Selectwrapper").then((mod) => mod.MultiSelect),
+  { ssr: false }
+);
 
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-  language: z.string().min(2, {
-    message: "Please enter language",
-  }),
-  price: z.string().min(1, {
-    message: "Please enter a price",
-  }),
-  about: z.string().min(2, {
-    message: "Please enter info about yourself",
-  }),
-  photo: z
-    .instanceof(File, { message: "Must upload an image file" })
-    .nullable(),
-  social: z.string().min(2, {
-    message: "Please enter a social link",
-  }),
-  gender: z.string({
-    message: "Select gender to continue",
-  }),
-  country: z.string({
-    message: "Select country to continue",
-  }),
-  activities: z.string().optional(),
-  car: z.boolean().default(false),
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  gender: z.string().min(1, "Gender is required"),
+  location: z.string().min(1, "Country is required"),
+  languages: z
+    .array(z.string())
+    .min(1, { message: "Please select at least one language" }),
+  socialAddress: z.string().min(2, "SocialAddress media link is required"),
+  profileimage: z
+    .union([z.string().url().optional(), z.instanceof(File)])
+    .refine((val) => !!val, {
+      message: "Must upload an image",
+    }),
+  price: z.string().min(1, "Price is required"),
+  experience: z.string().min(1, "Experience is required"),
+  about: z.string().min(1, "About is required"),
+  activities: z
+    .array(z.string())
+    .min(1, { message: "Select at least one activity" }),
+
+  car: z.boolean(),
 });
 
 export function GProfile() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
-      about: "",
-      social: "",
-      language: "",
-      price: "",
+      firstName: "",
+      lastName: "",
       gender: "",
-      country: "",
-      activities: "",
+      location: "",
+      languages: [],
+      socialAddress: "",
+      profileimage: "",
+      price: "",
+      experience: "",
+      about: "",
+      activities: [],
       car: false,
-      photo: null,
     },
   });
+  const activityOptions = [
+    { label: "Hiking", value: "hiking" },
+    { label: "City Tour", value: "city-tour" },
+    { label: "Museum Visit", value: "museum" },
+    { label: "Food Tasting", value: "food" },
+    { label: "Beach Day", value: "beach" },
+  ];
 
-  const [data, setData] = useState<CountryType[]>([]);
+  const [user, setUser] = useState<UserPayload | null>(null);
+  const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
+  const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
   const [url, setUrl] = useState<string | null>(null);
-  const [profileData, setProfileData] = useState({});
+  const [tourist, setTourist] = useState<TouristProfile>();
 
-  const fetchData = async () => {
-    const res = await axios.get(
-      `https://restcountries.com/v3.1/all?fields=name`
-    );
-    setData(res.data);
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
+        {
+          withCredentials: true,
+        }
+      );
+      const userData = res.data.user;
+
+      setUser(userData);
+    } catch (error) {
+      console.log("No user logged in or error fetching user");
+    }
+  };
+
+  const fetchProfile = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/tprofile/${user?._id}`
+      );
+      console.log("✅ Posts fetched:", res.data);
+      setTourist(res.data);
+    } catch (err) {
+      console.error("❌ Post fetch failed:", err);
+    }
   };
 
   useEffect(() => {
-    fetchData();
+    const fetchCountries = async () => {
+      try {
+        const res = await axios.get(
+          "https://restcountries.com/v3.1/all?fields=name"
+        );
+        const options = res.data
+          .map((country: CountryType) => ({
+            label: country.name.common,
+            value: country.name.common,
+          }))
+          .sort((a: OptionType, b: OptionType) =>
+            a.label.localeCompare(b.label)
+          );
+        setCountryOptions(options);
+      } catch (error) {
+        console.error("Failed to fetch countries", error);
+      }
+    };
+    fetchCountries();
   }, []);
+
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        const res = await axios.get(
+          "https://restcountries.com/v3.1/all?fields=languages"
+        );
+
+        const langsSet = new Set<string>();
+        res.data.forEach((country: any) => {
+          if (country.languages) {
+            (Object.values(country.languages) as string[]).forEach((lang) =>
+              langsSet.add(lang)
+            );
+          }
+        });
+
+        const options = Array.from(langsSet).map((lang) => ({
+          label: lang,
+          value: lang,
+        }));
+
+        setLanguageOptions(options);
+      } catch (error) {
+        console.error("Failed to fetch languages", error);
+      }
+    };
+    fetchLanguages();
+  }, []);
+  useEffect(() => {
+    fetchUser();
+  }, []);
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
+  useEffect(() => {
+    if (tourist) {
+      form.reset({
+        gender: tourist.gender ?? "",
+        location: tourist.location ?? "",
+        about: tourist.about ?? "",
+        profileimage: tourist.profileimage ?? "",
+        languages: tourist.languages ?? [],
+      });
+
+      if (tourist.profileimage) {
+        setUrl(tourist.profileimage);
+      }
+    }
+  }, [tourist]);
+
+  console.log(user);
 
   const handlePreview = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -101,46 +210,46 @@ export function GProfile() {
     }
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    createGuideProfile(values);
-  }
-  const createGuideProfile = async (values: z.infer<typeof formSchema>) => {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const payload = {
+      _id: user?._id || "",
+      firstName: values.firstName,
+      lastName: values.lastName,
+      languages: values.languages,
+      price: values.price,
+      experience: values.experience,
+      car: values.car,
+      activities: values.activities,
+      socialAddress: values.socialAddress,
+      location: values.location,
+      about: values.about,
+      gender: values.gender,
+      profileimage: values.profileimage,
+    };
+
+    // Then send payload as JSON or in FormData if you have files
+    console.log(payload);
+
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_ENDPOINT}/GuideProfile`,
-        {
-          userId: "683e88280c00dfbcb4332d8a",
-          socialAddress: values.social,
-          profile: "GProfile",
-          name: values.username,
-          gender: values.gender,
-          country: values.country,
-          language: values.language,
-          about: values.about,
-          activities: values.activities,
-          photoUrl: "url",
-          price: values.price,
-          car: values.car,
-        }
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/gprofile`,
+        payload
       );
-
       console.log("Success", res.data);
     } catch (error) {
-      console.log("error", error);
+      console.error("Profile creation failed", error);
     }
-  };
-
-  console.log("Form Errors:", form.formState.errors);
-
+  }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <p className="text-[24px] font-bold">Complete your profile page</p>
+        <p className="text-[24px] font-bold">
+          Complete your guide profile page, {user?.username}
+        </p>
 
         <FormField
           control={form.control}
-          name="photo"
+          name="profileimage"
           render={({ field }) => (
             <FormItem className="relative">
               <FormLabel>Add photo</FormLabel>
@@ -159,34 +268,48 @@ export function GProfile() {
                       }
                     }}
                   />
-                  {url && (
+                  {url ? (
                     <img
                       className="size-[160px] rounded-full absolute object-cover"
                       src={url}
                       alt="Preview"
                     />
-                  )}
+                  ) : tourist?.profileimage ? (
+                    <img
+                      className="size-[160px] rounded-full absolute object-cover"
+                      src={tourist.profileimage}
+                      alt="Existing Profile"
+                    />
+                  ) : null}
                 </div>
               </FormControl>
               <FormMessage className="absolute top-47" />
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
-          name="username"
+          name="firstName"
           render={({ field }) => (
-            <FormItem className="relative">
-              <FormLabel>Name</FormLabel>
+            <FormItem>
+              <FormLabel>First Name</FormLabel>
               <FormControl>
-                <Input
-                  className="w-[510px] h-[40px]"
-                  placeholder="Enter your name here"
-                  {...field}
-                />
+                <Input placeholder="Enter your first name" {...field} />
               </FormControl>
-              <FormMessage className="absolute top-17" />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="lastName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Last Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter your last name" {...field} />
+              </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -206,9 +329,9 @@ export function GProfile() {
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Gender</SelectLabel>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -219,26 +342,24 @@ export function GProfile() {
           />
           <FormField
             control={form.control}
-            name="country"
-            render={({ field }) => (
+            name="location"
+            render={({ field: { onChange, value } }) => (
               <FormItem className="w-full relative">
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="w-full h-[40px]">
-                      <SelectValue placeholder="Select a country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Country</SelectLabel>
-                        {data.map((val, i) => (
-                          <SelectItem key={i} value={val.name.common}>
-                            {val.name.common}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <MultiSelect
+                    isMulti={false}
+                    options={countryOptions}
+                    value={
+                      countryOptions.find((option) => option.value === value) ||
+                      null
+                    }
+                    onChange={(newValue) => {
+                      onChange((newValue as OptionType | null)?.value || "");
+                    }}
+                    placeholder="Select a country"
+                    isClearable
+                  />
                 </FormControl>
                 <FormMessage className="absolute top-17" />
               </FormItem>
@@ -248,18 +369,28 @@ export function GProfile() {
 
         <FormField
           control={form.control}
-          name="language"
-          render={({ field }) => (
+          name="languages"
+          render={({ field: { onChange, value, ref } }) => (
             <FormItem className="w-full relative">
-              <FormLabel>Language</FormLabel>
+              <FormLabel>Languages</FormLabel>
               <FormControl>
-                <Input
-                  className="w-full h-[40px]"
-                  placeholder="Language knowledge"
-                  {...field}
+                <MultiSelect
+                  isMulti
+                  options={languageOptions}
+                  value={languageOptions.filter((option) =>
+                    (value as string[]).includes(option.value)
+                  )}
+                  onChange={(
+                    newValue: SingleValue<OptionType> | MultiValue<OptionType>
+                  ) => {
+                    if (Array.isArray(newValue)) {
+                      onChange(newValue.map((item) => item.value));
+                    }
+                  }}
+                  placeholder="Select languages"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="absolute top-17" />
             </FormItem>
           )}
         />
@@ -286,22 +417,22 @@ export function GProfile() {
             control={form.control}
             name="car"
             render={({ field }) => (
-              <FormItem className="flex items-center w-full h-[40px] rounded-md border p-4 relative">
-                <FormLabel className="mr-2">Car</FormLabel>
+              <FormItem>
+                <FormLabel>Do you have a car?</FormLabel>
                 <FormControl>
-                  <Checkbox
+                  <input
+                    type="checkbox"
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onChange={(e) => field.onChange(e.target.checked)}
                   />
                 </FormControl>
-                <FormMessage className="absolute top-17" />
               </FormItem>
             )}
           />
         </div>
         <FormField
           control={form.control}
-          name="social"
+          name="socialAddress"
           render={({ field }) => (
             <FormItem className="relative">
               <FormLabel>Social media URL</FormLabel>
@@ -333,18 +464,54 @@ export function GProfile() {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="experience"
+          render={({ field }) => (
+            <FormItem className="relative">
+              <FormLabel>Experience</FormLabel>
+              <FormControl>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-[510px] h-[40px]">
+                    <SelectValue placeholder="Select your experience" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Experience</SelectLabel>
+                      <SelectItem value="over-5-years">Over 5 years</SelectItem>
+                      <SelectItem value="2-3-years">2-3 years</SelectItem>
+                      <SelectItem value="1-2-years">1-2 years</SelectItem>
+                      <SelectItem value="under-1-year">Under 1 year</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage className="absolute top-17" />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
           name="activities"
-          render={({ field }) => (
-            <FormItem className="relative">
+          render={({ field: { onChange, value, ref } }) => (
+            <FormItem className="w-full relative">
               <FormLabel>Activities</FormLabel>
               <FormControl>
-                <Input
-                  className="w-[510px] h-[40px]"
-                  placeholder="Activities"
-                  {...field}
+                <MultiSelect
+                  isMulti
+                  options={activityOptions}
+                  value={activityOptions.filter((option) =>
+                    (value as string[]).includes(option.value)
+                  )}
+                  onChange={(
+                    newValue: SingleValue<OptionType> | MultiValue<OptionType>
+                  ) => {
+                    if (Array.isArray(newValue)) {
+                      onChange(newValue.map((item) => item.value));
+                    }
+                  }}
+                  placeholder="Select activities"
                 />
               </FormControl>
               <FormMessage className="absolute top-17" />
