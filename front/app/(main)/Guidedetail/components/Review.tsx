@@ -24,7 +24,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "./Starrating";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const formSchema = z.object({
   communication: z.number().min(1, "Please review"),
@@ -32,15 +33,22 @@ const formSchema = z.object({
   attitude: z.number().min(1, "Please review"),
   tripSatisfaction: z.number().min(1, "Please review"),
   recommend: z.enum(["yes", "no"]),
-  comments: z.string().optional(),
+  review: z.string().optional(),
 });
 
 type ReviewProps = {
-  guideName: string;
+  userId: string;
 };
+type UserPayload = {
+  _id: string;
+  username: string;
+  role: string;
+};
+export const Review = ({ userId }: ReviewProps) => {
+  const [open, setOpen] = useState(false);
+  const [currentuser, setCurrentuser] = useState<UserPayload | null>(null);
 
-export const Review = ({ guideName }: ReviewProps) => {
-  const form = useForm({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       communication: 0,
@@ -48,16 +56,27 @@ export const Review = ({ guideName }: ReviewProps) => {
       attitude: 0,
       tripSatisfaction: 0,
       recommend: "no",
-      comments: "",
+      review: "",
     },
   });
-  const [open, setOpen] = useState(false);
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const reviewWithGuide = {
-      ...values,
-      guideName,
-    };
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
+        {
+          withCredentials: true,
+        }
+      );
+      const userData = res.data.user;
+      setCurrentuser(userData);
+    } catch (error) {
+      console.log("No user logged in or error fetching user");
+    }
+  };
+  useEffect(() => {
+    fetchUser();
+  }, []);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     const total =
       Number(values.communication) +
       Number(values.languageKnowledge) +
@@ -65,9 +84,32 @@ export const Review = ({ guideName }: ReviewProps) => {
       Number(values.tripSatisfaction);
 
     const average = total / 4;
+    if (!currentuser) {
+      toast.error("You must be logged in to submit a review.");
+      return;
+    }
+
+    const reviewWithGuide = {
+      userId, // the guide's user ID
+      reviewerId: currentuser._id, // the reviewer
+      rating: average, // calculated average
+      review: values.review, // new name instead of 'comments'
+      recommend: values.recommend,
+    };
+
     console.log(reviewWithGuide, average);
     console.log(form.formState.errors);
 
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/comment`,
+        reviewWithGuide
+      );
+
+      console.log("✅ Comment created successfully");
+    } catch (err) {
+      console.error("❌ Comment failed:", err);
+    }
     toast.success("Thank you for your review!");
     setOpen(false);
   }
@@ -82,7 +124,7 @@ export const Review = ({ guideName }: ReviewProps) => {
       </DialogTrigger>
       <DialogContent className="w-full max-w-md">
         <DialogHeader>
-          <DialogTitle>How was {guideName}?</DialogTitle>
+          <DialogTitle>How was ?</DialogTitle>
           <DialogDescription>
             We’d love to hear your feedback!
           </DialogDescription>
@@ -155,7 +197,7 @@ export const Review = ({ guideName }: ReviewProps) => {
               />
               <FormField
                 control={form.control}
-                name="comments"
+                name="review"
                 render={({ field }) => (
                   <FormItem className="">
                     <FormLabel>Comments</FormLabel>

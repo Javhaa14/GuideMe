@@ -1,18 +1,24 @@
 import mongoose from "mongoose";
 
 const commentschema = new mongoose.Schema({
-  touristId: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  guideId: {
+  reviewerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
   rating: Number,
-  comment: String,
+  review: String,
+  recommend: {
+    type: String,
+    enum: ["no", "yes"],
+    default: "no",
+    required: true,
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: Date,
 });

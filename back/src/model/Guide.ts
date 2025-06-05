@@ -1,17 +1,11 @@
 import mongoose from "mongoose";
 
 const guideschema = new mongoose.Schema({
-  userId: {
+  _id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  touristProfile: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Tourist",
-    required: true,
-  },
-
   location: String,
   firstName: String,
   lastName: String,
@@ -41,7 +35,7 @@ const guideschema = new mongoose.Schema({
   experience: String,
   about: String,
   SocialAddress: String,
-  Car: {
+  car: {
     type: String,
     enum: ["baigaa", "baihgu"],
     default: "baihgu",
