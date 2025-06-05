@@ -1,17 +1,18 @@
-import { Separator } from "@radix-ui/react-select";
 import Image from "next/image";
 import Link from "next/link";
 import { FaFacebookF } from "react-icons/fa6";
 import { FaInstagram } from "react-icons/fa6";
+import { Separator } from "../../../../components/ui/separator";
 
 type Props = {
   profileImage: string;
   profileName: string;
   experience: string;
   review: string;
-  chargeStatus: string;
+  location: string;
   facebookLink: string;
   instagramLink: string;
+  chargeStatus: string;
 };
 
 export const GuideListInPost = (data: Props) => {
@@ -20,9 +21,10 @@ export const GuideListInPost = (data: Props) => {
     profileName,
     experience,
     review,
-    chargeStatus,
+    location,
     facebookLink,
     instagramLink,
+    chargeStatus,
   } = data;
   return (
     <div className="flex w-[600px] h-fit border solid border-gray rounded-md p-3">
@@ -43,6 +45,7 @@ export const GuideListInPost = (data: Props) => {
             <span>{experience}</span>
           </div>
           <p>{chargeStatus}</p>
+          <p>{location}</p>
         </div>
         <Separator />
         <div className="flex justify-around items-center">
