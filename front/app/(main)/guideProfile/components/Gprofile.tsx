@@ -1,9 +1,9 @@
-'use client';
-import { Camera } from 'lucide-react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
+"use client";
+import { Camera } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -11,9 +11,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useEffect, useState } from 'react';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -22,9 +22,9 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import axios from 'axios';
-import { Checkbox } from '@/components/ui/checkbox';
+} from "@/components/ui/select";
+import axios from "axios";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type CountryType = {
   name: {
@@ -34,45 +34,45 @@ type CountryType = {
 
 const formSchema = z.object({
   username: z.string().min(2, {
-    message: 'Username must be at least 2 characters.',
+    message: "Username must be at least 2 characters.",
   }),
   language: z.string().min(2, {
-    message: 'Please enter language',
+    message: "Please enter language",
   }),
   price: z.string().min(1, {
-    message: 'Please enter a price',
+    message: "Please enter a price",
   }),
   about: z.string().min(2, {
-    message: 'Please enter info about yourself',
+    message: "Please enter info about yourself",
   }),
   photo: z
-    .instanceof(File, { message: 'Must upload an image file' })
+    .instanceof(File, { message: "Must upload an image file" })
     .nullable(),
   social: z.string().min(2, {
-    message: 'Please enter a social link',
+    message: "Please enter a social link",
   }),
   gender: z.string({
-    message: 'Select gender to continue',
+    message: "Select gender to continue",
   }),
   country: z.string({
-    message: 'Select country to continue',
+    message: "Select country to continue",
   }),
   activities: z.string().optional(),
   car: z.boolean().default(false),
 });
 
-export function Profile() {
+export function GProfile() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
-      about: '',
-      social: '',
-      language: '',
-      price: '',
-      gender: '',
-      country: '',
-      activities: '',
+      username: "",
+      about: "",
+      social: "",
+      language: "",
+      price: "",
+      gender: "",
+      country: "",
+      activities: "",
       car: false,
       photo: null,
     },
@@ -110,28 +110,28 @@ export function Profile() {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_ENDPOINT}/GuideProfile`,
         {
-          userId: '683e88280c00dfbcb4332d8a',
+          userId: "683e88280c00dfbcb4332d8a",
           socialAddress: values.social,
-          profile: 'GProfile',
+          profile: "GProfile",
           name: values.username,
           gender: values.gender,
           country: values.country,
           language: values.language,
           about: values.about,
           activities: values.activities,
-          photoUrl: 'url',
+          photoUrl: "url",
           price: values.price,
           car: values.car,
         }
       );
 
-      console.log('Success', res.data);
+      console.log("Success", res.data);
     } catch (error) {
-      console.log('error', error);
+      console.log("error", error);
     }
   };
 
-  console.log('Form Errors:', form.formState.errors);
+  console.log("Form Errors:", form.formState.errors);
 
   return (
     <Form {...form}>
