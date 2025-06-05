@@ -1,5 +1,6 @@
-import { Commentmodel } from "../model/Comment";
 import { Request, Response } from "express";
+import { Commentmodel } from "../model/Comment";
+import { Guidemodel } from "../model/Guide";
 
 export const createComment = async (req: Request, res: Response) => {
   const { userId, rating, review, recommend, reviewerId } = req.body;
@@ -11,6 +12,14 @@ export const createComment = async (req: Request, res: Response) => {
       review,
       recommend,
     });
+    await Guidemodel.findByIdAndUpdate(
+      userId,
+      {
+        $push: { comments: comment._id },
+      },
+      { new: true }
+    );
+
     res.status(200).send({
       success: true,
       comment,
@@ -26,7 +35,10 @@ export const getCommentsByuserId = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
   try {
-    const comments = await Commentmodel.find({ userId });
+    const comments = await Commentmodel.find({ userId }).populate({
+      path: "reviewerId",
+      select: "username _id role",
+    });
 
     if (!comments || comments.length === 0) {
       return res
