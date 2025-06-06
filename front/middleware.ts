@@ -22,9 +22,11 @@ export function middleware(request: NextRequest) {
 
   if (isProtectedPath) {
     if (!token) {
-      // Redirect to login if no token
       const loginUrl = new URL("/log-in", request.url);
-      loginUrl.searchParams.set("from", request.nextUrl.pathname);
+      loginUrl.searchParams.set(
+        "from",
+        request.nextUrl.pathname + request.nextUrl.search
+      );
       return NextResponse.redirect(loginUrl);
     }
   }
@@ -33,5 +35,14 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/Guidedetail/:path*"],
+  matcher: [
+    "/Guidedetail/:path*",
+    "/guideProfile/:path*",
+    "/Guidesinfo/:path*",
+    "/notification/:path*",
+    "/Settings/:path*",
+    "/Touristdetail/:path*",
+    "/touristProfile/:path*",
+    "/Travelersinfo/:path*",
+  ],
 };
