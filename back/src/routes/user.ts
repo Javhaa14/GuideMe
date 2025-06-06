@@ -1,4 +1,6 @@
 import express from "express";
+
+import { verifyToken } from "../middleware/auth";
 import {
   createUser,
   deleteUserById,
@@ -7,7 +9,6 @@ import {
   getUsers,
   updateUserById,
 } from "../controller/User";
-import { verifyToken } from "../middleware/auth";
 
 export const userRouter = express.Router();
 
