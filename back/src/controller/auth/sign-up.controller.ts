@@ -47,9 +47,9 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     res
       .cookie("token", token, {
         maxAge: 60 * 60 * 1000,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        httpOnly: false,
+        sameSite: "none",
+        secure: true, // must be true when sameSite is "none"
       })
       .status(201)
       .json({
