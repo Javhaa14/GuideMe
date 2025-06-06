@@ -85,10 +85,11 @@ export const TouristProfile = () => {
   // Fetch countries for country select
   const fetchData = async () => {
     try {
-      const res = await axios.get(
-        `https://restcountries.com/v3.1/all?fields=name`
-      );
-      setData(res.data);
+      const res = await axios.get("https://restcountries.com/v3.1/all");
+      const countries = res.data.map((country: any) => ({
+        name: { common: country.name.common },
+      }));
+      setData(countries);
     } catch (error) {
       console.error("Failed to fetch countries", error);
     }
@@ -286,7 +287,8 @@ export const TouristProfile = () => {
                   <Select
                     {...field}
                     onValueChange={field.onChange}
-                    value={field.value || ""}>
+                    value={field.value || ""}
+                  >
                     <SelectTrigger className="w-full h-[40px]">
                       <SelectValue placeholder="Select your gender" />
                     </SelectTrigger>
@@ -315,7 +317,8 @@ export const TouristProfile = () => {
                   <Select
                     {...field}
                     onValueChange={field.onChange}
-                    value={field.value || ""}>
+                    value={field.value || ""}
+                  >
                     <SelectTrigger className="w-full h-[40px]">
                       <SelectValue placeholder="Select a country" />
                     </SelectTrigger>
