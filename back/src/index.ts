@@ -103,7 +103,6 @@ const openai = new OpenAI({
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 io.on("connection", (socket) => {
-  console.log("✅ Chat user connected:", socket.id);
   let chatHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
 
   // 1. AI Chatbot
@@ -143,7 +142,6 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
   });
 
   socket.on("disconnect", () => {
-    console.log("❌ Chat user disconnected:", socket.id);
     chatHistory = [];
   });
 });
