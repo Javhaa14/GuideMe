@@ -4,18 +4,27 @@ import { Guidemodel } from "../model/Guide";
 export const createGuideProfile = async (req: Request, res: Response) => {
   const {
     _id,
-    languages,
     firstName,
     lastName,
+    username,
     price,
     experience,
     car,
     activities,
     socialAddress,
+    about,
+    profileimage,
+    location,
+    gender,
+    languages,
+    status,
+    rating,
   } = req.body;
+
   try {
     const Gprofile = await Guidemodel.create({
       _id,
+      username,
       languages,
       socialAddress,
       firstName,
@@ -24,12 +33,20 @@ export const createGuideProfile = async (req: Request, res: Response) => {
       experience,
       car,
       activities,
+      about,
+      profileimage,
+      location,
+      gender,
+      status,
+      rating,
     });
     res.status(200).send({
       success: true,
       Gprofile,
     });
   } catch (error: any) {
+    console.error("❌ Error creating guide profile:", error);
+
     res.status(400).send({
       success: false,
       message: error.message,

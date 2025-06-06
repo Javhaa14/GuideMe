@@ -6,6 +6,7 @@ const guideschema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  username: String,
   location: String,
   firstName: String,
   lastName: String,
@@ -34,6 +35,8 @@ const guideschema = new mongoose.Schema({
     },
   ],
 
+  profileimage: String,
+  backgroundimage: String,
   experience: String,
   about: String,
   SocialAddress: String,
