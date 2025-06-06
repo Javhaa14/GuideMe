@@ -4,7 +4,9 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
 
-  // List of protected paths
+  console.log("Middleware - pathname:", request.nextUrl.pathname);
+  console.log("Middleware - token:", token);
+
   const protectedPaths = [
     "/Guidedetail",
     "/guideProfile",
@@ -20,29 +22,14 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path)
   );
 
-  if (isProtectedPath) {
-    if (!token) {
-      const loginUrl = new URL("/log-in", request.url);
-      loginUrl.searchParams.set(
-        "from",
-        request.nextUrl.pathname + request.nextUrl.search
-      );
-      return NextResponse.redirect(loginUrl);
-    }
+  if (isProtectedPath && !token) {
+    const loginUrl = new URL("/log-in", request.url);
+    loginUrl.searchParams.set(
+      "from",
+      request.nextUrl.pathname + request.nextUrl.search
+    );
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: [
-    "/Guidedetail/:path*",
-    "/guideProfile/:path*",
-    "/Guidesinfo/:path*",
-    "/notification/:path*",
-    "/Settings/:path*",
-    "/Touristdetail/:path*",
-    "/touristProfile/:path*",
-    "/Travelersinfo/:path*",
-  ],
-};
