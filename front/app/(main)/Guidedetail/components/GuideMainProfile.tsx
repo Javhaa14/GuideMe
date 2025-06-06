@@ -20,17 +20,16 @@ type TourPost = {
 
 type GuideProfile = {
   id: number;
+  username: string;
   firstName: string;
   lastName: string;
   profileimage: string;
-  coverImage: string;
-  motto: string;
-  languageKnowledge: string;
+  backgroundimage: string;
+  languages: string;
   gender: string;
   rating: number;
   price: number;
   comment: string;
-  cardNumber: string;
   socialAddress: string;
   about: string;
   car: string;
@@ -109,35 +108,51 @@ export default function GuideMainProfile() {
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="rounded-3xl overflow-hidden shadow-2xl border bg-white">
           <div className="relative w-full h-72 md:h-96">
-            <Image
-              src={""}
-              alt="Cover"
-              fill
-              className="object-cover"
-              priority
-            />
+            {guide?.backgroundimage && (
+              <Image
+                src={guide?.backgroundimage}
+                alt="Cover"
+                fill
+                className="object-cover"
+                priority
+              />
+            )}
           </div>
 
-          <div className="relative px-10 pb-12 pt-24 bg-white">
+          <div className="relative px-10 pb-12  bg-white">
             <div className="absolute -top-24 left-10 w-40 h-40 rounded-full border-4 border-white shadow-xl overflow-hidden">
-              <Image src="" alt="Profile" fill className="object-cover" />
+              {guide?.profileimage && (
+                <Image
+                  src={guide?.profileimage || ""}
+                  alt="Profile"
+                  fill
+                  className="object-cover"
+                />
+              )}
+              {guide?.firstName} {guide?.lastName}
             </div>
-
             <div className="ml-60">
+              <div>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+                  {guide?.username}
+                </h1>
+                <p className="text-lg text-gray-600 mt-2">Travel Enthusiast</p>
+              </div>
               <h1 className="text-4xl font-extrabold text-gray-900"></h1>
               <p className="text-lg max-w-4xl text-gray-700 mt-3 leading-relaxed">
-                🌿
+                🌿{guide?.about}
               </p>
               <p className="text-base text-gray-500 mt-3 flex gap-1">
-                <MapPin size={20} />
+                <MapPin size={20} /> {guide?.location}
               </p>
               <p className="text-base text-gray-500 mt-2 flex gap-1">
                 <Globe size={20} />
+                {guide?.languages}
               </p>
               <p className="text-base text-gray-500 mt-2 flex gap-1">
                 <VenusAndMars size={20} />
+                {guide?.gender}
               </p>
-
               <div className="flex flex-wrap items-center gap-6 mt-6 justify-end">
                 <button
                   onClick={() => setChat(!chat)}

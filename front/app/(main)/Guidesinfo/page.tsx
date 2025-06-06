@@ -1,6 +1,5 @@
 "use client";
 import { GuideProfile } from "./components/GuideProfile";
-import { Filter } from "./components/Filter";
 import { ListFilter, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -19,6 +18,7 @@ export default function Home() {
   interface Guide {
     _id: string;
     location?: string;
+    username: string;
     firstName?: string;
     lastName?: string;
     gender?: string;
@@ -36,23 +36,24 @@ export default function Home() {
     updatedAt?: string;
     image?: string;
     name?: string;
+    profileimage: string;
   }
 
   const [guides, setGuides] = useState<Guide[] | undefined>(undefined);
   const fetchGuides = async () => {
     try {
-      const res = await axios.get<{ user: Guide[] }>(
+      const res = await axios.get<Guide[]>(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/gprofile`,
         {
           withCredentials: true,
         }
       );
-      const guidesData = res.data.user;
-      setGuides(guidesData);
+      setGuides(res.data);
     } catch (error) {
       console.log("No guides");
     }
   };
+  console.log(guides);
 
   useEffect(() => {
     fetchGuides();
@@ -85,10 +86,10 @@ export default function Home() {
             onclick={() => router.push(`/Guidedetail/${guide._id}`)}
             key={guide._id || i}
             status={guide.status}
-            image={guide.image || ""}
+            profileimage={guide.profileimage || ""}
             rating={guide.rating || 0}
             price={guide.price || 0}
-            name={guide.name || `${guide.firstName} ${guide.lastName}`}
+            name={guide.username || ""}
             location={guide.location || ""}
             about={guide.about || ""}
           />

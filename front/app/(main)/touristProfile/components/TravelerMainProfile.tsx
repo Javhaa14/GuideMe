@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Chat from "../../components/Chat";
 import { MapPin, Globe, MessageCircle, User } from "lucide-react";
+import { UserPayload } from "../../Touristdetail/components/TouristMainProfile";
+import axios from "axios";
 
 type TripMemory = {
   id: number;
@@ -54,12 +56,26 @@ const sampleTraveler: TravelerProfile = {
 export default function TravelerMainProfile() {
   const [traveler] = useState<TravelerProfile>(sampleTraveler);
   const [chat, setChat] = useState(false);
-
+  const [user, setUser] = useState<UserPayload | null>(null);
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
+        { withCredentials: true }
+      );
+      setUser(res.data.user);
+    } catch {
+      console.log("No user logged in or error fetching user");
+    }
+  };
+  useEffect(() => {
+    fetchUser();
+  }, []);
   return (
     <div className="w-screen px-4 md:px-20 pt-4 pb-20">
       {chat && (
         <div className="w-fit h-fit mx-5 rounded-md bg-green-500 absolute z-10 right-5 bottom-5">
-          <Chat />
+          <Chat user={user!} />
         </div>
       )}
 
@@ -102,8 +118,7 @@ export default function TravelerMainProfile() {
             <div className="flex flex-wrap items-center gap-6 mt-6 justify-end">
               <button
                 onClick={() => setChat(!chat)}
-                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105"
-              >
+                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105">
                 <MessageCircle className="w-5 h-5" />
                 Chat
               </button>
@@ -119,8 +134,7 @@ export default function TravelerMainProfile() {
           {traveler.TripMemories.map((trip) => (
             <div
               key={trip.id}
-              className="rounded-xl overflow-hidden shadow-lg border bg-white"
-            >
+              className="rounded-xl overflow-hidden shadow-lg border bg-white">
               <div className="relative h-48 w-full">
                 <Image
                   src={trip.image}

@@ -32,7 +32,6 @@ import {
   CountryType,
   LanguageOption,
 } from "../../touristProfile/components/TouristProfile";
-// wherever you're using it (e.g., GuideProfile.tsx)
 import dynamic from "next/dynamic";
 import type { OptionType } from "./Selectwrapper";
 import { MultiValue, SingleValue, ActionMeta } from "react-select";
@@ -51,11 +50,9 @@ const formSchema = z.object({
     .array(z.string())
     .min(1, { message: "Please select at least one language" }),
   socialAddress: z.string().min(2, "SocialAddress media link is required"),
-  profileimage: z
-    .union([z.string().url().optional(), z.instanceof(File)])
-    .refine((val) => !!val, {
-      message: "Must upload an image",
-    }),
+  profileimage: z.string().min(1, "Profile image is required"),
+  backgroundimage: z.string().nullable().optional(),
+
   price: z.string().min(1, "Price is required"),
   experience: z.string().min(1, "Experience is required"),
   about: z.string().min(1, "About is required"),
@@ -77,6 +74,7 @@ export function GProfile() {
       languages: [],
       socialAddress: "",
       profileimage: "",
+      backgroundimage: "",
       price: "",
       experience: "",
       about: "",
@@ -95,7 +93,6 @@ export function GProfile() {
   const [user, setUser] = useState<UserPayload | null>(null);
   const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
   const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
-  const [url, setUrl] = useState<string | null>(null);
   const [tourist, setTourist] = useState<TouristProfile>();
 
   const fetchUser = async () => {
@@ -191,28 +188,16 @@ export function GProfile() {
         location: tourist.location ?? "",
         about: tourist.about ?? "",
         profileimage: tourist.profileimage ?? "",
+        backgroundimage: tourist.backgroundimage ?? "",
         languages: tourist.languages ?? [],
       });
-
-      if (tourist.profileimage) {
-        setUrl(tourist.profileimage);
-      }
     }
   }, [tourist]);
-
-  console.log(user);
-
-  const handlePreview = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const file = event.target.files[0];
-      const objectUrl = URL.createObjectURL(file);
-      setUrl(objectUrl);
-    }
-  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const payload = {
       _id: user?._id || "",
+      username: user?.username || "",
       firstName: values.firstName,
       lastName: values.lastName,
       languages: values.languages,
@@ -225,9 +210,12 @@ export function GProfile() {
       about: values.about,
       gender: values.gender,
       profileimage: values.profileimage,
+      backgroundimage: values.backgroundimage,
+
+      status: "available",
+      rating: 0,
     };
 
-    // Then send payload as JSON or in FormData if you have files
     console.log(payload);
 
     try {
@@ -260,27 +248,13 @@ export function GProfile() {
                     className="size-[160px] rounded-full absolute opacity-0 z-1"
                     type="file"
                     accept="image/*"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-                      if (file) {
-                        field.onChange(file);
-                        handlePreview(event);
-                      }
-                    }}
                   />
-                  {url ? (
-                    <img
-                      className="size-[160px] rounded-full absolute object-cover"
-                      src={url}
-                      alt="Preview"
-                    />
-                  ) : tourist?.profileimage ? (
-                    <img
-                      className="size-[160px] rounded-full absolute object-cover"
-                      src={tourist.profileimage}
-                      alt="Existing Profile"
-                    />
-                  ) : null}
+
+                  <img
+                    className="size-[160px] rounded-full absolute object-cover"
+                    src={tourist?.profileimage}
+                    alt="Existing Profile"
+                  />
                 </div>
               </FormControl>
               <FormMessage className="absolute top-47" />

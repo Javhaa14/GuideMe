@@ -6,16 +6,16 @@ export const GuideProfile = ({
   about,
   price,
   rating,
-  image,
   status,
+  profileimage,
   onclick,
 }: {
   name: string;
+  profileimage: string;
   location: string;
   about: string;
   price: number | string;
   rating: number;
-  image: string;
   status: string;
   onclick: () => void;
 }) => {
@@ -24,8 +24,8 @@ export const GuideProfile = ({
       onClick={onclick}
       className="w-[500px] h-[200px] border-[1px] border-black rounded-lg flex flex-row gap-2">
       <img
-        src={image == "" ? "/user.jpg" : image}
-        className="w-[300px] h-[200px] rounded-lg"></img>
+        src={profileimage == "" ? "/user.jpg" : profileimage}
+        className="size-[200px] rounded-lg"></img>
       <div className="flex flex-col justify-between py-2 w-full px-5">
         <div className="flex flex-row w-full justify-between">
           <div className="flex flex-col gap-1 w-full">
@@ -40,7 +40,7 @@ export const GuideProfile = ({
           )}
           <div
             className={`w-3 h-2 rounded-full ml-3 ${
-              status == "active" ? "bg-green-500" : "bg-red-600"
+              status == "available" ? "bg-green-500" : "bg-red-600"
             }`}></div>
         </div>
         <div className="w-full h-[1px] border-[1px] border-gray-300"></div>
