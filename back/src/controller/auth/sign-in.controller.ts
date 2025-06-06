@@ -36,7 +36,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
         httpOnly: false,
         secure: true,
         sameSite: "none",
-        domain: "https://guide-mee.vercel.app/",
+        domain: ".guide-mee.vercel.app",
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
 
