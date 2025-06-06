@@ -51,6 +51,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
           role: user.role,
         },
       });
+    console.log(token, "token");
   } catch (error: unknown) {
     console.error(error);
 
