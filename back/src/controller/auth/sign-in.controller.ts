@@ -33,7 +33,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
     });
     res
       .cookie("token", token, {
-        httpOnly: true,
+        httpOnly: false,
         secure: true,
         sameSite: "none",
 
