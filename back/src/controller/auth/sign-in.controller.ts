@@ -36,8 +36,8 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
       .cookie("token", token, {
         maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none",
+        secure: true, // must be true when sameSite is "none"
       })
       .status(200)
       .json({
