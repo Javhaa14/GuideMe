@@ -31,11 +31,8 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
       expiresIn: 3600,
     });
-
-    res;
     res
       .cookie("token", token, {
-        httpOnly: true,
         secure: true,
         sameSite: "none",
         maxAge: 24 * 60 * 60 * 1000, // 1 day
