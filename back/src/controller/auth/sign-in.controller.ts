@@ -32,13 +32,15 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
       expiresIn: 3600,
     });
 
+    res;
     res
       .cookie("token", token, {
-        maxAge: 24 * 60 * 60 * 1000,
-        httpOnly: false,
+        httpOnly: true,
+        secure: true,
         sameSite: "none",
-        secure: true, // must be true when sameSite is "none"
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
+
       .status(200)
       .json({
         success: true,
