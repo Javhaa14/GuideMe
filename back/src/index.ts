@@ -25,7 +25,7 @@ connectMongoDB();
 app.use(json());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://guide-mee.vercel.app/",
     credentials: true,
   })
 );
@@ -88,7 +88,7 @@ ws.on("connection", (socket) => {
 // Socket.IO for Chat
 const io = new SocketIOServer(httpServer, {
   cors: {
-    origin: "http://localhost:3000", // Replace with real frontend
+    origin: "https://guide-mee.vercel.app/", // Replace with real frontend
     methods: ["GET", "POST"],
   },
 });
