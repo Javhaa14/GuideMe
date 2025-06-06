@@ -63,8 +63,7 @@ const FloatingStars = ({ count = 20 }: { count?: number }) => {
             top: star.top,
             animationDelay: star.delay,
             animationDuration: star.duration,
-          }}
-        >
+          }}>
           <Star className="w-2 h-2 text-white/20" />
         </div>
       ))}
@@ -85,10 +84,16 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
 
   const onSubmit = async (values: SignUpFormValues) => {
     try {
-      const { data } = await axiosInstance.post("/auth/signup", {
-        ...values,
-        username,
-      });
+      const { data } = await axiosInstance.post(
+        "/auth/signup",
+        {
+          ...values,
+          username,
+        },
+        {
+          withCredentials: true, // <---- ADD THIS
+        }
+      );
 
       if (data.message === "email already registered") {
         form.setError("email", {
@@ -128,8 +133,7 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-6"
-          >
+            className="flex flex-col gap-6">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-white">
                 Welcome, {username}
@@ -181,8 +185,7 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                 Create Account
               </Button>
             </CardFooter>
@@ -192,8 +195,7 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
               <button
                 type="button"
                 onClick={() => router.push("/log-in")}
-                className="font-medium text-purple-300 hover:text-purple-200"
-              >
+                className="font-medium text-purple-300 hover:text-purple-200">
                 Sign in
               </button>
             </div>

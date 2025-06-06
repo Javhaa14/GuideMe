@@ -60,9 +60,15 @@ export function SignUpUsername({
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const res = await axiosInstance.post("/auth/check-user", {
-        username: values.username,
-      });
+      const res = await axiosInstance.post(
+        "/auth/check-user",
+        {
+          username: values.username,
+        },
+        {
+          withCredentials: true, // <---- ADD THIS
+        }
+      );
 
       setUsername(values.username);
       setStep((prev) => prev + 1);
@@ -102,8 +108,7 @@ export function SignUpUsername({
               top: star.top,
               animationDelay: star.delay,
               animationDuration: star.duration,
-            }}
-          >
+            }}>
             <Star className="w-2 h-2 text-white/20" />
           </div>
         ))}
@@ -113,8 +118,7 @@ export function SignUpUsername({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-6"
-          >
+            className="flex flex-col gap-6">
             <CardHeader className="text-center">
               <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 animate-bounce">
                 <TentTree size={32} color="white" />
@@ -150,8 +154,7 @@ export function SignUpUsername({
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                 Continue
               </Button>
             </CardFooter>
@@ -161,8 +164,7 @@ export function SignUpUsername({
               <button
                 type="button"
                 className="font-semibold text-purple-300 hover:text-purple-200"
-                onClick={() => router.push("/log-in")}
-              >
+                onClick={() => router.push("/log-in")}>
                 Sign in
               </button>
             </div>
