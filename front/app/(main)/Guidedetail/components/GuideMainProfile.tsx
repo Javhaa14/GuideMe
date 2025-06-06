@@ -10,6 +10,7 @@ import { NewTrip } from "./NewTrip";
 import { Trip } from "./Trip";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
+import Ebooking from "./Ebooking";
 
 type TourPost = {
   id: number;
@@ -92,7 +93,8 @@ export default function GuideMainProfile() {
                 <h3 className="font-semibold">Chat with</h3>
                 <button
                   onClick={() => setChat(false)}
-                  className="text-white hover:text-gray-200 transition-colors">
+                  className="text-white hover:text-gray-200 transition-colors"
+                >
                   x
                 </button>
               </div>
@@ -156,12 +158,14 @@ export default function GuideMainProfile() {
               <div className="flex flex-wrap items-center gap-6 mt-6 justify-end">
                 <button
                   onClick={() => setChat(!chat)}
-                  className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105">
+                  className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105"
+                >
                   <MessageCircle className="w-5 h-5" />
                   Chat
                 </button>
                 <Review userId="683fadbacc15c5230fa20412" />
                 <Subscription />
+                <Ebooking />
               </div>
             </div>
           </div>
