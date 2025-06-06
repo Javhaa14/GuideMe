@@ -112,7 +112,10 @@ export const getPosts = async (_: Request, res: Response) => {
 };
 
 console.log("hi");
-export const getPostsByUserId = async (req: Request, res: Response) => {
+export const getPostsByUserId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { userId } = req.params;
 
   try {
@@ -182,7 +185,7 @@ export const getPostsByUserId = async (req: Request, res: Response) => {
     ]);
 
     if (!posts.length) {
-      return res.status(404).json({ message: "No posts found" });
+      res.status(404).json({ message: "No posts found" });
     }
 
     res.status(200).json(posts);

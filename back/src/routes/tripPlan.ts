@@ -10,8 +10,8 @@ import {
 export const tripPlanRouter = Router();
 
 tripPlanRouter
-  .post("/", createTripPlan as any)
-  .get("/", getAllTripPlans as any)
-  .get("/:id", getTripPlanById as any)
-  .put("/:id", updateTripPlan as any)
-  .delete("/:id", deleteTripPlan as any);
+  .post("/", createTripPlan)
+  .get("/", getAllTripPlans)
+  .get("/:id", getTripPlanById)
+  .put("/:id", updateTripPlan)
+  .delete("/:id", deleteTripPlan);
