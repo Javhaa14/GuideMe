@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import { Guidemodel } from "../model/Guide";
 
-export const createGuideProfile = async (req: Request, res: Response) => {
+export const createGuideProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const {
     _id,
     firstName,
@@ -40,21 +43,36 @@ export const createGuideProfile = async (req: Request, res: Response) => {
       status,
       rating,
     });
+
     res.status(200).send({
       success: true,
       Gprofile,
     });
-  } catch (error: any) {
-    console.error("❌ Error creating guide profile:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("❌ Error creating guide profile:", error.message);
 
-    res.status(400).send({
-      success: false,
-      message: error.message,
-    });
+      res.status(400).send({
+        success: false,
+        message: error.message,
+      });
+    } else {
+      console.error("❌ Unknown error creating guide profile");
+
+      res.status(400).send({
+        success: false,
+        message: "Unknown error occurred",
+      });
+    }
   }
 };
-export const getGuideByuserId = async (req: Request, res: Response) => {
+
+export const getGuideByuserId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { _id } = req.params;
+
   try {
     const guide = await Guidemodel.findOne({ _id }).populate({
       path: "_id",
@@ -62,13 +80,14 @@ export const getGuideByuserId = async (req: Request, res: Response) => {
     });
 
     if (!guide) {
-      res.status(404).send({ message: "guide profile not found" });
+      res.status(404).send({ message: "Guide profile not found" });
+      return;
     }
 
     res.status(200).send(guide);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("ERROR in getguides:", {
+      console.error("ERROR in getGuideByuserId:", {
         message: error.message,
         stack: error.stack,
       });
@@ -83,18 +102,19 @@ export const getGuideByuserId = async (req: Request, res: Response) => {
     }
   }
 };
-export const getGuides = async (_: Request, res: Response) => {
+
+export const getGuides = async (_: Request, res: Response): Promise<void> => {
   try {
     const guides = await Guidemodel.find().lean();
 
     if (!guides.length) {
-      console.warn("No guides");
+      console.warn("No guides found");
     }
 
     res.status(200).send(guides);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("ERROR in getguides:", {
+      console.error("ERROR in getGuides:", {
         message: error.message,
         stack: error.stack,
       });

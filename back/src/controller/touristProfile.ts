@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import { Touristmodel } from "../model/Tourist";
 
-export const createTouristProfile = async (req: Request, res: Response) => {
+export const createTouristProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const {
     _id,
     languages,
@@ -27,14 +30,16 @@ export const createTouristProfile = async (req: Request, res: Response) => {
       success: true,
       Tprofile,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
     res.status(400).send({
       success: false,
-      message: error.message,
+      message,
     });
   }
 };
-export const getTourists = async (_: Request, res: Response) => {
+
+export const getTourists = async (_: Request, res: Response): Promise<void> => {
   try {
     const tourists = await Touristmodel.find().lean();
 
@@ -45,7 +50,7 @@ export const getTourists = async (_: Request, res: Response) => {
     res.status(200).send(tourists);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("ERROR in gettourists:", {
+      console.error("ERROR in getTourists:", {
         message: error.message,
         stack: error.stack,
       });
@@ -60,7 +65,11 @@ export const getTourists = async (_: Request, res: Response) => {
     }
   }
 };
-export const getTouristByuserId = async (req: Request, res: Response) => {
+
+export const getTouristByuserId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { _id } = req.params;
   try {
     const tourist = await Touristmodel.findOne({ _id }).populate({
@@ -70,12 +79,13 @@ export const getTouristByuserId = async (req: Request, res: Response) => {
 
     if (!tourist) {
       res.status(404).send({ message: "Tourist profile not found" });
+      return;
     }
 
     res.status(200).send(tourist);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("ERROR in gettourists:", {
+      console.error("ERROR in getTouristByuserId:", {
         message: error.message,
         stack: error.stack,
       });

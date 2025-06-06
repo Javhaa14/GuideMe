@@ -159,13 +159,14 @@ export const getCurrentUser = async (
   res: Response
 ): Promise<void> => {
   try {
-    const userData = req.userData as JwtPayload;
+    const userData = req.userData as JwtPayload | undefined;
 
     if (!userData || !userData.id) {
       res.status(401).json({
         success: false,
         message: "Unauthorized: No user data found",
       });
+      return;
     }
 
     const user = await UserModel.findById(userData.id).select("-password");
@@ -175,17 +176,22 @@ export const getCurrentUser = async (
         success: false,
         message: "User not found",
       });
+      return;
     }
 
     res.status(200).json({
       success: true,
       user,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
+
+    const message =
+      error instanceof Error ? error.message : "Internal server error";
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message,
     });
   }
 };
