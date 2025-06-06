@@ -8,7 +8,7 @@ import {
   getUserById,
   getUsers,
   updateUserById,
-} from "../controller/User";
+} from "../controller/sda";
 
 export const userRouter = express.Router();
 
