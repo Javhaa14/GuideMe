@@ -49,7 +49,8 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
         httpOnly: false,
         secure: true,
         sameSite: "none",
-        domain: ".guide-mee.vercel.app",
+        domain: "guide-mee.vercel.app", // **NO protocol or slash here!**
+        path: "/",
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
       .status(201)
