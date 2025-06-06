@@ -1,7 +1,11 @@
 import { UserModel } from "../model/User";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
+import { JwtPayload } from "jsonwebtoken";
 
+interface DecodedUser extends JwtPayload {
+  id: string;
+}
 export const createUser = async (req: Request, res: Response) => {
   const { username, email, password, role } = req.body;
 
@@ -137,17 +141,34 @@ export const updateUserById = async (req: Request, res: Response) => {
     });
   }
 };
+
 export const getCurrentUser = async (req: Request, res: Response) => {
   try {
-    const userData = req.userData; // <--- here
+    const userData = req.userData;
 
-    if (!userData || !userData.id) {
+    let userId: string;
+
+    if (!userData) {
       return res.status(401).json({
         success: false,
         message: "Unauthorized: No user data found",
       });
     }
-    const user = await UserModel.findById(userData.id).select("-password");
+
+    // If userData is a string, try to parse
+    if (typeof userData === "string") {
+      const parsed = JSON.parse(userData) as DecodedUser;
+      userId = parsed.id;
+    } else if (typeof userData === "object" && "id" in userData) {
+      userId = (userData as DecodedUser).id;
+    } else {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: Invalid user data format",
+      });
+    }
+
+    const user = await UserModel.findById(userId).select("-password");
 
     if (!user) {
       return res.status(404).json({
