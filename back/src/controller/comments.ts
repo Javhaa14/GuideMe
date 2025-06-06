@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import { Commentmodel } from "../model/Comment";
 import { Guidemodel } from "../model/Guide";
 
-export const createComment = async (req: Request, res: Response) => {
+export const createComment = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { userId, rating, review, recommend, reviewerId } = req.body;
   try {
     const comment = await Commentmodel.create({
@@ -12,11 +15,10 @@ export const createComment = async (req: Request, res: Response) => {
       review,
       recommend,
     });
+
     await Guidemodel.findByIdAndUpdate(
       userId,
-      {
-        $push: { comments: comment._id },
-      },
+      { $push: { comments: comment._id } },
       { new: true }
     );
 
@@ -24,13 +26,21 @@ export const createComment = async (req: Request, res: Response) => {
       success: true,
       comment,
     });
-  } catch (error: any) {
-    res.status(400).send({
-      success: false,
-      message: error.message,
-    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.status(400).send({
+        success: false,
+        message: error.message,
+      });
+    } else {
+      res.status(400).send({
+        success: false,
+        message: "Unknown error occurred",
+      });
+    }
   }
 };
+
 export const getCommentsByuserId = async (
   req: Request,
   res: Response
@@ -45,6 +55,7 @@ export const getCommentsByuserId = async (
 
     if (!comments || comments.length === 0) {
       res.status(404).send({ message: "No comments found for this user" });
+      return;
     }
 
     res.status(200).send({ success: true, comments });

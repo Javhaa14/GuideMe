@@ -3,7 +3,10 @@ import { Postmodel } from "../model/Post";
 import { Touristmodel } from "../model/Tourist";
 import mongoose from "mongoose";
 
-export const createPost = async (req: Request, res: Response) => {
+export const createPost = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { country, city, images, people, startDate, endDate, content, userId } =
     req.body;
   try {
@@ -21,14 +24,16 @@ export const createPost = async (req: Request, res: Response) => {
       success: true,
       post,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
     res.status(400).send({
       success: false,
-      message: error.message,
+      message,
     });
   }
 };
-export const getPosts = async (_: Request, res: Response) => {
+
+export const getPosts = async (_: Request, res: Response): Promise<void> => {
   try {
     const posts = await Postmodel.aggregate([
       {
@@ -111,7 +116,6 @@ export const getPosts = async (_: Request, res: Response) => {
   }
 };
 
-console.log("hi");
 export const getPostsByUserId = async (
   req: Request,
   res: Response
@@ -136,13 +140,13 @@ export const getPostsByUserId = async (
       {
         $unwind: {
           path: "$tprofileInfo",
-          preserveNullAndEmptyArrays: true, // just in case some posts have missing tourist
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
         $lookup: {
-          from: "users", // Make sure this matches your actual User collection name
-          localField: "tprofileInfo._id", // _id of Tourist is the User ID
+          from: "users",
+          localField: "tprofileInfo._id",
           foreignField: "_id",
           as: "userInfo",
         },
@@ -167,7 +171,6 @@ export const getPostsByUserId = async (
           endDate: 1,
           createdAt: 1,
 
-          // Tourist fields
           "tprofileInfo.gender": 1,
           "tprofileInfo.languages": 1,
           "tprofileInfo.location": 1,
@@ -176,7 +179,6 @@ export const getPostsByUserId = async (
           "tprofileInfo.socialAddress": 1,
           "tprofileInfo.about": 1,
 
-          // User fields
           "userInfo.username": 1,
           "userInfo.email": 1,
           "userInfo.role": 1,
@@ -186,6 +188,7 @@ export const getPostsByUserId = async (
 
     if (!posts.length) {
       res.status(404).json({ message: "No posts found" });
+      return;
     }
 
     res.status(200).json(posts);
