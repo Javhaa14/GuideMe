@@ -31,7 +31,10 @@ export const createComment = async (req: Request, res: Response) => {
     });
   }
 };
-export const getCommentsByuserId = async (req: Request, res: Response) => {
+export const getCommentsByuserId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { userId } = req.params;
 
   try {
@@ -41,12 +44,10 @@ export const getCommentsByuserId = async (req: Request, res: Response) => {
     });
 
     if (!comments || comments.length === 0) {
-      return res
-        .status(404)
-        .send({ message: "No comments found for this user" });
+      res.status(404).send({ message: "No comments found for this user" });
     }
 
-    return res.status(200).send({ success: true, comments });
+    res.status(200).send({ success: true, comments });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("ERROR in getCommentsByuserId:", {
@@ -54,13 +55,13 @@ export const getCommentsByuserId = async (req: Request, res: Response) => {
         stack: error.stack,
       });
 
-      return res.status(500).send({
+      res.status(500).send({
         error: "Internal Server Error",
         details:
           process.env.NODE_ENV === "development" ? error.message : undefined,
       });
     } else {
-      return res.status(500).send({ error: "Unexpected error occurred" });
+      res.status(500).send({ error: "Unexpected error occurred" });
     }
   }
 };

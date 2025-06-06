@@ -12,10 +12,9 @@ import { verifyToken } from "../middleware/auth";
 export const userRouter = express.Router();
 
 userRouter
-  .post("/", createUser as any)
-  .get("/me", verifyToken as any, getCurrentUser as any)
-
-  .get("/", getUsers as any)
-  .get("/:id", getUserById as any)
-  .delete("/:id", deleteUserById as any)
-  .put("/:id", updateUserById as any);
+  .post("/", createUser)
+  .get("/me", verifyToken, getCurrentUser)
+  .get("/", getUsers)
+  .get("/:id", getUserById)
+  .delete("/:id", deleteUserById)
+  .put("/:id", updateUserById);
