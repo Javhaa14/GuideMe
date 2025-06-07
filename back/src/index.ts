@@ -33,7 +33,7 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: ["https://guide-mee.vercel.app"],
+    origin: [`${process.env.NEXT_PUBLIC_FRONTEND_URL}`],
     credentials: true,
   })
 );
