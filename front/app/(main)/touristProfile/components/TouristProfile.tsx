@@ -44,6 +44,7 @@ export type LanguageOption = {
   value: string;
   label: string;
 };
+export const dynamic = "force-dynamic";
 
 const formSchema = z.object({
   username: z.string().min(2, {
