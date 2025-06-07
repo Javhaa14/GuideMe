@@ -60,15 +60,9 @@ export function SignUpUsername({
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const res = await axiosInstance.post(
-        "/auth/check-user",
-        {
-          username: values.username,
-        },
-        {
-          withCredentials: true, // <---- ADD THIS
-        }
-      );
+      const res = await axiosInstance.post("/auth/check-user", {
+        username: values.username,
+      });
 
       setUsername(values.username);
       setStep((prev) => prev + 1);
