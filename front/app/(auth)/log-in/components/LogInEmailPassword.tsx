@@ -6,7 +6,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
-import { axiosInstance, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { signIn } from "next-auth/react";
+
 import {
   Card,
   CardContent,
@@ -87,24 +89,26 @@ export function LogInEmailPassword() {
   }, [status, router]);
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    try {
-      const response = await axiosInstance.post("/auth/signin", values, {
-        withCredentials: true,
+    // Call NextAuth signIn with "credentials" provider
+    const result = await signIn("credentials", {
+      redirect: false, // important: prevent automatic redirect
+      email: values.email,
+      password: values.password,
+    });
+
+    if (result?.error) {
+      // If login failed, show error on the form
+      form.setError("email", {
+        type: "manual",
+        message: "Invalid credentials",
       });
-
-      const { success, message } = response.data;
-
-      if (success) {
-        router.push("/"); // redirect after login success
-      } else {
-        form.setError("email", { type: "manual", message });
-        form.setError("password", { type: "manual", message });
-      }
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message || "Login failed. Try again.";
-      form.setError("email", { type: "manual", message: errorMessage });
-      form.setError("password", { type: "manual", message: errorMessage });
+      form.setError("password", {
+        type: "manual",
+        message: "Invalid credentials",
+      });
+    } else if (result?.ok) {
+      // Login successful, redirect to homepage
+      router.push("/");
     }
   };
 
