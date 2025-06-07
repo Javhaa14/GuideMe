@@ -95,6 +95,8 @@ export const TouristProfile = () => {
   // Fetch countries for country select
   // Fetch unique languages for language select
   useEffect(() => {
+    if (!user || !user._id) return;
+
     const fetchCountries = async () => {
       try {
         const res = await axios.get(
@@ -189,6 +191,7 @@ export const TouristProfile = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values, "Form submit values");
+    if (!user || !user._id) return;
 
     if (values.username !== user.username) {
       try {

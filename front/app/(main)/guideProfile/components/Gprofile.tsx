@@ -105,66 +105,63 @@ export function GProfile() {
   const [tourist, setTourist] = useState<TouristProfile>();
 
   useEffect(() => {
-    if (user) {
-      const fetchProfile = async () => {
-        try {
-          const res = await axiosInstance.get(`/tprofile/${user?._id}`);
-          console.log("✅ Posts fetched:", res.data);
-          setTourist(res.data);
-        } catch (err) {
-          console.error("❌ Post fetch failed:", err);
-        }
-      };
-      const fetchLanguages = async () => {
-        try {
-          const res = await axios.get(
-            "https://restcountries.com/v3.1/all?fields=languages"
-          );
+    if (!user || !user._id) return;
+    const fetchProfile = async () => {
+      try {
+        const res = await axiosInstance.get(`/tprofile/${user?._id}`);
+        console.log("✅ Posts fetched:", res.data);
+        setTourist(res.data);
+      } catch (err) {
+        console.error("❌ Post fetch failed:", err);
+      }
+    };
+    const fetchLanguages = async () => {
+      try {
+        const res = await axios.get(
+          "https://restcountries.com/v3.1/all?fields=languages"
+        );
 
-          const langsSet = new Set<string>();
-          res.data.forEach((country: any) => {
-            if (country.languages) {
-              (Object.values(country.languages) as string[]).forEach((lang) =>
-                langsSet.add(lang)
-              );
-            }
-          });
-
-          const options = Array.from(langsSet).map((lang) => ({
-            label: lang,
-            value: lang,
-          }));
-
-          setLanguageOptions(options);
-        } catch (error) {
-          console.error("Failed to fetch languages", error);
-        }
-      };
-      const fetchCountries = async () => {
-        try {
-          const res = await axios.get(
-            "https://restcountries.com/v3.1/all?fields=name"
-          );
-          const options = res.data
-            .map((country: CountryType) => ({
-              label: country.name.common,
-              value: country.name.common,
-            }))
-            .sort((a: OptionType, b: OptionType) =>
-              a.label.localeCompare(b.label)
+        const langsSet = new Set<string>();
+        res.data.forEach((country: any) => {
+          if (country.languages) {
+            (Object.values(country.languages) as string[]).forEach((lang) =>
+              langsSet.add(lang)
             );
-          setCountryOptions(options);
-        } catch (error) {
-          console.error("Failed to fetch countries", error);
-        }
-      };
-      fetchProfile();
-      fetchLanguages();
-      fetchCountries();
-    } else {
-      console.log("USER NOT DEFINED");
-    }
-  }, []);
+          }
+        });
+
+        const options = Array.from(langsSet).map((lang) => ({
+          label: lang,
+          value: lang,
+        }));
+
+        setLanguageOptions(options);
+      } catch (error) {
+        console.error("Failed to fetch languages", error);
+      }
+    };
+    const fetchCountries = async () => {
+      try {
+        const res = await axios.get(
+          "https://restcountries.com/v3.1/all?fields=name"
+        );
+        const options = res.data
+          .map((country: CountryType) => ({
+            label: country.name.common,
+            value: country.name.common,
+          }))
+          .sort((a: OptionType, b: OptionType) =>
+            a.label.localeCompare(b.label)
+          );
+        setCountryOptions(options);
+      } catch (error) {
+        console.error("Failed to fetch countries", error);
+      }
+    };
+    fetchProfile();
+    fetchLanguages();
+    fetchCountries();
+  }, [user]);
 
   useEffect(() => {
     if (tourist) {
@@ -201,6 +198,8 @@ export function GProfile() {
       status: "available",
       rating: 0,
     };
+    console.log("Payload being sent to gprofile:", payload);
+
     if (payload.username !== user.username) {
       try {
         const res = await axiosInstance.put(`/user/${user._id}`, {
