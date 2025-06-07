@@ -35,6 +35,8 @@ import {
 import dynamic from "next/dynamic";
 import type { OptionType } from "./Selectwrapper";
 import { MultiValue, SingleValue, ActionMeta } from "react-select";
+import { useUser } from "@/app/context/Usercontext";
+import { axiosInstance } from "@/lib/utils";
 
 const MultiSelect = dynamic(
   () => import("./Selectwrapper").then((mod) => mod.MultiSelect),
@@ -90,32 +92,14 @@ export function GProfile() {
     { label: "Beach Day", value: "beach" },
   ];
 
-  const [user, setUser] = useState<UserPayload | null>(null);
+  const { user } = useUser();
   const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
   const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
   const [tourist, setTourist] = useState<TouristProfile>();
 
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
-        {
-          withCredentials: true,
-        }
-      );
-      const userData = res.data.user;
-
-      setUser(userData);
-    } catch (error) {
-      console.log("No user logged in or error fetching user");
-    }
-  };
-
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/tprofile/${user?._id}`
-      );
+      const res = await axiosInstance.get(`/tprofile/${user?._id}`);
       console.log("✅ Posts fetched:", res.data);
       setTourist(res.data);
     } catch (err) {
@@ -174,9 +158,6 @@ export function GProfile() {
     fetchLanguages();
   }, []);
   useEffect(() => {
-    fetchUser();
-  }, []);
-  useEffect(() => {
     if (user) {
       fetchProfile();
     }
@@ -219,15 +200,13 @@ export function GProfile() {
     console.log(payload);
 
     try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/gprofile`,
-        payload
-      );
+      const res = await axiosInstance.post(`/gprofile`, payload);
       console.log("Success", res.data);
     } catch (error) {
       console.error("Profile creation failed", error);
     }
   }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

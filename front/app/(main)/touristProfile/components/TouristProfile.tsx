@@ -28,6 +28,8 @@ import ReactSelect from "react-select";
 
 import axios from "axios";
 import { UserPayload } from "../../Touristdetail/components/TouristMainProfile";
+import { useUser } from "@/app/context/Usercontext";
+import { axiosInstance } from "@/lib/utils";
 
 export type CountryType = {
   name: {
@@ -79,7 +81,7 @@ export const TouristProfile = () => {
 
   const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
   const [data, setData] = useState<CountryType[]>([]);
-  const [user, setUser] = useState<UserPayload | null>(null);
+  const { user } = useUser();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Fetch countries for country select
@@ -164,45 +166,18 @@ export const TouristProfile = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
-          {
-            withCredentials: true,
-          }
-        );
-        const userData = res.data.user;
-
-        setUser(userData);
-
-        form.reset({
-          username: userData.username,
-        });
-      } catch (error) {
-        console.log("No user logged in or error fetching user");
-      }
-    };
-
-    fetchUser();
-  }, []);
-
   const createTouristProfile = async (values: z.infer<typeof formSchema>) => {
     try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/tprofile`,
-        {
-          _id: user?._id,
-          socialAddress: values.social,
-          gender: values.gender,
-          location: values.location,
-          languages: values.languages,
-          about: values.about,
-          profileimage: values.profileimage,
-          backgroundimage: "",
-        }
-      );
+      const res = await axiosInstance.post(`/tprofile`, {
+        _id: user?._id,
+        socialAddress: values.social,
+        gender: values.gender,
+        location: values.location,
+        languages: values.languages,
+        about: values.about,
+        profileimage: values.profileimage,
+        backgroundimage: "",
+      });
 
       console.log("Success", res.data);
     } catch (error) {
@@ -287,8 +262,7 @@ export const TouristProfile = () => {
                   <Select
                     {...field}
                     onValueChange={field.onChange}
-                    value={field.value || ""}
-                  >
+                    value={field.value || ""}>
                     <SelectTrigger className="w-full h-[40px]">
                       <SelectValue placeholder="Select your gender" />
                     </SelectTrigger>
@@ -317,8 +291,7 @@ export const TouristProfile = () => {
                   <Select
                     {...field}
                     onValueChange={field.onChange}
-                    value={field.value || ""}
-                  >
+                    value={field.value || ""}>
                     <SelectTrigger className="w-full h-[40px]">
                       <SelectValue placeholder="Select a country" />
                     </SelectTrigger>

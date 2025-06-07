@@ -17,13 +17,26 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
       minlength: 8,
+      required: function (this: any): boolean {
+        return !this.provider;
+      },
     },
     role: {
       type: String,
       enum: ["Tourist", "Admin", "Guide"],
       default: "Tourist",
+    },
+
+    provider: {
+      type: String,
+      enum: ["google", "github", "facebook", null],
+      default: null,
+    },
+    provider_id: {
+      type: String,
+      unique: true,
+      sparse: true,
     },
   },
   {
