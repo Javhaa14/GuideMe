@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "main": "index.ts",
   "type": "module",
-"scripts": {
-  "dev": "nodemon --exec tsx src/index.ts",
-  "start": "tsx src/index.ts"
-}
-,
+  "scripts": {
+    "dev": "nodemon --exec tsx src/index.ts",
+    "start": "tsx src/index.ts"
+  },
   "author": "",
   "license": "ISC",
   "description": "",
