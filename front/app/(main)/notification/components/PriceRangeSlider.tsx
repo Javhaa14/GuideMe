@@ -30,10 +30,10 @@ export default function PriceRangeSlider() {
       {/* Price labels that move smoothly with handles */}
       <div className="relative mb-12 h-8">
         <div
-          className="absolute transition-all duration-300 ease-out font-bold text-xl transform -translate-x-1/2"
+          className="absolute transition-all duration-300 ease-out font-bold text-xl transform -translate-x-1/18"
           style={{
             left: getLeftPosition(priceRange[0]),
-            transform: "translateX(-50%)",
+            transform: "translateX(-20%)",
           }}>
           ${priceRange[0]}/h
         </div>
@@ -41,7 +41,7 @@ export default function PriceRangeSlider() {
           className="absolute transition-all duration-300 ease-out font-bold text-xl transform -translate-x-1/2"
           style={{
             left: getLeftPosition(priceRange[1]),
-            transform: "translateX(-50%)",
+            transform: "translateX(30%)",
           }}>
           ${priceRange[1]}/h
         </div>
