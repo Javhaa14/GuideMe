@@ -27,9 +27,12 @@ import {
 import ReactSelect from "react-select";
 
 import axios from "axios";
-import { UserPayload } from "../../Touristdetail/components/TouristMainProfile";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
+import {
+  MultiSelect,
+  OptionType,
+} from "../../guideProfile/components/Selectwrapper";
 
 export type CountryType = {
   name: {
@@ -66,6 +69,8 @@ const formSchema = z.object({
 });
 
 export const TouristProfile = () => {
+  const { user } = useUser();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -80,29 +85,30 @@ export const TouristProfile = () => {
   });
 
   const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
-  const [data, setData] = useState<CountryType[]>([]);
-  const { user } = useUser();
+  const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Fetch countries for country select
-  const fetchData = async () => {
-    try {
-      const res = await axios.get("https://restcountries.com/v3.1/all");
-      const countries = res.data.map((country: any) => ({
-        name: { common: country.name.common },
-      }));
-      setData(countries);
-    } catch (error) {
-      console.error("Failed to fetch countries", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   // Fetch unique languages for language select
   useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await axios.get(
+          "https://restcountries.com/v3.1/all?fields=name"
+        );
+        const options = res.data
+          .map((country: CountryType) => ({
+            label: country.name.common,
+            value: country.name.common,
+          }))
+          .sort((a: OptionType, b: OptionType) =>
+            a.label.localeCompare(b.label)
+          );
+        setCountryOptions(options);
+      } catch (error) {
+        console.error("Failed to fetch countries", error);
+      }
+    };
     const fetchLanguages = async () => {
       try {
         const res = await axios.get(
@@ -128,9 +134,20 @@ export const TouristProfile = () => {
         console.error("Failed to fetch languages", error);
       }
     };
-
+    if (user) {
+      form.reset({
+        username: user.username,
+        about: "",
+        social: "",
+        gender: "",
+        location: "",
+        languages: [],
+        profileimage: "",
+      });
+    }
+    fetchCountries();
     fetchLanguages();
-  }, []);
+  }, [user]);
 
   const handlePreview = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -166,7 +183,21 @@ export const TouristProfile = () => {
     }
   };
 
-  const createTouristProfile = async (values: z.infer<typeof formSchema>) => {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values, "Form submit values");
+
+    if (values.username !== user.username) {
+      try {
+        const res = await axiosInstance.put(`/user/${user._id}`, {
+          username: values.username,
+        });
+
+        console.log("✅ Username updated:", res.data);
+      } catch (error) {
+        console.error("❌ Username update failed:", error);
+      }
+    }
+
     try {
       const res = await axiosInstance.post(`/tprofile`, {
         _id: user?._id,
@@ -179,15 +210,10 @@ export const TouristProfile = () => {
         backgroundimage: "",
       });
 
-      console.log("Success", res.data);
+      console.log("Successfully created tourist profile", res.data);
     } catch (error) {
       console.log("error", error);
     }
-  };
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values, "Form submit values");
-    createTouristProfile(values);
   }
 
   useEffect(() => {
@@ -284,28 +310,23 @@ export const TouristProfile = () => {
           <FormField
             control={form.control}
             name="location"
-            render={({ field }) => (
+            render={({ field: { onChange, value } }) => (
               <FormItem className="w-full relative">
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Select
-                    {...field}
-                    onValueChange={field.onChange}
-                    value={field.value || ""}>
-                    <SelectTrigger className="w-full h-[40px]">
-                      <SelectValue placeholder="Select a country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Country</SelectLabel>
-                        {data?.map((val, index: number) => (
-                          <SelectItem key={index} value={val.name.common}>
-                            {val.name.common}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <MultiSelect
+                    isMulti={false}
+                    options={countryOptions}
+                    value={
+                      countryOptions.find((option) => option.value === value) ||
+                      null
+                    }
+                    onChange={(newValue) => {
+                      onChange((newValue as OptionType | null)?.value || "");
+                    }}
+                    placeholder="Select a country"
+                    isClearable
+                  />
                 </FormControl>
                 <FormMessage className="absolute top-17" />
               </FormItem>

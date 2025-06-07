@@ -100,3 +100,59 @@ export const getTouristByuserId = async (
     }
   }
 };
+export const updateTouristProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { _id } = req.params;
+
+  // Only allow these fields to be updated
+  const {
+    languages,
+    location,
+    profileimage,
+    backgroundimage,
+    socialAddress,
+    about,
+    gender,
+  } = req.body;
+
+  try {
+    const updatedProfile = await Touristmodel.findByIdAndUpdate(
+      _id,
+      {
+        ...(languages && { languages }),
+        ...(location && { location }),
+        ...(profileimage && { profileimage }),
+        ...(backgroundimage && { backgroundimage }),
+        ...(socialAddress && { socialAddress }),
+        ...(about && { about }),
+        ...(gender && { gender }),
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!updatedProfile) {
+      res.status(404).send({
+        success: false,
+        message: "Tourist profile not found",
+      });
+      return;
+    }
+
+    res.status(200).send({
+      success: true,
+      updatedProfile,
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error updating tourist profile:", message);
+    res.status(500).send({
+      success: false,
+      message,
+    });
+  }
+};

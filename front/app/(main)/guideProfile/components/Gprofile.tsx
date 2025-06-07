@@ -24,10 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import axios from "axios";
-import {
-  TouristProfile,
-  UserPayload,
-} from "../../Touristdetail/components/TouristMainProfile";
+import { TouristProfile } from "../../Touristdetail/components/TouristMainProfile";
 import {
   CountryType,
   LanguageOption,
@@ -37,6 +34,7 @@ import type { OptionType } from "./Selectwrapper";
 import { MultiValue, SingleValue, ActionMeta } from "react-select";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 const MultiSelect = dynamic(
   () => import("./Selectwrapper").then((mod) => mod.MultiSelect),
@@ -44,6 +42,8 @@ const MultiSelect = dynamic(
 );
 
 const formSchema = z.object({
+  username: z.string().min(2, "First name is required"),
+
   firstName: z.string().min(2, "First name is required"),
   lastName: z.string().min(2, "Last name is required"),
   gender: z.string().min(1, "Gender is required"),
@@ -66,9 +66,13 @@ const formSchema = z.object({
 });
 
 export function GProfile() {
+  const { user } = useUser();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+
     defaultValues: {
+      username: user._id,
       firstName: "",
       lastName: "",
       gender: "",
@@ -92,89 +96,87 @@ export function GProfile() {
     { label: "Beach Day", value: "beach" },
   ];
 
-  const { user } = useUser();
   const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
   const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
   const [tourist, setTourist] = useState<TouristProfile>();
 
-  const fetchProfile = async () => {
-    try {
-      const res = await axiosInstance.get(`/tprofile/${user?._id}`);
-      console.log("✅ Posts fetched:", res.data);
-      setTourist(res.data);
-    } catch (err) {
-      console.error("❌ Post fetch failed:", err);
-    }
-  };
-
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const res = await axios.get(
-          "https://restcountries.com/v3.1/all?fields=name"
-        );
-        const options = res.data
-          .map((country: CountryType) => ({
-            label: country.name.common,
-            value: country.name.common,
-          }))
-          .sort((a: OptionType, b: OptionType) =>
-            a.label.localeCompare(b.label)
-          );
-        setCountryOptions(options);
-      } catch (error) {
-        console.error("Failed to fetch countries", error);
-      }
-    };
-    fetchCountries();
-  }, []);
-
-  useEffect(() => {
-    const fetchLanguages = async () => {
-      try {
-        const res = await axios.get(
-          "https://restcountries.com/v3.1/all?fields=languages"
-        );
-
-        const langsSet = new Set<string>();
-        res.data.forEach((country: any) => {
-          if (country.languages) {
-            (Object.values(country.languages) as string[]).forEach((lang) =>
-              langsSet.add(lang)
-            );
-          }
-        });
-
-        const options = Array.from(langsSet).map((lang) => ({
-          label: lang,
-          value: lang,
-        }));
-
-        setLanguageOptions(options);
-      } catch (error) {
-        console.error("Failed to fetch languages", error);
-      }
-    };
-    fetchLanguages();
-  }, []);
   useEffect(() => {
     if (user) {
+      const fetchProfile = async () => {
+        try {
+          const res = await axiosInstance.get(`/tprofile/${user?._id}`);
+          console.log("✅ Posts fetched:", res.data);
+          setTourist(res.data);
+        } catch (err) {
+          console.error("❌ Post fetch failed:", err);
+        }
+      };
+      const fetchLanguages = async () => {
+        try {
+          const res = await axios.get(
+            "https://restcountries.com/v3.1/all?fields=languages"
+          );
+
+          const langsSet = new Set<string>();
+          res.data.forEach((country: any) => {
+            if (country.languages) {
+              (Object.values(country.languages) as string[]).forEach((lang) =>
+                langsSet.add(lang)
+              );
+            }
+          });
+
+          const options = Array.from(langsSet).map((lang) => ({
+            label: lang,
+            value: lang,
+          }));
+
+          setLanguageOptions(options);
+        } catch (error) {
+          console.error("Failed to fetch languages", error);
+        }
+      };
+      const fetchCountries = async () => {
+        try {
+          const res = await axios.get(
+            "https://restcountries.com/v3.1/all?fields=name"
+          );
+          const options = res.data
+            .map((country: CountryType) => ({
+              label: country.name.common,
+              value: country.name.common,
+            }))
+            .sort((a: OptionType, b: OptionType) =>
+              a.label.localeCompare(b.label)
+            );
+          setCountryOptions(options);
+        } catch (error) {
+          console.error("Failed to fetch countries", error);
+        }
+      };
       fetchProfile();
+      fetchLanguages();
+      fetchCountries();
+    } else {
+      console.log("USER NOT DEFINED");
     }
-  }, [user]);
+  }, []);
+
   useEffect(() => {
     if (tourist) {
       form.reset({
-        gender: tourist.gender ?? "",
-        location: tourist.location ?? "",
-        about: tourist.about ?? "",
-        profileimage: tourist.profileimage ?? "",
-        backgroundimage: tourist.backgroundimage ?? "",
+        gender: tourist.gender,
+        location: tourist.location,
+        about: tourist.about,
+        profileimage: tourist.profileimage,
+        backgroundimage: tourist.backgroundimage,
         languages: tourist.languages ?? [],
       });
+    } else {
+      return;
     }
   }, [tourist]);
-
+  const router = useRouter();
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const payload = {
       _id: user?._id || "",
@@ -192,16 +194,50 @@ export function GProfile() {
       gender: values.gender,
       profileimage: values.profileimage,
       backgroundimage: values.backgroundimage,
-
       status: "available",
       rating: 0,
     };
+    if (payload.username !== user.username) {
+      try {
+        const res = await axiosInstance.put(`/user/${user._id}`, {
+          username: payload.username,
+        });
 
-    console.log(payload);
+        console.log("✅ Username updated:", res.data);
+      } catch (error) {
+        console.error("❌ Username update failed:", error);
+      }
+    }
 
+    if (
+      payload.languages !== tourist?.languages ||
+      payload.location !== tourist?.location ||
+      payload.profileimage !== tourist?.profileimage ||
+      payload.backgroundimage !== tourist?.backgroundimage ||
+      payload.socialAddress !== tourist?.socialAddress ||
+      payload.about !== tourist?.about ||
+      payload.gender !== tourist?.gender
+    ) {
+    }
+    try {
+      const res = await axiosInstance.put(`/tprofile/${user._id}`, {
+        languages: payload.languages,
+        location: payload.location,
+        profileimage: payload.profileimage,
+        backgroundimage: payload.backgroundimage,
+        socialAddress: payload.socialAddress,
+        about: payload.about,
+        gender: payload.gender,
+      });
+      console.log("Successfully updated touristprofile", res.data);
+    } catch (error) {
+      console.error("Profile updated failed", error);
+    }
+    console.log(payload, "gprofile");
     try {
       const res = await axiosInstance.post(`/gprofile`, payload);
-      console.log("Success", res.data);
+      console.log("Successfully posted guideprofile", res.data);
+      router.push("/");
     } catch (error) {
       console.error("Profile creation failed", error);
     }
@@ -242,30 +278,45 @@ export function GProfile() {
         />
         <FormField
           control={form.control}
-          name="firstName"
+          name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>First Name</FormLabel>
+              <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your first name" {...field} />
+                <Input placeholder="Enter a new username" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="lastName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Last Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your last name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="flex w-full gap-4">
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your first name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your last name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="flex gap-4 w-full">
           <FormField
