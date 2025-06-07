@@ -3,10 +3,11 @@ import Chat from "../../components/Chat";
 import CreatePost from "./CreatePost";
 import { useEffect, useState } from "react";
 import Travelerpost from "../../components/Travelerpost";
-import axios from "axios";
 import { useParams } from "next/navigation";
 import { MainProfile } from "./MainProfile";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/app/context/Usercontext";
+import { axiosInstance } from "@/lib/utils";
 export type TouristProfile = {
   _id: {
     _id: string;
@@ -51,30 +52,15 @@ export type UserPayload = {
 };
 export default function TravelerProfile() {
   const params = useParams();
-  const [user, setUser] = useState<UserPayload | null>(null);
+
+  const { user } = useUser();
   const [tourist, setTourist] = useState<TouristProfile>();
   const [chat, setChat] = useState(false);
   const [post, setPost] = useState<Post[]>([]);
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
-        {
-          withCredentials: true,
-        }
-      );
-      const userData = res.data.user;
-      setUser(userData);
-    } catch (error) {
-      console.log("No user logged in or error fetching user");
-    }
-  };
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/tprofile/${params.id}`
-      );
+      const res = await axiosInstance.get(`/tprofile/${params.id}`);
       console.log("✅ Posts fetched:", res.data);
       setTourist(res.data);
     } catch (err) {
@@ -83,9 +69,7 @@ export default function TravelerProfile() {
   };
   const fetchPosts = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/post/${params.id}`
-      );
+      const res = await axiosInstance.get(`/post/${params.id}`);
       console.log("✅ Posts fetched:", res.data);
       setPost(res.data);
     } catch (err) {
@@ -93,7 +77,6 @@ export default function TravelerProfile() {
     }
   };
   useEffect(() => {
-    fetchUser();
     fetchProfile();
     fetchPosts();
   }, []);

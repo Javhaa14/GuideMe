@@ -28,9 +28,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { useSession } from "next-auth/react"; // <-- import useSession
+import { useSession } from "next-auth/react";
 
 const FloatingStars = ({ count = 20 }: { count?: number }) => {
+  // ... your existing FloatingStars code unchanged
   const stars = useMemo(
     () =>
       Array.from({ length: count }).map((_, i) => ({
@@ -81,7 +82,6 @@ export function LogInEmailPassword() {
     },
   });
 
-  // Redirect if already logged in
   useEffect(() => {
     if (status === "authenticated") {
       router.push("/");
@@ -89,12 +89,11 @@ export function LogInEmailPassword() {
   }, [status, router]);
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    // Call NextAuth signIn with "credentials" provider
     const result = await signIn("credentials", {
       redirect: false,
       email: values.email,
       password: values.password,
-      callbackUrl: "/", // this is where you want to redirect after login
+      callbackUrl: "/",
     });
 
     if (result?.error) {
@@ -107,14 +106,13 @@ export function LogInEmailPassword() {
         message: "Invalid credentials",
       });
     } else if (result?.ok && result.url) {
-      router.push(result.url); // 🔥 correct redirect
+      router.push(result.url);
     }
   };
 
   const inputStyle =
     "h-12 text-white bg-white/10 border-white/20 placeholder:text-white/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-xl hover:bg-white/15";
 
-  // Optional: show loading state while session is loading
   if (status === "loading") {
     return <div>Loading...</div>;
   }
@@ -189,6 +187,30 @@ export function LogInEmailPassword() {
                 Continue
               </Button>
             </CardFooter>
+
+            {/* Social Login Buttons */}
+            <div className="flex flex-col gap-3 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => signIn("google")}
+                className="w-full py-3 font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition">
+                Continue with Google
+              </button>
+
+              <button
+                type="button"
+                onClick={() => signIn("github")}
+                className="w-full py-3 font-semibold text-white bg-gray-800 rounded-xl hover:bg-gray-900 transition">
+                Continue with GitHub
+              </button>
+
+              <button
+                type="button"
+                onClick={() => signIn("facebook")}
+                className="w-full py-3 font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition">
+                Continue with Facebook
+              </button>
+            </div>
 
             <div className="flex justify-center gap-2 py-4 text-sm border-t border-white/10 text-white/70">
               <span>Don’t have an account?</span>

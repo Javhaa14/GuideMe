@@ -25,7 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "./Starrating";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { axiosInstance } from "@/lib/utils";
 
 const formSchema = z.object({
   communication: z.number().min(1, "Please review"),
@@ -61,12 +61,9 @@ export const Review = ({ userId }: ReviewProps) => {
   });
   const fetchUser = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await axiosInstance.get(`/user/me`, {
+        withCredentials: true,
+      });
       const userData = res.data.user;
       setCurrentuser(userData);
     } catch (error) {
@@ -101,10 +98,7 @@ export const Review = ({ userId }: ReviewProps) => {
     console.log(form.formState.errors);
 
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/comment`,
-        reviewWithGuide
-      );
+      await axiosInstance.post(`/comment`, reviewWithGuide);
 
       console.log("✅ Comment created successfully");
     } catch (err) {

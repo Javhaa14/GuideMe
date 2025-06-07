@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
+import { UserProvider } from "./context/Usercontext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +27,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white w-screen h-screen`}
         cz-shortcut-listen="true"
         style={{ cursor: "auto" }}>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <UserProvider>{children}</UserProvider>
+        </SessionProvider>
       </body>
     </html>
   );
