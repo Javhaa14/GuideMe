@@ -46,7 +46,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
 
     res
       .cookie("token", token, {
-        httpOnly: false,
+        httpOnly: true,
         secure: true,
         sameSite: "none",
         domain: "guide-mee.vercel.app", // **NO protocol or slash here!**
