@@ -6,6 +6,8 @@ export const createTouristProfile = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  console.log("Incoming Tourist Profile POST body:", req.body);
+
   const {
     _id,
     languages,
