@@ -31,7 +31,7 @@ import {
 } from "../../touristProfile/components/TouristProfile";
 import dynamic from "next/dynamic";
 import type { OptionType } from "./Selectwrapper";
-import { MultiValue, SingleValue, ActionMeta } from "react-select";
+import { MultiValue, SingleValue } from "react-select";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -76,7 +76,7 @@ export function GProfile() {
     resolver: zodResolver(formSchema),
 
     defaultValues: {
-      username: user._id,
+      username: user.name,
       firstName: "",
       lastName: "",
       gender: "",
@@ -105,10 +105,10 @@ export function GProfile() {
   const [tourist, setTourist] = useState<TouristProfile>();
 
   useEffect(() => {
-    if (!user || !user._id) return;
+    if (!user || !user.id) return;
     const fetchProfile = async () => {
       try {
-        const res = await axiosInstance.get(`/tprofile/${user?._id}`);
+        const res = await axiosInstance.get(`/tprofile/${user?.id}`);
         console.log("✅ Posts fetched:", res.data);
         setTourist(res.data);
       } catch (err) {
@@ -180,8 +180,8 @@ export function GProfile() {
   const router = useRouter();
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const payload = {
-      _id: user?._id || "",
-      username: user?.username || "",
+      _id: user?.id || "",
+      username: user?.name || "",
       firstName: values.firstName,
       lastName: values.lastName,
       languages: values.languages,
@@ -200,9 +200,9 @@ export function GProfile() {
     };
     console.log("Payload being sent to gprofile:", payload);
 
-    if (payload.username !== user.username) {
+    if (payload.username !== user.name) {
       try {
-        const res = await axiosInstance.put(`/user/${user._id}`, {
+        const res = await axiosInstance.put(`/user/${user.id}`, {
           username: payload.username,
         });
 
@@ -223,7 +223,7 @@ export function GProfile() {
     ) {
     }
     try {
-      const res = await axiosInstance.put(`/tprofile/${user._id}`, {
+      const res = await axiosInstance.put(`/tprofile/${user.id}`, {
         languages: payload.languages,
         location: payload.location,
         profileimage: payload.profileimage,
@@ -250,7 +250,7 @@ export function GProfile() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <p className="text-[24px] font-bold">
-          Complete your guide profile page, {user?.username}
+          Complete your guide profile page, {user?.name}
         </p>
 
         <FormField

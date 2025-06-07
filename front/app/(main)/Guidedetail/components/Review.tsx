@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { StarRating } from "./Starrating";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/utils";
+import { UserPayload } from "../../components/Chat";
 
 const formSchema = z.object({
   communication: z.number().min(1, "Please review"),
@@ -39,11 +40,7 @@ const formSchema = z.object({
 type ReviewProps = {
   userId: string;
 };
-type UserPayload = {
-  _id: string;
-  username: string;
-  role: string;
-};
+
 export const Review = ({ userId }: ReviewProps) => {
   const [open, setOpen] = useState(false);
   const [currentuser, setCurrentuser] = useState<UserPayload | null>(null);
@@ -88,7 +85,7 @@ export const Review = ({ userId }: ReviewProps) => {
 
     const reviewWithGuide = {
       userId, // the guide's user ID
-      reviewerId: currentuser._id, // the reviewer
+      reviewerId: currentuser.id, // the reviewer
       rating: average, // calculated average
       review: values.review, // new name instead of 'comments'
       recommend: values.recommend,

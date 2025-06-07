@@ -14,10 +14,11 @@ type ChatMessage = {
   text: string;
   profileImage: string;
 };
-type UserPayload = {
-  _id: string;
-  username: string;
+export type UserPayload = {
+  id: string;
+  name: string;
   role: string;
+  email: string;
 };
 export default function Chat({ user }: { user: UserPayload }) {
   const [username, setUsername] = useState("");
@@ -33,7 +34,7 @@ export default function Chat({ user }: { user: UserPayload }) {
 
   const fetchProfile = async () => {
     try {
-      const res = await axiosInstance.get(`/tprofile/${user._id}`);
+      const res = await axiosInstance.get(`/tprofile/${user.id}`);
       console.log("✅ Posts fetched:", res.data);
       setProfileImage(res.data.profileimage);
     } catch (err) {
@@ -42,7 +43,7 @@ export default function Chat({ user }: { user: UserPayload }) {
   };
   useEffect(() => {
     fetchProfile();
-    setUsername(user.username);
+    setUsername(user.name);
     socket.on("chat message", (msg: ChatMessage) => {
       setMessages((prev) => [...prev, msg]);
     });

@@ -78,7 +78,7 @@ export const TouristProfile = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      username: user.name,
       about: "",
       social: "",
       gender: "",
@@ -95,7 +95,7 @@ export const TouristProfile = () => {
   // Fetch countries for country select
   // Fetch unique languages for language select
   useEffect(() => {
-    if (!user || !user._id) return;
+    if (!user || !user.id) return;
 
     const fetchCountries = async () => {
       try {
@@ -142,7 +142,7 @@ export const TouristProfile = () => {
     };
     if (user) {
       form.reset({
-        username: user.username,
+        username: user.name,
         about: "",
         social: "",
         gender: "",
@@ -191,11 +191,11 @@ export const TouristProfile = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values, "Form submit values");
-    if (!user || !user._id) return;
+    if (!user || !user.id) return;
 
-    if (values.username !== user.username) {
+    if (values.username !== user.name) {
       try {
-        const res = await axiosInstance.put(`/user/${user._id}`, {
+        const res = await axiosInstance.put(`/user/${user.id}`, {
           username: values.username,
         });
 
@@ -207,7 +207,7 @@ export const TouristProfile = () => {
 
     try {
       const res = await axiosInstance.post(`/tprofile`, {
-        _id: user?._id,
+        _id: user?.id,
         socialAddress: values.social,
         gender: values.gender,
         location: values.location,
