@@ -3,9 +3,9 @@ import Image from "next/image";
 import { Filter } from "./components/Filter";
 import Travelerspost from "../components/Travelerpost";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { axiosInstance } from "@/lib/utils";
 interface PostType {
   _id: string;
   userId: string;
@@ -51,9 +51,7 @@ export default function Home() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await axios.get<PostType[]>(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/post`
-        );
+        const res = await axiosInstance.get<PostType[]>(`/post`);
         console.log("✅ Posts fetched:", res.data);
         setPosts(res.data);
       } catch (err) {
@@ -67,6 +65,7 @@ export default function Home() {
   const todetail = (id: string) => {
     router.push(`/Touristdetail/${id}`);
   };
+  console.log("post !!!", posts);
   return (
     <div className="flex flex-col w-screen h-full items-center bg-white gap-10 pt-[40px] px-[20px]">
       <div className="flex border-black border-[3px] gap-4 w-fit h-fit rounded-md p-4">

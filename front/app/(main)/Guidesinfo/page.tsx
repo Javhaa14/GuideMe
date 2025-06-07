@@ -3,7 +3,7 @@ import { GuideProfile } from "./components/GuideProfile";
 import { ListFilter, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import { axiosInstance } from "@/lib/utils";
 
 export default function Home() {
   const filters = [
@@ -42,12 +42,7 @@ export default function Home() {
   const [guides, setGuides] = useState<Guide[] | undefined>(undefined);
   const fetchGuides = async () => {
     try {
-      const res = await axios.get<Guide[]>(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/gprofile`,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await axiosInstance.get<Guide[]>(`/gprofile`);
       setGuides(res.data);
     } catch (error) {
       console.log("No guides");

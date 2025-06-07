@@ -2,7 +2,12 @@ import { Request, Response } from "express";
 import { Postmodel } from "../model/Post";
 import { Touristmodel } from "../model/Tourist";
 import mongoose from "mongoose";
+import { error } from "console";
 
+type UpdatePostBody = {
+  postId: string;
+  userId: string;
+};
 export const createPost = async (
   req: Request,
   res: Response
@@ -85,7 +90,6 @@ export const getPosts = async (_: Request, res: Response): Promise<void> => {
           "tprofileInfo.backgroundimage": 1,
           "tprofileInfo.socialAddress": 1,
           "tprofileInfo.about": 1,
-
           "userInfo.username": 1,
           "userInfo.email": 1,
           "userInfo.role": 1,
@@ -203,5 +207,61 @@ export const getPostsByUserId = async (
     } else {
       res.status(500).json({ error: "Unknown error" });
     }
+  }
+};
+export const updatePost = async (
+  req: Request<{}, {}, UpdatePostBody>,
+  res: Response
+): Promise<void> => {
+  const { postId, userId } = req.body;
+
+  try {
+    const post = await Postmodel.findById(postId);
+
+    if (!post) {
+      res.status(404).json({ message: "Post not found" });
+    } else {
+      const alreadyLiked = post.likedBy.some((id) => id.toString() === userId);
+
+      if (alreadyLiked) {
+        post.likedBy = post.likedBy.filter((id) => id.toString() !== userId);
+      } else {
+        post.likedBy.push(new mongoose.Types.ObjectId(userId));
+      }
+
+      await post.save();
+      res.status(200).json({
+        message: "Post updated successfully",
+        likedBy: post.likedBy,
+        likesCount: post.likedBy.length,
+      });
+    }
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const getPostById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const post = await Postmodel.findById(id);
+    if (post)
+      res.status(222).send({
+        post: post,
+        success: true,
+      });
+    else
+      res.status(100).send({
+        success: "hudlaa baina alga baina",
+      });
+  } catch (err) {
+    res.status(400).send({
+      error: err,
+      success: false,
+    });
   }
 };

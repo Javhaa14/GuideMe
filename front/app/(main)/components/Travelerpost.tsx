@@ -2,11 +2,29 @@
 import { useState } from "react";
 import Image from "next/image";
 import { CalendarDays, MapPin, UsersRound, Heart } from "lucide-react";
+import axios from "axios";
+import { useUser } from "@/app/context/Usercontext";
 
 export default function Travelerpost({ post, onclick }: any) {
+  const { user, status } = useUser(); // <-- get user from context
+
   const [likes, setLikes] = useState(post.likes || 0);
   const [liked, setLiked] = useState(false);
-
+  const [likedUsers, setLikedUsers] = useState<string[]>([post.userId]);
+  const postlikes = async () => {
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/post`,
+        {
+          userId: user.id,
+          postId: post._id,
+        }
+      );
+      console.log("Амжилттай like хийлээ:", response.data);
+    } catch (error) {
+      console.error("Like хийхэд алдаа гарлаа:", error);
+    }
+  };
   const handleLike = () => {
     if (!liked) {
       setLikes(likes + 1);
@@ -99,7 +117,10 @@ export default function Travelerpost({ post, onclick }: any) {
       {/* Action buttons */}
       <div className="flex items-center space-x-6">
         <button
-          onClick={handleLike}
+          onClick={() => {
+            handleLike();
+            postlikes();
+          }}
           className={`flex items-center gap-2 font-semibold ${
             liked ? "text-red-500" : "text-blue-500"
           } transition-colors hover:text-red-500`}
