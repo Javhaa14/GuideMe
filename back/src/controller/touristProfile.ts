@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Touristmodel } from "../model/Tourist";
+import mongoose from "mongoose";
 
 export const createTouristProfile = async (
   req: Request,
@@ -16,8 +17,10 @@ export const createTouristProfile = async (
     gender,
   } = req.body;
   try {
+    const userId = new mongoose.Types.ObjectId(_id);
+
     const Tprofile = await Touristmodel.create({
-      _id,
+      _id: userId,
       languages,
       location,
       profileimage,

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Guidemodel } from "../model/Guide";
+import mongoose from "mongoose";
 
 export const createGuideProfile = async (
   req: Request,
@@ -25,8 +26,10 @@ export const createGuideProfile = async (
   } = req.body;
 
   try {
+    const userId = new mongoose.Types.ObjectId(_id);
+
     const Gprofile = await Guidemodel.create({
-      _id,
+      _id: userId,
       username,
       languages,
       socialAddress,
