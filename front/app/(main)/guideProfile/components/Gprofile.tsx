@@ -68,6 +68,10 @@ const formSchema = z.object({
 export function GProfile() {
   const { user } = useUser();
 
+  if (!user) {
+    return <p>Loading user...</p>; // or a spinner
+  }
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
 
