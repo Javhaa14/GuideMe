@@ -70,6 +70,9 @@ const formSchema = z.object({
 
 export const TouristProfile = () => {
   const { user } = useUser();
+  if (!user) {
+    return <p>Loading user...</p>; // or a spinner
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

@@ -26,6 +26,11 @@ export default function Chat({ user }: { user: UserPayload }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  if (!user) {
+    return <p>Loading user...</p>;
+  }
+
   const fetchProfile = async () => {
     try {
       const res = await axiosInstance.get(`/tprofile/${user._id}`);
