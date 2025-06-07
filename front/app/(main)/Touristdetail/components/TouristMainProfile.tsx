@@ -45,11 +45,7 @@ export type Post = {
     role: string;
   };
 };
-export type UserPayload = {
-  _id: string;
-  username: string;
-  role: string;
-};
+
 export default function TravelerProfile() {
   const params = useParams();
 
@@ -120,7 +116,7 @@ export default function TravelerProfile() {
         />
         <div className="mt-10">
           <h2 className="text-2xl font-bold mb-4">
-            {params.id === user?._id
+            {params.id === user?.id
               ? "Your posts"
               : `${tourist?._id.username}'s posts`}
           </h2>
@@ -139,7 +135,7 @@ export default function TravelerProfile() {
           </div>
         </div>
         {/* Create Post Section */}
-        {params.id === user?._id && (
+        {params.id === user?.id && (
           <div className="mt-8">
             <CreatePost onPostCreated={fetchPosts} />
           </div>
