@@ -8,18 +8,28 @@ export const createTouristProfile = async (
 ): Promise<void> => {
   console.log("Incoming Tourist Profile POST body:", req.body);
 
-  const {
-    _id,
-    languages,
-    location,
-    profileimage,
-    backgroundimage,
-    socialAddress,
-    about,
-    gender,
-  } = req.body;
   try {
-    const userId = new mongoose.Types.ObjectId(_id);
+    const {
+      _id,
+      languages,
+      location,
+      profileimage,
+      backgroundimage,
+      socialAddress,
+      about,
+      gender,
+    } = req.body;
+
+    const userId =
+      typeof _id === "string" ? new mongoose.Types.ObjectId(_id) : _id;
+
+    // Optional: check if tourist profile already exists
+    const existingProfile = await Touristmodel.findById(userId);
+    if (existingProfile) {
+      res
+        .status(409)
+        .json({ success: false, message: "Profile already exists" });
+    }
 
     const Tprofile = await Touristmodel.create({
       _id: userId,
@@ -31,6 +41,7 @@ export const createTouristProfile = async (
       about,
       gender,
     });
+
     res.status(200).send({
       success: true,
       Tprofile,
