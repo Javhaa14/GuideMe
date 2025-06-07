@@ -91,13 +91,13 @@ export function LogInEmailPassword() {
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     // Call NextAuth signIn with "credentials" provider
     const result = await signIn("credentials", {
-      redirect: false, // important: prevent automatic redirect
+      redirect: false,
       email: values.email,
       password: values.password,
+      callbackUrl: "/", // this is where you want to redirect after login
     });
 
     if (result?.error) {
-      // If login failed, show error on the form
       form.setError("email", {
         type: "manual",
         message: "Invalid credentials",
@@ -106,9 +106,8 @@ export function LogInEmailPassword() {
         type: "manual",
         message: "Invalid credentials",
       });
-    } else if (result?.ok) {
-      // Login successful, redirect to homepage
-      router.push("/");
+    } else if (result?.ok && result.url) {
+      router.push(result.url); // 🔥 correct redirect
     }
   };
 
