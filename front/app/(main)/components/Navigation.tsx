@@ -70,6 +70,7 @@ export const Navigation = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [language, setLanguage] = useState<"en" | "mn">("en");
+  console.log(session); // If null, you're signed out
 
   const t = translations[language];
 
