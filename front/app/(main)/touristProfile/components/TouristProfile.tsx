@@ -204,18 +204,20 @@ export const TouristProfile = () => {
         console.error("❌ Username update failed:", error);
       }
     }
+    const tpro = {
+      _id: user?.id,
+      socialAddress: values.social,
+      gender: values.gender,
+      location: values.location,
+      languages: values.languages,
+      about: values.about,
+      profileimage: values.profileimage,
+      backgroundimage: "",
+    };
+    console.log("sending", tpro);
 
     try {
-      const res = await axiosInstance.post(`/tprofile`, {
-        _id: user?.id,
-        socialAddress: values.social,
-        gender: values.gender,
-        location: values.location,
-        languages: values.languages,
-        about: values.about,
-        profileimage: values.profileimage,
-        backgroundimage: "",
-      });
+      const res = await axiosInstance.post(`/tprofile`, tpro);
 
       console.log("Successfully created tourist profile", res.data);
     } catch (error) {
