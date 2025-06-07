@@ -15,11 +15,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "GuideMe App",
-  description: "GuideMe Next.js app with NextAuth",
-};
-
 export default function RootLayout({
   children,
 }: {
