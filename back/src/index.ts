@@ -33,13 +33,7 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // allow server-to-server or postman requests
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      callback(new Error("CORS policy violation"));
-    },
+    origin: ["https://guide-mee.vercel.app"],
     credentials: true,
   })
 );
