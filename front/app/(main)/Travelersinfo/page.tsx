@@ -47,7 +47,7 @@ export default function Home() {
     "Activites",
   ];
   const [posts, setPosts] = useState<PostType[]>([]);
-  const { user, status } = useUser(); // <-- get user from context
+  const { user, status } = useUser();
 
   useEffect(() => {
     const fetchPosts = async () => {

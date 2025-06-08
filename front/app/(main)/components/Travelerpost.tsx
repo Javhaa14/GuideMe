@@ -3,11 +3,12 @@ import { useState } from "react";
 import Image from "next/image";
 import { CalendarDays, MapPin, UsersRound, Heart } from "lucide-react";
 import { axiosInstance } from "@/lib/utils";
-
+import { motion, AnimatePresence } from "framer-motion";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 export default function Travelerpost({ post, onclick, user }: any) {
   const [likes, setLikes] = useState<number>(post.likedBy.length);
   const [liked, setLiked] = useState<boolean>(post.likedBy.includes(user?.id));
-
+  const [showHearts, setShowHearts] = useState(false);
   const handleLike = async () => {
     try {
       const response = await axiosInstance.put(`/post`, {
@@ -15,9 +16,12 @@ export default function Travelerpost({ post, onclick, user }: any) {
         postId: post._id,
       });
       const updatedLikedBy = response.data.likedBy;
-
       setLikes(updatedLikedBy.length);
       setLiked(updatedLikedBy.includes(user.id));
+      if (!liked) {
+        setShowHearts(true);
+        setTimeout(() => setShowHearts(false), 800);
+      }
     } catch (error) {
       console.error("❌ Like error:", error);
     }
@@ -38,7 +42,8 @@ export default function Travelerpost({ post, onclick, user }: any) {
         <div>
           <h4
             onClick={onclick}
-            className="cursor-pointer font-semibold text-gray-900 hover:text-blue-400 text-lg">
+            className="cursor-pointer font-semibold text-gray-900 hover:text-blue-400 text-lg"
+          >
             {post.userInfo.username}
           </h4>
           <div className="flex gap-10">
@@ -89,7 +94,8 @@ export default function Travelerpost({ post, onclick, user }: any) {
           post.images.map((val: any, i: number) => (
             <div
               key={i}
-              className="relative w-48 h-28 flex-shrink-0 rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform cursor-pointer">
+              className="relative w-48 h-28 flex-shrink-0 rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform cursor-pointer"
+            >
               <Image
                 src={val}
                 alt={`Post image ${i + 1}`}
@@ -109,7 +115,8 @@ export default function Travelerpost({ post, onclick, user }: any) {
           className={`flex items-center gap-2 font-semibold ${
             liked ? "text-red-500" : "text-blue-500"
           } transition-colors hover:text-red-500`}
-          aria-label="Like button">
+          aria-label="Like button"
+        >
           <Heart
             size={22}
             className={`transition-transform ${
@@ -118,6 +125,34 @@ export default function Travelerpost({ post, onclick, user }: any) {
             fill={liked ? "red" : "none"}
             stroke={liked ? "red" : undefined}
           />
+          <AnimatePresence>
+            {showHearts &&
+              Array.from({ length: 8 }).map((_, i) => (
+                <motion.span
+                  key={i}
+                  initial={{
+                    opacity: 1,
+                    scale: 1,
+                    x: 0,
+                    y: 0,
+                  }}
+                  animate={{
+                    x: Math.cos((i / 8) * 2 * Math.PI) * 40,
+                    y: Math.sin((i / 8) * 2 * Math.PI) * 40,
+                    opacity: 0,
+                    scale: 1.3,
+                  }}
+                  transition={{
+                    duration: 0.6,
+                    ease: "easeOut",
+                  }}
+                  exit={{ opacity: 0 }}
+                  className="absolute  text-red-400 pointer-events-none"
+                >
+                  ❤️
+                </motion.span>
+              ))}
+          </AnimatePresence>
           Like ({likes})
         </button>
         <button className="text-blue-500 font-semibold hover:underline">
