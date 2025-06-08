@@ -10,6 +10,7 @@ import { useOnlineStatus } from "@/app/context/Onlinestatus";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useParams } from "next/navigation";
+import { OnlineUsers } from "../Touristdetail/components/TouristMainProfile";
 
 dayjs.extend(relativeTime);
 const socket = io("https://guideme-8o9f.onrender.com");
@@ -25,8 +26,13 @@ export type UserPayload = {
   role: string;
   email: string;
 };
-export default function Chat({ user }: { user: UserPayload }) {
-  const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
+export default function Chat({
+  user,
+  onlineUsers,
+}: {
+  user: UserPayload;
+  onlineUsers: OnlineUsers;
+}) {
   const params = useParams();
   const profileId = Array.isArray(params.id) ? params.id[0] : params.id;
 
@@ -57,7 +63,6 @@ export default function Chat({ user }: { user: UserPayload }) {
   };
   useEffect(() => {
     fetchProfile();
-    fetchOnlineUsers();
     setUsername(user.name);
 
     socket.on("chat message", (msg: ChatMessage) => {
@@ -68,9 +73,6 @@ export default function Chat({ user }: { user: UserPayload }) {
       socket.off("chat message");
     };
   }, []); // ✅ Empty dependency array = run only once
-
-  console.log("onlineUsers keys:", Object.keys(onlineUsers));
-  console.log("Current user id:", user.id);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
