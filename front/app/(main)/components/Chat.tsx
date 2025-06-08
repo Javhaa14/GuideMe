@@ -9,6 +9,7 @@ import { axiosInstance } from "@/lib/utils";
 import { useOnlineStatus } from "@/app/context/Onlinestatus";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useParams } from "next/navigation";
 
 dayjs.extend(relativeTime);
 const socket = io("https://guideme-8o9f.onrender.com");
@@ -26,6 +27,12 @@ export type UserPayload = {
 };
 export default function Chat({ user }: { user: UserPayload }) {
   const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
+  const params = useParams();
+  const profileId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  if (!profileId) {
+    return <p>User ID not found in URL params.</p>;
+  }
 
   const [username, setUsername] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -52,6 +59,7 @@ export default function Chat({ user }: { user: UserPayload }) {
     fetchProfile();
     fetchOnlineUsers();
     setUsername(user.name);
+
     socket.on("chat message", (msg: ChatMessage) => {
       setMessages((prev) => [...prev, msg]);
     });
@@ -59,7 +67,8 @@ export default function Chat({ user }: { user: UserPayload }) {
     return () => {
       socket.off("chat message");
     };
-  }, []);
+  }, []); // ✅ Empty dependency array = run only once
+
   console.log("onlineUsers keys:", Object.keys(onlineUsers));
   console.log("Current user id:", user.id);
 
@@ -83,14 +92,19 @@ export default function Chat({ user }: { user: UserPayload }) {
     <div className="flex flex-col w-full bg-white">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 text-white">
-        <div className="flex items-center justify-between">
-          <p className="text-green-100 text-sm mt-1">Connected as {username}</p>
-          {onlineUsers[user.id]?.isOnline ? (
-            <span>Online</span>
+        <div className="flex flex-col items-start justify-between">
+          {onlineUsers[profileId]?.isOnline ? (
+            <div className="flex gap-2 items-center">
+              <span>Online</span>
+              <div className="flex w-3 h-3 rounded-full bg-white animate-pulse"></div>
+            </div>
           ) : (
-            <span className="text-sm">
-              Last seen {dayjs(onlineUsers[user.id]?.lastSeen).fromNow()}
-            </span>
+            <div className="flex justify-between items-center w-full ">
+              <p className="text-gray-800">Offline</p>
+              <span className="text-sm">
+                Last seen {dayjs(onlineUsers[profileId]?.lastSeen).fromNow()}
+              </span>
+            </div>
           )}
         </div>
       </div>
