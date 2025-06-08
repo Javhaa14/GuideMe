@@ -6,6 +6,7 @@ import { useEffect, useState, useRef } from "react";
 import { Send, User } from "lucide-react";
 import io from "socket.io-client";
 import { axiosInstance } from "@/lib/utils";
+import { useOnlineStatus } from "@/app/context/Onlinestatus";
 
 const socket = io("https://guideme-8o9f.onrender.com");
 
@@ -21,6 +22,8 @@ export type UserPayload = {
   email: string;
 };
 export default function Chat({ user }: { user: UserPayload }) {
+  const { onlineUsers } = useOnlineStatus();
+
   const [username, setUsername] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -75,10 +78,11 @@ export default function Chat({ user }: { user: UserPayload }) {
       <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 text-white">
         <div className="flex items-center justify-between">
           <p className="text-green-100 text-sm mt-1">Connected as {username}</p>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
-            <span>Online</span>
-          </div>
+          {onlineUsers[user.id] ? (
+            <span className="text-green-300 ml-2 animate-pulse">● Online</span>
+          ) : (
+            <span className="text-gray-800 ml-2 animate-pulse">Offline</span>
+          )}
         </div>
       </div>
 
@@ -87,7 +91,7 @@ export default function Chat({ user }: { user: UserPayload }) {
         {messages.length === 0 && (
           <div className="text-center text-gray-500 py-8">
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User size={24} className="text-gray-400" />
+              <User size={24} className="text-gray-800" />
             </div>
             <p>No messages yet. Start the conversation!</p>
           </div>

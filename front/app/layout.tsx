@@ -4,6 +4,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { UserProvider } from "./context/Usercontext";
+import OnlineTracker from "@/components/OnlineTracker";
+import { OnlineStatusProvider } from "./context/Onlinestatus";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +29,10 @@ export default function RootLayout({
         cz-shortcut-listen="true"
         style={{ cursor: "auto" }}>
         <SessionProvider>
-          <UserProvider>{children}</UserProvider>
+          <OnlineTracker />
+          <OnlineStatusProvider>
+            <UserProvider>{children}</UserProvider>
+          </OnlineStatusProvider>
         </SessionProvider>
       </body>
     </html>
