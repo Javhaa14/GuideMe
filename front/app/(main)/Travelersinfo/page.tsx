@@ -3,10 +3,10 @@ import Image from "next/image";
 import { Filter } from "./components/Filter";
 import Travelerspost from "../components/Travelerpost";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-interface PostType {
+import { axiosInstance } from "@/lib/utils";
+import { useUser } from "@/app/context/Usercontext";
+export interface PostType {
   _id: string;
   userId: string;
   content: string;
@@ -47,14 +47,12 @@ export default function Home() {
     "Activites",
   ];
   const [posts, setPosts] = useState<PostType[]>([]);
-  const { id }: { id?: string } = useParams();
+  const { user, status } = useUser();
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await axios.get<PostType[]>(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/post`
-        );
-        console.log("✅ Posts fetched:", res.data);
+        const res = await axiosInstance.get<PostType[]>(`/post`);
         setPosts(res.data);
       } catch (err) {
         console.error("❌ Post fetch failed:", err);
@@ -63,6 +61,7 @@ export default function Home() {
 
     fetchPosts();
   }, []);
+
   const router = useRouter();
   const todetail = (id: string) => {
     router.push(`/Touristdetail/${id}`);
@@ -83,6 +82,7 @@ export default function Home() {
               }}
               post={v}
               key={i}
+              user={user}
             />
           );
         })}

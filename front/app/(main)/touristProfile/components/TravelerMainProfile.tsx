@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Chat from "../../components/Chat";
 import { MapPin, Globe, MessageCircle, User } from "lucide-react";
-import { UserPayload } from "../../Touristdetail/components/TouristMainProfile";
-import axios from "axios";
+import { useUser } from "@/app/context/Usercontext";
 
 type TripMemory = {
   id: number;
@@ -56,21 +55,8 @@ const sampleTraveler: TravelerProfile = {
 export default function TravelerMainProfile() {
   const [traveler] = useState<TravelerProfile>(sampleTraveler);
   const [chat, setChat] = useState(false);
-  const [user, setUser] = useState<UserPayload | null>(null);
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
-        { withCredentials: true }
-      );
-      setUser(res.data.user);
-    } catch {
-      console.log("No user logged in or error fetching user");
-    }
-  };
-  useEffect(() => {
-    fetchUser();
-  }, []);
+  const { user } = useUser();
+
   return (
     <div className="w-screen px-4 md:px-20 pt-4 pb-20">
       {chat && (

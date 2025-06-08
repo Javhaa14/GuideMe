@@ -3,7 +3,7 @@ import { GuideProfile } from "./components/GuideProfile";
 import { ListFilter, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import { axiosInstance } from "@/lib/utils";
 
 export default function Home() {
   const filters = [
@@ -31,6 +31,7 @@ export default function Home() {
     about?: string;
     SocialAddress?: string;
     car: "true" | "false";
+    likedBy: string[];
     activities?: string[];
     createdAt?: string;
     updatedAt?: string;
@@ -42,12 +43,7 @@ export default function Home() {
   const [guides, setGuides] = useState<Guide[] | undefined>(undefined);
   const fetchGuides = async () => {
     try {
-      const res = await axios.get<Guide[]>(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/gprofile`,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await axiosInstance.get<Guide[]>(`/gprofile`);
       setGuides(res.data);
     } catch (error) {
       console.log("No guides");
@@ -83,6 +79,8 @@ export default function Home() {
       <div className="grid grid-cols-2 gap-5 w-full px-30 h-fit">
         {guides?.map((guide, i) => (
           <GuideProfile
+            likes={guide.likedBy.length || 0}
+            id={guide._id}
             onclick={() => router.push(`/Guidedetail/${guide._id}`)}
             key={guide._id || i}
             status={guide.status}

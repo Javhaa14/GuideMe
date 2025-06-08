@@ -2,18 +2,28 @@
 import { useState } from "react";
 import Image from "next/image";
 import { CalendarDays, MapPin, UsersRound, Heart } from "lucide-react";
-
-export default function Travelerpost({ post, onclick }: any) {
-  const [likes, setLikes] = useState(post.likes || 0);
-  const [liked, setLiked] = useState(false);
-
-  const handleLike = () => {
-    if (!liked) {
-      setLikes(likes + 1);
-      setLiked(true);
-    } else {
-      setLikes(likes - 1);
-      setLiked(false);
+import { axiosInstance } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+export default function Travelerpost({ post, onclick, user }: any) {
+  const [likes, setLikes] = useState<number>(post.likedBy.length);
+  const [liked, setLiked] = useState<boolean>(post.likedBy.includes(user?.id));
+  const [showHearts, setShowHearts] = useState(false);
+  const handleLike = async () => {
+    try {
+      const response = await axiosInstance.put(`/post`, {
+        userId: user.id,
+        postId: post._id,
+      });
+      const updatedLikedBy = response.data.likedBy;
+      setLikes(updatedLikedBy.length);
+      setLiked(updatedLikedBy.includes(user.id));
+      if (!liked) {
+        setShowHearts(true);
+        setTimeout(() => setShowHearts(false), 800);
+      }
+    } catch (error) {
+      console.error("❌ Like error:", error);
     }
   };
 
@@ -99,7 +109,9 @@ export default function Travelerpost({ post, onclick }: any) {
       {/* Action buttons */}
       <div className="flex items-center space-x-6">
         <button
-          onClick={handleLike}
+          onClick={() => {
+            handleLike();
+          }}
           className={`flex items-center gap-2 font-semibold ${
             liked ? "text-red-500" : "text-blue-500"
           } transition-colors hover:text-red-500`}
@@ -113,6 +125,34 @@ export default function Travelerpost({ post, onclick }: any) {
             fill={liked ? "red" : "none"}
             stroke={liked ? "red" : undefined}
           />
+          <AnimatePresence>
+            {showHearts &&
+              Array.from({ length: 8 }).map((_, i) => (
+                <motion.span
+                  key={i}
+                  initial={{
+                    opacity: 1,
+                    scale: 1,
+                    x: 0,
+                    y: 0,
+                  }}
+                  animate={{
+                    x: Math.cos((i / 8) * 2 * Math.PI) * 40,
+                    y: Math.sin((i / 8) * 2 * Math.PI) * 40,
+                    opacity: 0,
+                    scale: 1.3,
+                  }}
+                  transition={{
+                    duration: 0.6,
+                    ease: "easeOut",
+                  }}
+                  exit={{ opacity: 0 }}
+                  className="absolute  text-red-400 pointer-events-none"
+                >
+                  ❤️
+                </motion.span>
+              ))}
+          </AnimatePresence>
           Like ({likes})
         </button>
         <button className="text-blue-500 font-semibold hover:underline">

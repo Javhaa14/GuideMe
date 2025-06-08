@@ -1,14 +1,13 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Card } from "./Card";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { axiosInstance } from "@/lib/utils";
 
 export const Subscription = () => {
   const [step, setStep] = useState(1);
@@ -27,7 +26,7 @@ export const Subscription = () => {
     setPaymentId(null);
     setStatus("");
 
-    const data = await axios.get(`https://guideme-8o9f.onrender.com`, {
+    const data = await axiosInstance.get("/", {
       params: { plan },
     });
 

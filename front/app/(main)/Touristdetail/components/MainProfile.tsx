@@ -7,6 +7,7 @@ import {
   VenusAndMarsIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { PostType } from "../../Travelersinfo/page";
 export type TouristProfile = {
   _id: {
     _id: string;
@@ -24,38 +25,10 @@ export type TouristProfile = {
   createdAt: string;
   updatedAt: string;
 };
-export type Post = {
-  _id: string;
-  city: string;
-  country: string;
-  content: string;
-  images: string[];
-  likes: number;
-  likedBy: string[];
-  people: number;
-  startDate: string;
-  endDate: string;
-  createdAt: string;
-  userId: string;
-  userInfo: {
-    username: string;
-    email: string;
-    role: string;
-  };
-  tprofileInfo: {
-    gender: string;
-    languages: string[];
-    location: string;
-    profileimage: string;
-    backgroundimage: string;
-    socialAddress?: string;
-    about?: string;
-  };
-};
 
 type MainProfileProps = {
   tourist: TouristProfile;
-  post: Post[];
+  post: PostType[];
   chat: boolean;
   setChat: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -182,8 +155,7 @@ export const MainProfile = ({
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
               <button
                 onClick={() => setChat(!chat)}
-                className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
+                className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
                 <MessageCircle className="w-6 h-6" />
                 Start Conversation
               </button>
