@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 
 import { Bell, Settings, TentTree } from "lucide-react";
+import { axiosInstance } from "@/lib/utils";
 
 const translations = {
   en: {
@@ -108,19 +109,16 @@ export const Navigation = () => {
 
             <Select
               onValueChange={async (value) => {
+                console.log("Selected value:", value);
+
                 if (value === "logout") {
                   try {
-                    const response = await fetch(
-                      "https://guideme-8o9f.onrender.com/api/user/offline",
-                      {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        credentials: "include",
-                        body: JSON.stringify({ userId: session?.user?.id }),
-                      }
-                    );
+                    const response = await axiosInstance.put("/api/online", {
+                      userId: session?.user?.id,
+                      isOnline: false,
+                    });
 
-                    if (response.ok) {
+                    if (response.status === 200) {
                       await signOut({ callbackUrl: "/log-in" });
                     } else {
                       console.error("Failed to logout");
@@ -128,8 +126,6 @@ export const Navigation = () => {
                   } catch (error) {
                     console.error("Logout error:", error);
                   }
-                } else if (value === "settings") {
-                  router.push("/Settings");
                 }
               }}
               defaultValue="">
