@@ -15,7 +15,6 @@ import Ebooking from "./Ebooking";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 
-
 type TourPost = {
   id: number;
   image: string;
@@ -47,10 +46,7 @@ export default function GuideMainProfile() {
   const [guide, setGuide] = useState<GuideProfile>();
   const [chat, setChat] = useState(false);
 
-  const { user, status } = useUser(); // <-- get user from context
-  if (!user) {
-    return <p>Loading user...</p>; // or a spinner
-  }
+  const { user, status } = useUser(); // ✅ Hook-ууд бүгд шууд үндсэн түвшинд байна
 
   const fetchProfile = async () => {
     try {
@@ -71,8 +67,9 @@ export default function GuideMainProfile() {
     router.push(`/Guidedetail/${id}`);
   };
 
-  if (status === "loading") {
-    return <p>Loading user info...</p>;
+  // ✅ Conditional return-ийг дараа нь хийдэг
+  if (!user || status === "loading") {
+    return <p>Loading user...</p>;
   }
 
   return (
