@@ -22,7 +22,7 @@ export type UserPayload = {
   email: string;
 };
 export default function Chat({ user }: { user: UserPayload }) {
-  const { onlineUsers } = useOnlineStatus();
+  const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
 
   const [username, setUsername] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -34,6 +34,7 @@ export default function Chat({ user }: { user: UserPayload }) {
   if (!user) {
     return <p>Loading user...</p>;
   }
+  console.log(onlineUsers, "onlineusers");
 
   const fetchProfile = async () => {
     try {
@@ -46,6 +47,7 @@ export default function Chat({ user }: { user: UserPayload }) {
   };
   useEffect(() => {
     fetchProfile();
+    fetchOnlineUsers();
     setUsername(user.name);
     socket.on("chat message", (msg: ChatMessage) => {
       setMessages((prev) => [...prev, msg]);
@@ -55,6 +57,8 @@ export default function Chat({ user }: { user: UserPayload }) {
       socket.off("chat message");
     };
   }, []);
+  console.log("onlineUsers keys:", Object.keys(onlineUsers));
+  console.log("Current user id:", user.id);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
