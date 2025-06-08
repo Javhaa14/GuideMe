@@ -132,3 +132,38 @@ export const getGuides = async (_: Request, res: Response): Promise<void> => {
     }
   }
 };
+
+export const updateGuideProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId, guideId } = req.body;
+  try {
+    const guideProfile = await Guidemodel.findByIdAndUpdate(guideId);
+    if (!guideProfile) {
+      res.status(404).json({ message: "guide profile not found" });
+    } else {
+      const alreadyLiked = guideProfile.likedBy.some(
+        (id) => id.toString() === userId
+      );
+
+      if (alreadyLiked) {
+        guideProfile.likedBy = guideProfile.likedBy.filter(
+          (id) => id.toString() !== userId
+        );
+      } else {
+        guideProfile.likedBy.push(new mongoose.Types.ObjectId(userId));
+      }
+      await guideProfile.save();
+      res.status(200).json({
+        message: "Post updated successfully",
+        likedBy: guideProfile.likedBy,
+      });
+    }
+  } catch (error) {
+    res.status(400).send({
+      error: error,
+      success: false,
+    });
+  }
+};
