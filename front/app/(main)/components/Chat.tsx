@@ -7,7 +7,10 @@ import { Send, User } from "lucide-react";
 import io from "socket.io-client";
 import { axiosInstance } from "@/lib/utils";
 import { useOnlineStatus } from "@/app/context/Onlinestatus";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
+dayjs.extend(relativeTime);
 const socket = io("https://guideme-8o9f.onrender.com");
 
 type ChatMessage = {
@@ -82,10 +85,12 @@ export default function Chat({ user }: { user: UserPayload }) {
       <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 text-white">
         <div className="flex items-center justify-between">
           <p className="text-green-100 text-sm mt-1">Connected as {username}</p>
-          {onlineUsers[user.id] ? (
-            <span className="text-green-300 ml-2 animate-pulse">● Online</span>
+          {onlineUsers[user.id]?.isOnline ? (
+            <span>Online</span>
           ) : (
-            <span className="text-gray-800 ml-2 animate-pulse">Offline</span>
+            <span>
+              Last seen {dayjs(onlineUsers[user.id]?.lastSeen).fromNow()}
+            </span>
           )}
         </div>
       </div>
