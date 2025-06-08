@@ -2,7 +2,6 @@
 import express, { Request, Response } from "express";
 import { UserModel } from "../model/User";
 export const Onlinerouter = express.Router();
-
 Onlinerouter.post(
   "/online",
   async (req: Request, res: Response): Promise<any> => {
@@ -11,7 +10,6 @@ Onlinerouter.post(
 
     try {
       await UserModel.findByIdAndUpdate(userId, {
-        isOnline: true,
         lastSeen: new Date(),
       });
 
@@ -22,13 +20,13 @@ Onlinerouter.post(
     }
   }
 );
-Onlinerouter.get("/online", async (req: Request, res: Response) => {
+
+Onlinerouter.get("/online", async (_req: Request, res: Response) => {
   try {
-    const cutoff = new Date(Date.now() - 30 * 1000); // 1 minutes ago
+    const cutoff = new Date(Date.now() - 60 * 1000); // last 1 min
     const onlineUsers = await UserModel.find({
-      isOnline: true,
       lastSeen: { $gte: cutoff },
-    }).select("username email isOnline lastSeen role"); // select fields you want to return
+    }).select("_id username email lastSeen role");
 
     res.status(200).json({ onlineUsers });
   } catch (error) {
