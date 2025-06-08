@@ -33,7 +33,7 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: [`${process.env.NEXT_PUBLIC_FRONTEND_URL}`],
+    origin: allowedOrigins,
     credentials: true,
   })
 );

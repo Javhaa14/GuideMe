@@ -44,6 +44,9 @@ export default function GuideMainProfile() {
   const [chat, setChat] = useState(false);
 
   const { user, status } = useUser(); // <-- get user from context
+  if (!user) {
+    return <p>Loading user...</p>; // or a spinner
+  }
 
   const fetchProfile = async () => {
     try {

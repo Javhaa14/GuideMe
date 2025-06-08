@@ -73,20 +73,25 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
   const watchEndDate = watch("endDate");
 
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all")
+    fetch("https://restcountries.com/v3.1/all?fields=name")
       .then((res) => res.json())
-      .then((data) => setCountries(data.map((c: any) => c.name.common).sort()));
+      .then((data) => setCountries(data.map((c: any) => c.name.common).sort()))
+      .catch((err) => console.error("Failed to load countries", err));
   }, []);
 
   useEffect(() => {
-    if (!watchCountry) return;
+    if (!watchCountry) {
+      setCities([]);
+      return;
+    }
     fetch("https://countriesnow.space/api/v0.1/countries/cities", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ country: watchCountry }),
     })
       .then((res) => res.json())
-      .then((data) => setCities(data.data || []));
+      .then((data) => setCities(data.data || []))
+      .catch((err) => console.error("Failed to load cities", err));
   }, [watchCountry]);
 
   const onSubmit = async (data: FormData) => {
