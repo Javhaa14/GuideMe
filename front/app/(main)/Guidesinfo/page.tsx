@@ -31,6 +31,7 @@ export default function Home() {
     about?: string;
     SocialAddress?: string;
     car: "true" | "false";
+    likedBy: string[];
     activities?: string[];
     createdAt?: string;
     updatedAt?: string;
@@ -78,6 +79,8 @@ export default function Home() {
       <div className="grid grid-cols-2 gap-5 w-full px-30 h-fit">
         {guides?.map((guide, i) => (
           <GuideProfile
+            likes={guide.likedBy.length || 0}
+            id={guide._id}
             onclick={() => router.push(`/Guidedetail/${guide._id}`)}
             key={guide._id || i}
             status={guide.status}

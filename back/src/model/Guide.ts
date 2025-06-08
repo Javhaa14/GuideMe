@@ -28,6 +28,12 @@ const guideschema = new mongoose.Schema({
     required: true,
   },
   rating: Number,
+  likedBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   comments: [
     {
       type: mongoose.Schema.Types.ObjectId,
