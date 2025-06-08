@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
         if (!credentials) return null;
 
         const res = await fetch(
-          "https://guideme-8o9f.onrender.com/auth/signin",
+          `https://guideme-8o9f.onrender.com/auth/signin`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
