@@ -122,12 +122,14 @@ export const updateUserById = async (
   res: Response
 ): Promise<void> => {
   const { id } = req.params;
-  const updates = { ...req.body };
+  const { username, email, password } = req.body;
 
   try {
-    if (updates.password) {
-      updates.password = await bcrypt.hash(updates.password, 10);
-    }
+    const updates: { [key: string]: string } = {};
+
+    if (username) updates.username = username;
+    if (email) updates.email = email;
+    if (password) updates.password = await bcrypt.hash(password, 10);
 
     const user = await UserModel.findByIdAndUpdate(id, updates, {
       new: true,
@@ -139,6 +141,7 @@ export const updateUserById = async (
         success: false,
         message: "User not found",
       });
+      return;
     }
 
     res.status(200).json({
@@ -153,7 +156,6 @@ export const updateUserById = async (
     });
   }
 };
-
 export const getCurrentUser = async (
   req: Request,
   res: Response

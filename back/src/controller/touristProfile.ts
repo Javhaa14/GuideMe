@@ -1,22 +1,15 @@
 import { Request, Response } from "express";
 import { Touristmodel } from "../model/Tourist";
+import mongoose from "mongoose";
 
 export const createTouristProfile = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const {
-    _id,
-    languages,
-    location,
-    profileimage,
-    backgroundimage,
-    socialAddress,
-    about,
-    gender,
-  } = req.body;
+  console.log("Incoming Tourist Profile POST body:", req.body);
+
   try {
-    const Tprofile = await Touristmodel.create({
+    const {
       _id,
       languages,
       location,
@@ -25,7 +18,30 @@ export const createTouristProfile = async (
       socialAddress,
       about,
       gender,
+    } = req.body;
+
+    const userId =
+      typeof _id === "string" ? new mongoose.Types.ObjectId(_id) : _id;
+
+    // Optional: check if tourist profile already exists
+    const existingProfile = await Touristmodel.findById(userId);
+    if (existingProfile) {
+      res
+        .status(409)
+        .json({ success: false, message: "Profile already exists" });
+    }
+
+    const Tprofile = await Touristmodel.create({
+      _id: userId,
+      languages,
+      location,
+      profileimage,
+      backgroundimage,
+      socialAddress,
+      about,
+      gender,
     });
+
     res.status(200).send({
       success: true,
       Tprofile,
@@ -98,5 +114,61 @@ export const getTouristByuserId = async (
     } else {
       res.status(500).send({ error: "Unexpected error occurred" });
     }
+  }
+};
+export const updateTouristProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { _id } = req.params;
+
+  // Only allow these fields to be updated
+  const {
+    languages,
+    location,
+    profileimage,
+    backgroundimage,
+    socialAddress,
+    about,
+    gender,
+  } = req.body;
+
+  try {
+    const updatedProfile = await Touristmodel.findByIdAndUpdate(
+      _id,
+      {
+        ...(languages && { languages }),
+        ...(location && { location }),
+        ...(profileimage && { profileimage }),
+        ...(backgroundimage && { backgroundimage }),
+        ...(socialAddress && { socialAddress }),
+        ...(about && { about }),
+        ...(gender && { gender }),
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!updatedProfile) {
+      res.status(404).send({
+        success: false,
+        message: "Tourist profile not found",
+      });
+      return;
+    }
+
+    res.status(200).send({
+      success: true,
+      updatedProfile,
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error updating tourist profile:", message);
+    res.status(500).send({
+      success: false,
+      message,
+    });
   }
 };

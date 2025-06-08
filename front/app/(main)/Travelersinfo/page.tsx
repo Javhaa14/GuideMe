@@ -2,10 +2,11 @@
 import Image from "next/image";
 import { Filter } from "./components/Filter";
 import Travelerspost from "../components/Travelerpost";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
+import { useUser } from "@/app/context/Usercontext";
 interface PostType {
   _id: string;
   userId: string;
@@ -47,12 +48,15 @@ export default function Home() {
     "Activites",
   ];
   const [posts, setPosts] = useState<PostType[]>([]);
+  const [likedPosts, setLikedPosts] = useState<string[]>([]);
+
   const { id }: { id?: string } = useParams();
+  const { user, status } = useUser(); // <-- get user from context
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const res = await axiosInstance.get<PostType[]>(`/post`);
-        console.log("✅ Posts fetched:", res.data);
         setPosts(res.data);
       } catch (err) {
         console.error("❌ Post fetch failed:", err);
@@ -61,6 +65,7 @@ export default function Home() {
 
     fetchPosts();
   }, []);
+
   const router = useRouter();
   const todetail = (id: string) => {
     router.push(`/Touristdetail/${id}`);
@@ -82,6 +87,7 @@ export default function Home() {
               }}
               post={v}
               key={i}
+              user={user}
             />
           );
         })}

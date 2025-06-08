@@ -2,36 +2,26 @@
 import { useState } from "react";
 import Image from "next/image";
 import { CalendarDays, MapPin, UsersRound, Heart } from "lucide-react";
-import axios from "axios";
-import { useUser } from "@/app/context/Usercontext";
+import { axiosInstance } from "@/lib/utils";
 
-export default function Travelerpost({ post, onclick }: any) {
-  const { user, status } = useUser();
+export default function Travelerpost({ post, onclick, user }: any) {
+  const [likes, setLikes] = useState<number>(post.likedBy.length);
+  const [liked, setLiked] = useState<boolean>(post.likedBy.includes(user?.id));
 
-  const [likes, setLikes] = useState(post.likedBy.length || 0);
-  const [liked, setLiked] = useState(false);
-
-  const postlikes = async () => {
+  const handleLike = async () => {
     try {
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/post`,
-        {
-          userId: user.id,
-          postId: post._id,
-        }
-      );
-      console.log("Амжилттай like хийлээ:", response.data);
+      const response = await axiosInstance.put(`/post`, {
+        userId: user.id,
+        postId: post._id,
+      });
+
+      // Assuming backend returns updated likedBy array
+      const updatedLikedBy = response.data.likedBy;
+
+      setLikes(updatedLikedBy.length);
+      setLiked(updatedLikedBy.includes(user.id));
     } catch (error) {
-      console.error("Like хийхэд алдаа гарлаа:", error);
-    }
-  };
-  const handleLike = () => {
-    if (!liked) {
-      setLikes(likes + 1);
-      setLiked(true);
-    } else {
-      setLikes(likes - 1);
-      setLiked(false);
+      console.error("❌ Like error:", error);
     }
   };
 
@@ -119,7 +109,6 @@ export default function Travelerpost({ post, onclick }: any) {
         <button
           onClick={() => {
             handleLike();
-            postlikes();
           }}
           className={`flex items-center gap-2 font-semibold ${
             liked ? "text-red-500" : "text-blue-500"
