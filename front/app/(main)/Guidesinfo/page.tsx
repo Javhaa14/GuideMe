@@ -4,7 +4,30 @@ import { ListFilter, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
-
+export interface Guide {
+  _id: string;
+  location?: string;
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: string;
+  price?: string;
+  languages?: string[];
+  status: "available" | "inavailable" | "busy";
+  rating?: number;
+  comments?: string[];
+  experience?: string;
+  about?: string;
+  SocialAddress?: string;
+  car: "true" | "false";
+  likedBy: string[];
+  activities?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  image?: string;
+  name?: string;
+  profileimage: string;
+}
 export default function Home() {
   const filters = [
     "Top Rated",
@@ -15,30 +38,6 @@ export default function Home() {
     "Experienced",
     "Status",
   ];
-  interface Guide {
-    _id: string;
-    location?: string;
-    username: string;
-    firstName?: string;
-    lastName?: string;
-    gender?: string;
-    price?: string;
-    languages?: string[];
-    status: "available" | "inavailable" | "busy";
-    rating?: number;
-    comments?: string[];
-    experience?: string;
-    about?: string;
-    SocialAddress?: string;
-    car: "true" | "false";
-    likedBy: string[];
-    activities?: string[];
-    createdAt?: string;
-    updatedAt?: string;
-    image?: string;
-    name?: string;
-    profileimage: string;
-  }
 
   const [guides, setGuides] = useState<Guide[] | undefined>(undefined);
   const fetchGuides = async () => {
@@ -79,7 +78,7 @@ export default function Home() {
       <div className="grid grid-cols-2 gap-5 w-full px-30 h-fit">
         {guides?.map((guide, i) => (
           <GuideProfile
-            likes={guide.likedBy.length || 0}
+            post={guide}
             id={guide._id}
             onclick={() => router.push(`/Guidedetail/${guide._id}`)}
             key={guide._id || i}
