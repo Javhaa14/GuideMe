@@ -8,6 +8,7 @@ import { MainProfile } from "./MainProfile";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
+import { PostType } from "../../Travelersinfo/page";
 export type TouristProfile = {
   _id: {
     _id: string;
@@ -25,26 +26,6 @@ export type TouristProfile = {
   createdAt: string;
   updatedAt: string;
 };
-export type Post = {
-  _id: string;
-  city: string;
-  content: string;
-  country: string;
-  createdAt: string;
-  endDate: string;
-  images: string[];
-  likedBy: string[];
-  likes: number;
-  people: number;
-  startDate: string;
-  tprofileInfo: TouristProfile;
-  userId: string;
-  userInfo: {
-    username: string;
-    email: string;
-    role: string;
-  };
-};
 
 export default function TravelerProfile() {
   const params = useParams();
@@ -52,7 +33,7 @@ export default function TravelerProfile() {
   const { user } = useUser();
   const [tourist, setTourist] = useState<TouristProfile>();
   const [chat, setChat] = useState(false);
-  const [post, setPost] = useState<Post[]>([]);
+  const [post, setPost] = useState<PostType[]>([]);
 
   const fetchProfile = async () => {
     try {
@@ -129,6 +110,7 @@ export default function TravelerProfile() {
                   }}
                   key={i}
                   post={v}
+                  user={user}
                 />
               );
             })}

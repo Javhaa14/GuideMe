@@ -14,8 +14,6 @@ export default function Travelerpost({ post, onclick, user }: any) {
         userId: user.id,
         postId: post._id,
       });
-
-      // Assuming backend returns updated likedBy array
       const updatedLikedBy = response.data.likedBy;
 
       setLikes(updatedLikedBy.length);

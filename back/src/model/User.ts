@@ -27,7 +27,8 @@ const userSchema = new mongoose.Schema(
       enum: ["Tourist", "Admin", "Guide"],
       default: "Tourist",
     },
-
+    isOnline: { type: Boolean, default: false },
+    lastSeen: { type: Date, default: null },
     provider: {
       type: String,
       enum: ["google", "github", "facebook", null],
