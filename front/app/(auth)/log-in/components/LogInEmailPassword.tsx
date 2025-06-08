@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
-import { axiosInstance, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { signIn } from "next-auth/react";
+
 import {
   Card,
   CardContent,
@@ -26,7 +28,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+import { useSession } from "next-auth/react";
+
 const FloatingStars = ({ count = 20 }: { count?: number }) => {
+  // ... your existing FloatingStars code unchanged
   const stars = useMemo(
     () =>
       Array.from({ length: count }).map((_, i) => ({
@@ -50,8 +55,7 @@ const FloatingStars = ({ count = 20 }: { count?: number }) => {
             top: star.top,
             animationDelay: star.delay,
             animationDuration: star.duration,
-          }}
-        >
+          }}>
           <Star className="w-2 h-2 text-white/20" />
         </div>
       ))}
@@ -68,6 +72,8 @@ const loginSchema = z.object({
 
 export function LogInEmailPassword() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -76,30 +82,40 @@ export function LogInEmailPassword() {
     },
   });
 
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    try {
-      const response = await axiosInstance.post("/auth/signin", values, {
-        withCredentials: true,
+    const result = await signIn("credentials", {
+      redirect: false,
+      email: values.email,
+      password: values.password,
+      callbackUrl: "/",
+    });
+
+    if (result?.error) {
+      form.setError("email", {
+        type: "manual",
+        message: "Invalid credentials",
       });
-
-      const { success, message } = response.data;
-
-      if (success) {
-        router.push("/");
-      } else {
-        form.setError("email", { type: "manual", message });
-        form.setError("password", { type: "manual", message });
-      }
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message || "Login failed. Try again.";
-      form.setError("email", { type: "manual", message: errorMessage });
-      form.setError("password", { type: "manual", message: errorMessage });
+      form.setError("password", {
+        type: "manual",
+        message: "Invalid credentials",
+      });
+    } else if (result?.ok && result.url) {
+      router.push(result.url);
     }
   };
 
   const inputStyle =
     "h-12 text-white bg-white/10 border-white/20 placeholder:text-white/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-xl hover:bg-white/15";
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
@@ -115,8 +131,7 @@ export function LogInEmailPassword() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-6"
-          >
+            className="flex flex-col gap-6">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-white">
                 Welcome back
@@ -168,19 +183,41 @@ export function LogInEmailPassword() {
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                 Continue
               </Button>
             </CardFooter>
+
+            {/* Social Login Buttons */}
+            <div className="flex flex-col gap-3 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => signIn("google")}
+                className="w-full py-3 font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition">
+                Continue with Google
+              </button>
+
+              <button
+                type="button"
+                onClick={() => signIn("github")}
+                className="w-full py-3 font-semibold text-white bg-gray-800 rounded-xl hover:bg-gray-900 transition">
+                Continue with GitHub
+              </button>
+
+              <button
+                type="button"
+                onClick={() => signIn("facebook")}
+                className="w-full py-3 font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition">
+                Continue with Facebook
+              </button>
+            </div>
 
             <div className="flex justify-center gap-2 py-4 text-sm border-t border-white/10 text-white/70">
               <span>Don’t have an account?</span>
               <button
                 type="button"
                 onClick={() => router.push("/sign-up")}
-                className="font-medium text-purple-300 hover:text-purple-200"
-              >
+                className="font-medium text-purple-300 hover:text-purple-200">
                 Sign up
               </button>
             </div>

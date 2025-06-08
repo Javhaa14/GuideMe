@@ -5,8 +5,13 @@ import type React from "react";
 import { useEffect, useState, useRef } from "react";
 import { Send, User } from "lucide-react";
 import io from "socket.io-client";
-import axios from "axios";
+import { axiosInstance } from "@/lib/utils";
+import { useOnlineStatus } from "@/app/context/Onlinestatus";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { useParams } from "next/navigation";
 
+dayjs.extend(relativeTime);
 const socket = io("https://guideme-8o9f.onrender.com");
 
 type ChatMessage = {
@@ -14,23 +19,36 @@ type ChatMessage = {
   text: string;
   profileImage: string;
 };
-type UserPayload = {
-  _id: string;
-  username: string;
+export type UserPayload = {
+  id: string;
+  name: string;
   role: string;
+  email: string;
 };
 export default function Chat({ user }: { user: UserPayload }) {
+  const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
+  const params = useParams();
+  const profileId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  if (!profileId) {
+    return <p>User ID not found in URL params.</p>;
+  }
+
   const [username, setUsername] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  if (!user) {
+    return <p>Loading user...</p>;
+  }
+  console.log(onlineUsers, "onlineusers");
+
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/tprofile/${user._id}`
-      );
+      const res = await axiosInstance.get(`/tprofile/${user.id}`);
       console.log("✅ Posts fetched:", res.data);
       setProfileImage(res.data.profileimage);
     } catch (err) {
@@ -39,7 +57,9 @@ export default function Chat({ user }: { user: UserPayload }) {
   };
   useEffect(() => {
     fetchProfile();
-    setUsername(user.username);
+    fetchOnlineUsers();
+    setUsername(user.name);
+
     socket.on("chat message", (msg: ChatMessage) => {
       setMessages((prev) => [...prev, msg]);
     });
@@ -47,7 +67,10 @@ export default function Chat({ user }: { user: UserPayload }) {
     return () => {
       socket.off("chat message");
     };
-  }, []);
+  }, []); // ✅ Empty dependency array = run only once
+
+  console.log("onlineUsers keys:", Object.keys(onlineUsers));
+  console.log("Current user id:", user.id);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -69,12 +92,20 @@ export default function Chat({ user }: { user: UserPayload }) {
     <div className="flex flex-col w-full bg-white">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 text-white">
-        <div className="flex items-center justify-between">
-          <p className="text-green-100 text-sm mt-1">Connected as {username}</p>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
-            <span>Online</span>
-          </div>
+        <div className="flex flex-col items-start justify-between">
+          {onlineUsers[profileId]?.isOnline ? (
+            <div className="flex gap-2 items-center">
+              <span>Online</span>
+              <div className="flex w-3 h-3 rounded-full bg-white animate-pulse"></div>
+            </div>
+          ) : (
+            <div className="flex justify-between items-center w-full ">
+              <p className="text-gray-800">Offline</p>
+              <span className="text-sm">
+                Last seen {dayjs(onlineUsers[profileId]?.lastSeen).fromNow()}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -83,7 +114,7 @@ export default function Chat({ user }: { user: UserPayload }) {
         {messages.length === 0 && (
           <div className="text-center text-gray-500 py-8">
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User size={24} className="text-gray-400" />
+              <User size={24} className="text-gray-800" />
             </div>
             <p>No messages yet. Start the conversation!</p>
           </div>
@@ -97,18 +128,15 @@ export default function Chat({ user }: { user: UserPayload }) {
               key={i}
               className={`flex ${
                 isCurrentUser ? "justify-end" : "justify-start"
-              }`}
-            >
+              }`}>
               <div
                 className="relative max-w-xs group"
                 onMouseEnter={() => setHoveredIndex(i)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              >
+                onMouseLeave={() => setHoveredIndex(null)}>
                 <div
                   className={`flex items-end gap-2 ${
                     isCurrentUser ? "flex-row-reverse" : "flex-row"
-                  }`}
-                >
+                  }`}>
                   {/* Profile Image */}
                   <div className="flex-shrink-0">
                     {msg.profileImage ? (
@@ -130,8 +158,7 @@ export default function Chat({ user }: { user: UserPayload }) {
                       isCurrentUser
                         ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
                         : "bg-white text-gray-800 border border-gray-200"
-                    }`}
-                  >
+                    }`}>
                     <p className="text-sm leading-relaxed">{msg.text}</p>
                   </div>
                 </div>
@@ -141,14 +168,12 @@ export default function Chat({ user }: { user: UserPayload }) {
                   <div
                     className={`absolute -top-8 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg z-50 whitespace-nowrap ${
                       isCurrentUser ? "right-0" : "left-0"
-                    }`}
-                  >
+                    }`}>
                     {msg.user}
                     <div
                       className={`absolute top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800 ${
                         isCurrentUser ? "right-2" : "left-2"
-                      }`}
-                    ></div>
+                      }`}></div>
                   </div>
                 )}
               </div>
@@ -173,8 +198,7 @@ export default function Chat({ user }: { user: UserPayload }) {
           <button
             type="submit"
             disabled={!input.trim()}
-            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg"
-          >
+            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg">
             <Send size={18} />
           </button>
         </form>

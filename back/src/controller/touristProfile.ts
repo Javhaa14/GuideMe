@@ -1,19 +1,15 @@
 import { Request, Response } from "express";
 import { Touristmodel } from "../model/Tourist";
+import mongoose from "mongoose";
 
-export const createTouristProfile = async (req: Request, res: Response) => {
-  const {
-    _id,
-    languages,
-    location,
-    profileimage,
-    backgroundimage,
-    socialAddress,
-    about,
-    gender,
-  } = req.body;
+export const createTouristProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  console.log("Incoming Tourist Profile POST body:", req.body);
+
   try {
-    const Tprofile = await Touristmodel.create({
+    const {
       _id,
       languages,
       location,
@@ -22,19 +18,44 @@ export const createTouristProfile = async (req: Request, res: Response) => {
       socialAddress,
       about,
       gender,
+    } = req.body;
+
+    const userId =
+      typeof _id === "string" ? new mongoose.Types.ObjectId(_id) : _id;
+
+    // Optional: check if tourist profile already exists
+    const existingProfile = await Touristmodel.findById(userId);
+    if (existingProfile) {
+      res
+        .status(409)
+        .json({ success: false, message: "Profile already exists" });
+    }
+
+    const Tprofile = await Touristmodel.create({
+      _id: userId,
+      languages,
+      location,
+      profileimage,
+      backgroundimage,
+      socialAddress,
+      about,
+      gender,
     });
+
     res.status(200).send({
       success: true,
       Tprofile,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
     res.status(400).send({
       success: false,
-      message: error.message,
+      message,
     });
   }
 };
-export const getTourists = async (_: Request, res: Response) => {
+
+export const getTourists = async (_: Request, res: Response): Promise<void> => {
   try {
     const tourists = await Touristmodel.find().lean();
 
@@ -45,7 +66,7 @@ export const getTourists = async (_: Request, res: Response) => {
     res.status(200).send(tourists);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("ERROR in gettourists:", {
+      console.error("ERROR in getTourists:", {
         message: error.message,
         stack: error.stack,
       });
@@ -60,7 +81,11 @@ export const getTourists = async (_: Request, res: Response) => {
     }
   }
 };
-export const getTouristByuserId = async (req: Request, res: Response) => {
+
+export const getTouristByuserId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { _id } = req.params;
   try {
     const tourist = await Touristmodel.findOne({ _id }).populate({
@@ -70,12 +95,13 @@ export const getTouristByuserId = async (req: Request, res: Response) => {
 
     if (!tourist) {
       res.status(404).send({ message: "Tourist profile not found" });
+      return;
     }
 
     res.status(200).send(tourist);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("ERROR in gettourists:", {
+      console.error("ERROR in getTouristByuserId:", {
         message: error.message,
         stack: error.stack,
       });
@@ -88,5 +114,61 @@ export const getTouristByuserId = async (req: Request, res: Response) => {
     } else {
       res.status(500).send({ error: "Unexpected error occurred" });
     }
+  }
+};
+export const updateTouristProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { _id } = req.params;
+
+  // Only allow these fields to be updated
+  const {
+    languages,
+    location,
+    profileimage,
+    backgroundimage,
+    socialAddress,
+    about,
+    gender,
+  } = req.body;
+
+  try {
+    const updatedProfile = await Touristmodel.findByIdAndUpdate(
+      _id,
+      {
+        ...(languages && { languages }),
+        ...(location && { location }),
+        ...(profileimage && { profileimage }),
+        ...(backgroundimage && { backgroundimage }),
+        ...(socialAddress && { socialAddress }),
+        ...(about && { about }),
+        ...(gender && { gender }),
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!updatedProfile) {
+      res.status(404).send({
+        success: false,
+        message: "Tourist profile not found",
+      });
+      return;
+    }
+
+    res.status(200).send({
+      success: true,
+      updatedProfile,
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error updating tourist profile:", message);
+    res.status(500).send({
+      success: false,
+      message,
+    });
   }
 };

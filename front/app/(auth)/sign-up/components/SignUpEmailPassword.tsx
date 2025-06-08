@@ -26,6 +26,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+import { signIn } from "next-auth/react";
+
 const signUpSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email" }),
   password: z
@@ -63,8 +65,7 @@ const FloatingStars = ({ count = 20 }: { count?: number }) => {
             top: star.top,
             animationDelay: star.delay,
             animationDuration: star.duration,
-          }}
-        >
+          }}>
           <Star className="w-2 h-2 text-white/20" />
         </div>
       ))}
@@ -85,10 +86,16 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
 
   const onSubmit = async (values: SignUpFormValues) => {
     try {
-      const { data } = await axiosInstance.post("/auth/signup", {
-        ...values,
-        username,
-      });
+      const { data } = await axiosInstance.post(
+        "/auth/signup",
+        {
+          ...values,
+          username,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
       if (data.message === "email already registered") {
         form.setError("email", {
@@ -114,6 +121,13 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
   const inputStyle =
     "h-12 text-white bg-white/10 border-white/20 placeholder:text-white/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-xl hover:bg-white/15";
 
+  const handleSocialSignIn = (provider: string) => {
+    // Pass username along as a callback param or use sessionStorage/localStorage if preferred
+    signIn(provider, {
+      callbackUrl: `/welcome?username=${encodeURIComponent(username)}`,
+    });
+  };
+
   return (
     <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
       <div className="absolute inset-0">
@@ -128,14 +142,13 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-6"
-          >
+            className="flex flex-col gap-6">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-white">
                 Welcome, {username}
               </CardTitle>
               <CardDescription className="text-white/70">
-                Connect your email and create a password
+                Connect your email and create a password or use a social login
               </CardDescription>
             </CardHeader>
 
@@ -181,24 +194,55 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                 Create Account
               </Button>
             </CardFooter>
-
-            <div className="flex justify-center gap-2 py-4 text-sm border-t border-white/10 text-white/70">
-              <span>Already have an account?</span>
-              <button
-                type="button"
-                onClick={() => router.push("/log-in")}
-                className="font-medium text-purple-300 hover:text-purple-200"
-              >
-                Sign in
-              </button>
-            </div>
           </form>
         </Form>
+
+        <div className="px-6 pb-6 pt-2 text-center">
+          <p className="mb-3 text-white/70">Or sign up with</p>
+          <div className="flex justify-center gap-4">
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => handleSocialSignIn("google")}>
+              {/* Use an icon if you have */}
+              <img
+                src="/icons/google.svg"
+                alt="Google"
+                className="w-5 h-5"
+                loading="lazy"
+              />
+              Google
+            </Button>
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => handleSocialSignIn("github")}>
+              <img
+                src="/icons/github.svg"
+                alt="GitHub"
+                className="w-5 h-5"
+                loading="lazy"
+              />
+              GitHub
+            </Button>
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => handleSocialSignIn("facebook")}>
+              <img
+                src="/icons/facebook.svg"
+                alt="Facebook"
+                className="w-5 h-5"
+                loading="lazy"
+              />
+              Facebook
+            </Button>
+          </div>
+        </div>
       </Card>
     </div>
   );

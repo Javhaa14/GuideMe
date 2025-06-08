@@ -3,10 +3,12 @@ import Chat from "../../components/Chat";
 import CreatePost from "./CreatePost";
 import { useEffect, useState } from "react";
 import Travelerpost from "../../components/Travelerpost";
-import axios from "axios";
 import { useParams } from "next/navigation";
 import { MainProfile } from "./MainProfile";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/app/context/Usercontext";
+import { axiosInstance } from "@/lib/utils";
+import { PostType } from "../../Travelersinfo/page";
 export type TouristProfile = {
   _id: {
     _id: string;
@@ -24,57 +26,18 @@ export type TouristProfile = {
   createdAt: string;
   updatedAt: string;
 };
-export type Post = {
-  _id: string;
-  city: string;
-  content: string;
-  country: string;
-  createdAt: string;
-  endDate: string;
-  images: string[];
-  likedBy: string[];
-  likes: number;
-  people: number;
-  startDate: string;
-  tprofileInfo: TouristProfile;
-  userId: string;
-  userInfo: {
-    username: string;
-    email: string;
-    role: string;
-  };
-};
-export type UserPayload = {
-  _id: string;
-  username: string;
-  role: string;
-};
+
 export default function TravelerProfile() {
   const params = useParams();
-  const [user, setUser] = useState<UserPayload | null>(null);
+
+  const { user } = useUser();
   const [tourist, setTourist] = useState<TouristProfile>();
   const [chat, setChat] = useState(false);
-  const [post, setPost] = useState<Post[]>([]);
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
-        {
-          withCredentials: true,
-        }
-      );
-      const userData = res.data.user;
-      setUser(userData);
-    } catch (error) {
-      console.log("No user logged in or error fetching user");
-    }
-  };
+  const [post, setPost] = useState<PostType[]>([]);
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/tprofile/${params.id}`
-      );
+      const res = await axiosInstance.get(`/tprofile/${params.id}`);
       console.log("✅ Posts fetched:", res.data);
       setTourist(res.data);
     } catch (err) {
@@ -83,9 +46,7 @@ export default function TravelerProfile() {
   };
   const fetchPosts = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/post/${params.id}`
-      );
+      const res = await axiosInstance.get(`/post/${params.id}`);
       console.log("✅ Posts fetched:", res.data);
       setPost(res.data);
     } catch (err) {
@@ -93,7 +54,6 @@ export default function TravelerProfile() {
     }
   };
   useEffect(() => {
-    fetchUser();
     fetchProfile();
     fetchPosts();
   }, []);
@@ -137,7 +97,7 @@ export default function TravelerProfile() {
         />
         <div className="mt-10">
           <h2 className="text-2xl font-bold mb-4">
-            {params.id === user?._id
+            {params.id === user?.id
               ? "Your posts"
               : `${tourist?._id.username}'s posts`}
           </h2>
@@ -150,13 +110,14 @@ export default function TravelerProfile() {
                   }}
                   key={i}
                   post={v}
+                  user={user}
                 />
               );
             })}
           </div>
         </div>
         {/* Create Post Section */}
-        {params.id === user?._id && (
+        {params.id === user?.id && (
           <div className="mt-8">
             <CreatePost onPostCreated={fetchPosts} />
           </div>

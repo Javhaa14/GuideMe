@@ -5,38 +5,42 @@ import { UserModel } from "../../model/User";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_secret";
 
-export const signin = async (req: Request, res: Response) => {
+export const signin = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
   try {
     const user = await UserModel.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Invalid email or password",
       });
+      return; // Important to stop execution here
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Invalid email or password",
       });
+      return; // Stop execution here as well
     }
 
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
       expiresIn: 3600,
     });
-
-    return res
+    res
       .cookie("token", token, {
-        maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        secure: true,
+        sameSite: "none",
+        domain: "guide-mee.vercel.app", // **NO protocol or slash here!**
+        path: "/",
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
+
       .status(200)
       .json({
         success: true,
@@ -48,11 +52,38 @@ export const signin = async (req: Request, res: Response) => {
           role: user.role,
         },
       });
-  } catch (error: any) {
+    console.log(token, "token");
+  } catch (error: unknown) {
     console.error(error);
-    return res.status(500).json({
+
+    const message =
+      error instanceof Error ? error.message : "Internal server error";
+
+    res.status(500).json({
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message,
     });
+  }
+};
+export const logout = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const userId = req.body.userId;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User ID missing" });
+    }
+
+    // Mark user as offline, update lastSeen to now
+    await UserModel.findByIdAndUpdate(userId, {
+      isOnline: false,
+      lastSeen: new Date(),
+    });
+
+    res.status(200).json({ success: true, message: "User marked offline" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

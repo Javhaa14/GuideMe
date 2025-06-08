@@ -25,7 +25,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "./Starrating";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { axiosInstance } from "@/lib/utils";
+import { UserPayload } from "../../components/Chat";
 
 const formSchema = z.object({
   communication: z.number().min(1, "Please review"),
@@ -39,11 +40,7 @@ const formSchema = z.object({
 type ReviewProps = {
   userId: string;
 };
-type UserPayload = {
-  _id: string;
-  username: string;
-  role: string;
-};
+
 export const Review = ({ userId }: ReviewProps) => {
   const [open, setOpen] = useState(false);
   const [currentuser, setCurrentuser] = useState<UserPayload | null>(null);
@@ -61,12 +58,9 @@ export const Review = ({ userId }: ReviewProps) => {
   });
   const fetchUser = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await axiosInstance.get(`/user/me`, {
+        withCredentials: true,
+      });
       const userData = res.data.user;
       setCurrentuser(userData);
     } catch (error) {
@@ -91,7 +85,7 @@ export const Review = ({ userId }: ReviewProps) => {
 
     const reviewWithGuide = {
       userId, // the guide's user ID
-      reviewerId: currentuser._id, // the reviewer
+      reviewerId: currentuser.id, // the reviewer
       rating: average, // calculated average
       review: values.review, // new name instead of 'comments'
       recommend: values.recommend,
@@ -101,10 +95,7 @@ export const Review = ({ userId }: ReviewProps) => {
     console.log(form.formState.errors);
 
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/comment`,
-        reviewWithGuide
-      );
+      await axiosInstance.post(`/comment`, reviewWithGuide);
 
       console.log("✅ Comment created successfully");
     } catch (err) {
