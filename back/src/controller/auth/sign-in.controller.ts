@@ -65,25 +65,3 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
     });
   }
 };
-export const logout = async (req: Request, res: Response): Promise<any> => {
-  try {
-    const userId = req.body.userId;
-
-    if (!userId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User ID missing" });
-    }
-
-    // Mark user as offline, update lastSeen to now
-    await UserModel.findByIdAndUpdate(userId, {
-      isOnline: false,
-      lastSeen: new Date(),
-    });
-
-    res.status(200).json({ success: true, message: "User marked offline" });
-  } catch (error) {
-    console.error("Logout error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};

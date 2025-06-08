@@ -86,7 +86,7 @@ export const authOptions: NextAuthOptions = {
   },
 
   pages: {
-    signIn: "/login", // your custom sign in page route
+    signIn: "/login",
   },
 
   secret: process.env.NEXTAUTH_SECRET,

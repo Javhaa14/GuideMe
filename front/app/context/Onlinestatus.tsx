@@ -77,7 +77,7 @@ export const OnlineStatusProvider: React.FC<{ children: ReactNode }> = ({
 
     const interval = setInterval(() => {
       fetchOnlineUsers();
-    }, 10000); // every 10s
+    }, 1000); // every 10s
 
     return () => clearInterval(interval);
   }, []);

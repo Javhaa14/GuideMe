@@ -21,7 +21,6 @@ import { guideRouter } from "./routes/guideProfile";
 import AvailabilityRouter from "./routes/availability";
 
 import { Onlinerouter } from "./routes/online";
-import { Logoutrouter } from "./routes/logout";
 
 
 dotenv.config();
@@ -58,7 +57,6 @@ app.use("/availability", AvailabilityRouter);
 // app.use('/GuideProfile', GuideProfileRouter);
 app.use("/tprofile", touristRouter);
 app.use("/api", Onlinerouter);
-app.use("/api", Logoutrouter);
 
 ////////////////////////////////////////////////////////////////
 // QR System
