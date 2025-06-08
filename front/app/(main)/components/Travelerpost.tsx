@@ -2,8 +2,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { CalendarDays, MapPin, UsersRound, Heart } from "lucide-react";
-import axios from "axios";
 import { useUser } from "@/app/context/Usercontext";
+import { axiosInstance } from "@/lib/utils";
 
 export default function Travelerpost({ post, onclick }: any) {
   const { user, status } = useUser(); // <-- get user from context
@@ -13,13 +13,10 @@ export default function Travelerpost({ post, onclick }: any) {
   const [likedUsers, setLikedUsers] = useState<string[]>([post.userId]);
   const postlikes = async () => {
     try {
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/post`,
-        {
-          userId: user.id,
-          postId: post._id,
-        }
-      );
+      const response = await axiosInstance.put(`/post`, {
+        userId: user.id,
+        postId: post._id,
+      });
       console.log("Амжилттай like хийлээ:", response.data);
     } catch (error) {
       console.error("Like хийхэд алдаа гарлаа:", error);
@@ -50,8 +47,7 @@ export default function Travelerpost({ post, onclick }: any) {
         <div>
           <h4
             onClick={onclick}
-            className="cursor-pointer font-semibold text-gray-900 hover:text-blue-400 text-lg"
-          >
+            className="cursor-pointer font-semibold text-gray-900 hover:text-blue-400 text-lg">
             {post.userInfo.username}
           </h4>
           <div className="flex gap-10">
@@ -102,8 +98,7 @@ export default function Travelerpost({ post, onclick }: any) {
           post.images.map((val: any, i: number) => (
             <div
               key={i}
-              className="relative w-48 h-28 flex-shrink-0 rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform cursor-pointer"
-            >
+              className="relative w-48 h-28 flex-shrink-0 rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform cursor-pointer">
               <Image
                 src={val}
                 alt={`Post image ${i + 1}`}
@@ -124,8 +119,7 @@ export default function Travelerpost({ post, onclick }: any) {
           className={`flex items-center gap-2 font-semibold ${
             liked ? "text-red-500" : "text-blue-500"
           } transition-colors hover:text-red-500`}
-          aria-label="Like button"
-        >
+          aria-label="Like button">
           <Heart
             size={22}
             className={`transition-transform ${
