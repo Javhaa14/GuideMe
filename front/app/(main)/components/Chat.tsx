@@ -88,7 +88,7 @@ export default function Chat({ user }: { user: UserPayload }) {
           {onlineUsers[user.id]?.isOnline ? (
             <span>Online</span>
           ) : (
-            <span>
+            <span className="text-sm">
               Last seen {dayjs(onlineUsers[user.id]?.lastSeen).fromNow()}
             </span>
           )}
