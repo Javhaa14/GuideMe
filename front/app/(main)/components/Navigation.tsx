@@ -15,7 +15,6 @@ import {
 
 import { Bell, Settings, TentTree } from "lucide-react";
 
-// Simple translations object (expand as needed)
 const translations = {
   en: {
     guides: "Guides",
@@ -70,11 +69,9 @@ export const Navigation = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [language, setLanguage] = useState<"en" | "mn">("en");
-  console.log(session); // If null, you're signed out
 
   const t = translations[language];
 
-  // Show loading or nothing if session is loading (optional)
   if (status === "loading") return null;
 
   return (
@@ -103,19 +100,34 @@ export const Navigation = () => {
           variant="primary"
         />
 
-        {/* Conditionally render login or user info */}
         {session?.user ? (
           <>
-            {/* Optional: Show welcome and username */}
             <span className="text-gray-800 font-semibold">
               {t.welcome}, {session.user.name || session.user.email}
             </span>
 
-            {/* Settings / Logout dropdown */}
             <Select
-              onValueChange={(value) => {
+              onValueChange={async (value) => {
                 if (value === "logout") {
-                  signOut({ callbackUrl: "/log-in" });
+                  try {
+                    const response = await fetch(
+                      "https://guideme-8o9f.onrender.com/api/user/offline",
+                      {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify({ userId: session?.user?.id }),
+                      }
+                    );
+
+                    if (response.ok) {
+                      await signOut({ callbackUrl: "/log-in" });
+                    } else {
+                      console.error("Failed to logout");
+                    }
+                  } catch (error) {
+                    console.error("Logout error:", error);
+                  }
                 } else if (value === "settings") {
                   router.push("/Settings");
                 }
@@ -133,11 +145,9 @@ export const Navigation = () => {
             </Select>
           </>
         ) : (
-          // If not logged in, show login button
           <NavButton label={t.login} path="/log-in" variant="dark" />
         )}
 
-        {/* Language Selector */}
         <Select
           onValueChange={(value) => setLanguage(value as "en" | "mn")}
           defaultValue={language}>

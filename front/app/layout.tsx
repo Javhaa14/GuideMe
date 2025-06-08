@@ -29,8 +29,8 @@ export default function RootLayout({
         cz-shortcut-listen="true"
         style={{ cursor: "auto" }}>
         <SessionProvider>
-          <OnlineTracker />
           <OnlineStatusProvider>
+            <OnlineTracker />
             <UserProvider>{children}</UserProvider>
           </OnlineStatusProvider>
         </SessionProvider>

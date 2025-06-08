@@ -18,6 +18,7 @@ import { authRouter } from "./routes/auth";
 import { commentRouter } from "./routes/comments";
 import { guideRouter } from "./routes/guideProfile";
 import { Onlinerouter } from "./routes/online";
+import { Logoutrouter } from "./routes/logout";
 
 dotenv.config();
 
@@ -50,6 +51,7 @@ app.use("/comment", commentRouter);
 app.use("/gprofile", guideRouter);
 app.use("/tprofile", touristRouter);
 app.use("/api", Onlinerouter);
+app.use("/api", Logoutrouter);
 
 ////////////////////////////////////////////////////////////////
 // QR System
