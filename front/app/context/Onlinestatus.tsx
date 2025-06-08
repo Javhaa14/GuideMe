@@ -1,11 +1,10 @@
-// context/OnlineStatusContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { axiosInstance } from "@/lib/utils";
 
 type OnlineStatusContextType = {
   onlineUsers: Record<string, boolean>;
   setOnlineStatus: (userId: string, isOnline: boolean) => void;
-  fetchOnlineStatus: (userId: string) => Promise<boolean>;
+  fetchOnlineUsers: () => Promise<Record<string, boolean>>;
 };
 
 const Onlinestatus = createContext<OnlineStatusContextType | undefined>(
@@ -21,20 +20,27 @@ export const OnlineStatusProvider: React.FC<{ children: React.ReactNode }> = ({
     setOnlineUsers((prev) => ({ ...prev, [userId]: isOnline }));
   };
 
-  const fetchOnlineStatus = async (userId: string) => {
+  const fetchOnlineUsers = async () => {
     try {
-      const res = await axiosInstance.get(`/api/user/${userId}/status`);
-      setOnlineStatus(userId, res.data.isOnline);
-      return res.data.isOnline;
+      const res = await axiosInstance.get(`/api/online`);
+      const onlineUsersArray = res.data.onlineUsers; // Array of user objects
+
+      const onlineUsersMap: Record<string, boolean> = {};
+      onlineUsersArray.forEach((user: any) => {
+        onlineUsersMap[user._id] = true;
+      });
+
+      setOnlineUsers(onlineUsersMap);
+      return onlineUsersMap;
     } catch (error) {
-      console.error("Failed to fetch online status", error);
-      return false;
+      console.error("Failed to fetch online users", error);
+      return {};
     }
   };
 
   return (
     <Onlinestatus.Provider
-      value={{ onlineUsers, setOnlineStatus, fetchOnlineStatus }}>
+      value={{ onlineUsers, setOnlineStatus, fetchOnlineUsers }}>
       {children}
     </Onlinestatus.Provider>
   );
