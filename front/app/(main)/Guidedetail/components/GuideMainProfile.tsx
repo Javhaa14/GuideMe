@@ -14,6 +14,7 @@ import Ebooking from "./Ebooking";
 
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
+import { useOnlineStatus } from "@/app/context/Onlinestatus";
 
 type TourPost = {
   id: number;
@@ -45,6 +46,7 @@ export default function GuideMainProfile() {
   const params = useParams();
   const [guide, setGuide] = useState<GuideProfile>();
   const [chat, setChat] = useState(false);
+  const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
 
   const { user, status } = useUser(); // ✅ Hook-ууд бүгд шууд үндсэн түвшинд байна
 
@@ -83,14 +85,13 @@ export default function GuideMainProfile() {
                 <h3 className="font-semibold">Chat with</h3>
                 <button
                   onClick={() => setChat(false)}
-                  className="text-white hover:text-gray-200 transition-colors"
-                >
+                  className="text-white hover:text-gray-200 transition-colors">
                   x
                 </button>
               </div>
             </div>
             <div className="flex w-full">
-              <Chat user={user} />
+              <Chat onlineUsers={onlineUsers} user={user} />
             </div>
           </div>
         </div>
@@ -147,8 +148,7 @@ export default function GuideMainProfile() {
               <div className="flex flex-wrap items-center gap-6 mt-6 justify-end">
                 <button
                   onClick={() => setChat(!chat)}
-                  className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105"
-                >
+                  className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105">
                   <MessageCircle className="w-5 h-5" />
                   Chat
                 </button>
