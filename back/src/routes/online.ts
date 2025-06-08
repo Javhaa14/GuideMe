@@ -24,7 +24,7 @@ Onlinerouter.post(
 );
 Onlinerouter.get("/online", async (req: Request, res: Response) => {
   try {
-    const cutoff = new Date(Date.now() - 2 * 60 * 1000); // 2 minutes ago
+    const cutoff = new Date(Date.now() - 30 * 1000); // 1 minutes ago
     const onlineUsers = await UserModel.find({
       isOnline: true,
       lastSeen: { $gte: cutoff },
