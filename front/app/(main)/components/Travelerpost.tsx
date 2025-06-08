@@ -6,11 +6,11 @@ import axios from "axios";
 import { useUser } from "@/app/context/Usercontext";
 
 export default function Travelerpost({ post, onclick }: any) {
-  const { user, status } = useUser(); // <-- get user from context
+  const { user, status } = useUser();
 
-  const [likes, setLikes] = useState(post.likes || 0);
+  const [likes, setLikes] = useState(post.likedBy.length || 0);
   const [liked, setLiked] = useState(false);
-  const [likedUsers, setLikedUsers] = useState<string[]>([post.userId]);
+
   const postlikes = async () => {
     try {
       const response = await axios.put(
