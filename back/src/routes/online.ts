@@ -36,7 +36,19 @@ Onlinerouter.post(
       return res.status(404).json({ error: "User not found or deleted" });
     }
 
-    // Proceed with update...
+    try {
+      await UserModel.findByIdAndUpdate(userId, {
+        isOnline: true,
+        lastSeen: new Date(),
+      });
+
+      return res
+        .status(200)
+        .json({ success: true, message: "User marked online" });
+    } catch (error) {
+      console.error("❌ Error updating user status:", error);
+      return res.status(500).json({ error: "Server error" });
+    }
   }
 );
 
