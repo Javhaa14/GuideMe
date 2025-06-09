@@ -136,33 +136,43 @@ export const getGuides = async (_: Request, res: Response): Promise<void> => {
 export const updateGuideProfile = async (
   req: Request,
   res: Response
-): Promise<void> => {
+): Promise<any> => {
   const { userId, guideId } = req.body;
-  try {
-    const guideProfile = await Guidemodel.findByIdAndUpdate(guideId);
-    if (!guideProfile) {
-      res.status(404).json({ message: "guide profile not found" });
-    } else {
-      const alreadyLiked = guideProfile.likedBy.some(
-        (id) => id.toString() === userId
-      );
 
-      if (alreadyLiked) {
-        guideProfile.likedBy = guideProfile.likedBy.filter(
-          (id) => id.toString() !== userId
-        );
-      } else {
-        guideProfile.likedBy.push(new mongoose.Types.ObjectId(userId));
-      }
-      await guideProfile.save();
-      res.status(200).json({
-        message: "Post updated successfully",
-        likedBy: guideProfile.likedBy,
-      });
+  // Validate both IDs first
+  if (
+    !mongoose.Types.ObjectId.isValid(userId) ||
+    !mongoose.Types.ObjectId.isValid(guideId)
+  ) {
+    return res.status(400).json({ message: "Invalid userId or guideId" });
+  }
+
+  try {
+    const guideProfile = await Guidemodel.findById(guideId);
+    if (!guideProfile) {
+      return res.status(404).json({ message: "Guide profile not found" });
     }
+
+    const alreadyLiked = guideProfile.likedBy.some(
+      (id) => id.toString() === userId
+    );
+
+    if (alreadyLiked) {
+      guideProfile.likedBy = guideProfile.likedBy.filter(
+        (id) => id.toString() !== userId
+      );
+    } else {
+      guideProfile.likedBy.push(new mongoose.Types.ObjectId(userId));
+    }
+
+    await guideProfile.save();
+    res.status(200).json({
+      message: "Post updated successfully",
+      likedBy: guideProfile.likedBy,
+    });
   } catch (error) {
     res.status(400).send({
-      error: error,
+      error,
       success: false,
     });
   }

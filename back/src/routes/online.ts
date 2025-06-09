@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { UserModel } from "../model/User";
+import mongoose from "mongoose";
 
 export const Onlinerouter = express.Router();
 
@@ -8,18 +9,29 @@ Onlinerouter.post(
   "/online",
   async (req: Request, res: Response): Promise<any> => {
     const { userId } = req.body;
-    if (!userId)
+
+    if (!userId) {
       return res.status(400).json({ error: "Missing userId in request body" });
+    }
 
     try {
-      await UserModel.findByIdAndUpdate(userId, {
-        isOnline: true,
-        lastSeen: new Date(),
-      });
+      const filter = mongoose.Types.ObjectId.isValid(userId)
+        ? { _id: userId }
+        : { provider_id: userId };
+
+      const user = await UserModel.findOneAndUpdate(
+        filter,
+        { isOnline: true, lastSeen: new Date() },
+        { new: true }
+      );
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
 
       return res
         .status(200)
-        .json({ success: true, message: "User marked online" });
+        .json({ success: true, message: "User marked online", user });
     } catch (error) {
       console.error("❌ Error updating user online status:", error);
       return res.status(500).json({ error: "Server error" });
@@ -57,10 +69,19 @@ Onlinerouter.put(
         .json({ error: "Missing or invalid isOnline flag" });
 
     try {
-      await UserModel.findByIdAndUpdate(userId, {
-        isOnline,
-        lastSeen: new Date(),
-      });
+      const filter = mongoose.Types.ObjectId.isValid(userId)
+        ? { _id: userId }
+        : { provider_id: userId };
+
+      const user = await UserModel.findOneAndUpdate(
+        filter,
+        { isOnline, lastSeen: new Date() },
+        { new: true }
+      );
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
 
       return res.status(200).json({
         success: true,
