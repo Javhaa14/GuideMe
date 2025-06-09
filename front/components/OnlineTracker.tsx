@@ -7,16 +7,18 @@ export default function OnlineTracker() {
   const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status !== "authenticated" || !session?.user?.id) return;
+
+    console.log("🔥 Sending userId:", session.user.id); // Debug log
 
     const interval = setInterval(() => {
-      axiosInstance.post("/api/online", {
-        userId: session.user.id,
-      });
-    }, 10000); // every 10s
+      axiosInstance
+        .post("/api/online", { userId: session.user.id })
+        .catch((err) => console.error("OnlineTracker error:", err));
+    }, 10000);
 
     return () => clearInterval(interval);
-  }, [status, session]);
+  }, [status, session?.user?.id]);
 
   return null;
 }
