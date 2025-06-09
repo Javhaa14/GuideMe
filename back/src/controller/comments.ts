@@ -27,6 +27,7 @@ export const createComment = async (
     res.status(200).send({
       success: true,
       comment,
+      guide,
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
