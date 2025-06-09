@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
         if (!credentials) return null;
 
         const res = await fetch(
-          `https://guideme-8o9f.onrender.com/auth/signin`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signin`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -29,7 +29,7 @@ export const authOptions: NextAuthOptions = {
 
         if (res.ok && data?.user) {
           return {
-            id: data.user.id,
+            id: data.user.id, // This should already be your MongoDB _id
             name: data.user.username,
             email: data.user.email,
             role: data.user.role,
@@ -83,9 +83,9 @@ export const authOptions: NextAuthOptions = {
 
         const data = await res.json();
 
-        // Attach the real Mongo _id to the user object
+        // Attach Mongo _id to user.id
         if (data?.id) {
-          user.id = data.id;
+          user.id = data.id; // Your MongoDB _id
           (user as any).role = data.role;
         }
 
@@ -95,12 +95,13 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
     },
+
     async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         token.user = {
           id: (user as any).id,
-          name: user.name || undefined,
-          email: user.email || undefined,
+          name: user.name ?? undefined,
+          email: user.email ?? undefined,
           role: (user as any).role,
         };
       }
@@ -110,9 +111,10 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }: { session: Session; token: JWT }) {
       if (token.user) {
         session.user = {
-          ...token.user,
-          name: token.user.name || undefined,
-          email: token.user.email || undefined,
+          id: (token.user as any).id,
+          name: token.user.name ?? undefined,
+          email: token.user.email ?? undefined,
+          role: (token.user as any).role,
         };
       }
       return session;
