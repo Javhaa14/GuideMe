@@ -81,7 +81,7 @@ export const Trip = () => {
   return (
     <Dialog>
       <DialogTrigger>
-        <div className="flex flex-wrap justify-between gap-4 pt-6">
+        <div className="flex justify-between gap-4 pt-6">
           {guide.Trip.map((trip) => (
             <div
               key={trip.id}

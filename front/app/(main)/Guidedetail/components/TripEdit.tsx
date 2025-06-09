@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,14 +38,35 @@ type CountryType = {
   };
 };
 
+export type Guide = {
+  _id: string;
+  country: string;
+  title: string;
+  about: string;
+  dateFrom: string;
+  dateTo: string;
+  people: string;
+  price: number;
+};
+
+type DialogContentEditProps = {
+  guide: Guide;
+  onSave: () => void;
+};
+
 const formSchema = z.object({
   photo: z.instanceof(File, {
     message: "Please upload a valid image",
   }),
   country: z.string().min(1, { message: "Please select a country" }),
+  title: z.string().min(1, { message: "Please enter a title" }),
+  about: z
+    .string()
+    .min(1, { message: "Please provide information about the trip" }),
   dateFrom: z.string().min(1, { message: "Please select a start date" }),
   dateTo: z.string().min(1, { message: "Please select an end date" }),
   people: z.string().min(1, { message: "Please select the number of people" }),
+  price: z.string().min(1, { message: "Please enter a price" }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -54,13 +75,60 @@ export function TripEdit() {
   const [countries, setCountries] = useState<CountryType[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+  const [country, setCountry] = useState(guide.country);
+  const [title, setTitle] = useState(guide.title);
+  const [about, setAbout] = useState(guide.about);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [dateFrom, setDateFrom] = useState<string>(guide.dateFrom);
+  const [dateTo, setDateTo] = useState<string>(guide.dateTo);
+  const [people, setPeople] = useState<string>(guide.people);
+  const [price, setPrice] = useState<string>(guide.price);
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleUpdateaTrip = async () => {
+    try {
+      let updatedImageUrl = guide.image;
+      if (imageFile) {
+        updatedImageUrl = await uploadImage(imageFile);
+      }
+
+      const updatedData = {
+        country,
+        title,
+        about,
+        image: updatedImageUrl,
+        dateFrom,
+        dateTo,
+        people,
+        price,
+      };
+
+      await axiosInstance.put(`/tripPlan/${guide._id}`, updatedData);
+      alert("Trip updated successfully");
+      onSave();
+    } catch (error) {
+      console.error("Failed to update trip:", error);
+      alert("Failed to update trip");
+    }
+  };
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       country: "",
+      title: "",
+      about: "",
       dateFrom: "",
       dateTo: "",
       people: "",
+      price: "",
     },
   });
 
@@ -162,12 +230,12 @@ export function TripEdit() {
 
           <FormField
             control={form.control}
-            name="dateFrom"
+            name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>From (Date)</FormLabel>
+                <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <Input placeholder="Please write title" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -176,17 +244,49 @@ export function TripEdit() {
 
           <FormField
             control={form.control}
-            name="dateTo"
+            name="about"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>To (Date)</FormLabel>
+                <FormLabel>About Trip</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <textarea
+                    placeholder="Please write about the trip"
+                    {...field}
+                    className="w-full h-[112px] rounded-md border border-black-300 p-2 resize-none text-[#71717A]"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+          <div className="flex justify-between">
+            <FormField
+              control={form.control}
+              name="dateFrom"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>From (Date)</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="dateTo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>To (Date)</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <FormField
             control={form.control}
@@ -201,10 +301,10 @@ export function TripEdit() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectItem value="one">Just me</SelectItem>
-                        <SelectItem value="two">Two</SelectItem>
-                        <SelectItem value="three">Three</SelectItem>
-                        <SelectItem value="more">More than three</SelectItem>
+                        <SelectItem value="one">One</SelectItem>
+                        <SelectItem value="two">One - Five</SelectItem>
+                        <SelectItem value="three">Five - Ten</SelectItem>
+                        <SelectItem value="more">More than ten</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -214,9 +314,37 @@ export function TripEdit() {
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Price</FormLabel>
+                <FormControl>
+                  <Input placeholder="Please write price" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Activities</FormLabel>
+                <FormControl>
+                  <Input placeholder="Please write activities" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <DialogFooter>
             <Button type="submit" className="w-full">
-              SAVE
+              CREATE A NEW TRIP
             </Button>
           </DialogFooter>
         </form>
