@@ -61,10 +61,9 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    async signIn({ user, account, profile }) {
-      if (!user?.email || !account?.provider) {
-        return false;
-      }
+    async signIn({ user, account }) {
+      if (!user?.email || !account?.provider) return false;
+
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check-or-create-user`,
@@ -75,23 +74,27 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
               name: user.name,
               provider: account.provider,
-              provider_id: account.providerAccountId || account.id, // <-- add this here
+              provider_id: account.providerAccountId || account.id,
             }),
           }
         );
 
-        if (res.ok) {
-          return true;
-        } else {
-          console.error("Backend user check/create failed");
-          return false;
+        if (!res.ok) return false;
+
+        const data = await res.json();
+
+        // Attach the real Mongo _id to the user object
+        if (data?.id) {
+          user.id = data.id;
+          (user as any).role = data.role;
         }
+
+        return true;
       } catch (error) {
         console.error("Error in signIn callback:", error);
         return false;
       }
     },
-
     async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         token.user = {
