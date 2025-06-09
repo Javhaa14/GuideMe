@@ -26,7 +26,6 @@ import { Button } from "@/components/ui/button";
 import { StarRating } from "./Starrating";
 import { useContext, useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/utils";
-import { UserPayload } from "../../components/Chat";
 import { useUser } from "@/app/context/Usercontext";
 
 const formSchema = z.object({
