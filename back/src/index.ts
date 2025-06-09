@@ -13,7 +13,6 @@ import { touristRouter } from "./routes/touristProfile";
 import { userRouter } from "./routes/user";
 import { tripPlanRouter } from "./routes/tripPlan";
 import { authRouter } from "./routes/auth";
-
 import cookieParser from "cookie-parser";
 import { commentRouter } from "./routes/comments";
 import { guideRouter } from "./routes/guideProfile";
