@@ -61,6 +61,37 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (!user?.email || !account?.provider) {
+        return false;
+      }
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check-or-create-user`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: user.email,
+              name: user.name,
+              provider: account.provider,
+              provider_id: account.providerAccountId || account.id, // <-- add this here
+            }),
+          }
+        );
+
+        if (res.ok) {
+          return true;
+        } else {
+          console.error("Backend user check/create failed");
+          return false;
+        }
+      } catch (error) {
+        console.error("Error in signIn callback:", error);
+        return false;
+      }
+    },
+
     async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         token.user = {
