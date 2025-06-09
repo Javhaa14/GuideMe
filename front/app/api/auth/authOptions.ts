@@ -1,9 +1,31 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import GitHubProvider from "next-auth/providers/github";
+import AppleProvider from "next-auth/providers/apple";
 import FacebookProvider from "next-auth/providers/facebook";
+import jwt from "jsonwebtoken";
 import type { JWT } from "next-auth/jwt";
 import type { User, Session, NextAuthOptions } from "next-auth";
+
+// Helper to generate Apple client secret JWT
+function generateAppleClientSecret(): string {
+  const teamId = process.env.APPLE_TEAM_ID!;
+  const clientId = process.env.APPLE_CLIENT_ID!;
+  const keyId = process.env.APPLE_KEY_ID!;
+  const privateKey = process.env.APPLE_PRIVATE_KEY!.replace(/\\n/g, "\n");
+
+  const claims = {
+    iss: teamId,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 15777000, // ~6 months
+    aud: "https://appleid.apple.com",
+    sub: clientId,
+  };
+
+  return jwt.sign(claims, privateKey, {
+    algorithm: "ES256",
+    header: { alg: "ES256", kid: keyId },
+  });
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -29,7 +51,7 @@ export const authOptions: NextAuthOptions = {
 
         if (res.ok && data?.user) {
           return {
-            id: data.user.id, // This should already be your MongoDB _id
+            id: data.user.id, // MongoDB _id
             name: data.user.username,
             email: data.user.email,
             role: data.user.role,
@@ -45,14 +67,19 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
 
-    GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    }),
-
     FacebookProvider({
       clientId: process.env.FACEBOOK_CLIENT_ID!,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+    }),
+
+    AppleProvider({
+      clientId: process.env.APPLE_CLIENT_ID!,
+      clientSecret: generateAppleClientSecret(),
+      authorization: {
+        params: {
+          scope: "name email",
+        },
+      },
     }),
   ],
 
@@ -84,9 +111,9 @@ export const authOptions: NextAuthOptions = {
         const data = await res.json();
 
         // Attach Mongo _id to user.id
-        if (data?.id) {
-          user.id = data.id; // Your MongoDB _id
-          (user as any).role = data.role;
+        if (data?.user?._id) {
+          user.id = data.user._id;
+          (user as any).role = data.user.role;
         }
 
         return true;
