@@ -13,7 +13,7 @@ export default function OnlineTracker() {
       axiosInstance.post("/api/online", {
         userId: session.user.id,
       });
-    }, 1000); // every 10s
+    }, 10000); // every 10s
 
     return () => clearInterval(interval);
   }, [status, session]);
