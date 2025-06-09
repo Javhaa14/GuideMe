@@ -96,7 +96,7 @@ export const Trip = () => {
                 />
               </div>
               <div className="p-4">
-                <p className="font-semibold text-base">{trip.caption}</p>
+                <p className="text-base font-semibold">{trip.caption}</p>
                 <p className="text-sm text-gray-500">
                   {new Date(trip.date).toLocaleDateString()}
                 </p>
