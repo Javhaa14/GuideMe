@@ -4,10 +4,22 @@ import mongoose from "mongoose";
 
 export const Onlinerouter = express.Router();
 
+// Helper: build filter based on userId
+function buildUserFilter(userId: string) {
+  // If userId looks like a valid Mongo ObjectId, filter by _id
+  if (mongoose.Types.ObjectId.isValid(userId)) {
+    return { _id: userId };
+  }
+  // Otherwise, filter by provider_id (for OAuth users)
+  return { provider_id: userId };
+}
+
 // Mark user as online & update lastSeen
 Onlinerouter.post(
   "/online",
   async (req: Request, res: Response): Promise<any> => {
+    console.log("Received POST /api/online", req.body);
+
     const { userId } = req.body;
 
     if (!userId) {
@@ -15,9 +27,7 @@ Onlinerouter.post(
     }
 
     try {
-      const filter = mongoose.Types.ObjectId.isValid(userId)
-        ? { _id: userId }
-        : { provider_id: userId };
+      const filter = buildUserFilter(userId);
 
       const user = await UserModel.findOneAndUpdate(
         filter,
@@ -55,23 +65,24 @@ Onlinerouter.get("/online", async (_req: Request, res: Response) => {
   }
 });
 
+// Update user online/offline status (for logout)
 Onlinerouter.put(
   "/online",
   async (req: Request, res: Response): Promise<any> => {
     const { userId, isOnline } = req.body;
 
-    if (!userId)
+    if (!userId) {
       return res.status(400).json({ error: "Missing userId in request body" });
+    }
 
-    if (typeof isOnline !== "boolean")
+    if (typeof isOnline !== "boolean") {
       return res
         .status(400)
         .json({ error: "Missing or invalid isOnline flag" });
+    }
 
     try {
-      const filter = mongoose.Types.ObjectId.isValid(userId)
-        ? { _id: userId }
-        : { provider_id: userId };
+      const filter = buildUserFilter(userId);
 
       const user = await UserModel.findOneAndUpdate(
         filter,
