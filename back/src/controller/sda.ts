@@ -2,6 +2,7 @@ import { UserModel } from "../model/User";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { JwtPayload } from "jsonwebtoken";
+import mongoose from "mongoose";
 
 interface DecodedUser extends JwtPayload {
   id: string;
@@ -19,6 +20,7 @@ export const createUser = async (
         success: false,
         message: "User already exists",
       });
+      return;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -107,6 +109,13 @@ export const getUserById = async (
   res: Response
 ): Promise<void> => {
   const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.status(400).json({
+      success: false,
+      message: "Invalid user ID",
+    });
+    return;
+  }
   try {
     const user = await UserModel.findById(id).select("-password");
     if (!user) {
@@ -134,6 +143,13 @@ export const deleteUserById = async (
   res: Response
 ): Promise<void> => {
   const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.status(400).json({
+      success: false,
+      message: "Invalid user ID",
+    });
+    return;
+  }
   try {
     const user = await UserModel.findByIdAndDelete(id);
     if (!user) {
@@ -161,7 +177,13 @@ export const updateUserById = async (
 ): Promise<void> => {
   const { id } = req.params;
   const { username, email, password } = req.body;
-
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.status(400).json({
+      success: false,
+      message: "Invalid user ID",
+    });
+    return;
+  }
   try {
     const updates: { [key: string]: string } = {};
 
@@ -210,6 +232,13 @@ export const getCurrentUser = async (
     }
 
     const user = await UserModel.findById(userData.id).select("-password");
+    if (!mongoose.Types.ObjectId.isValid(userData.id)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid user ID in token",
+      });
+      return;
+    }
 
     if (!user) {
       res.status(404).json({

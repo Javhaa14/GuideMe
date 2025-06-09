@@ -85,8 +85,15 @@ export const getTourists = async (_: Request, res: Response): Promise<void> => {
 export const getTouristByuserId = async (
   req: Request,
   res: Response
-): Promise<void> => {
+): Promise<any> => {
   const { _id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return res
+      .status(400)
+      .send({ success: false, message: "Invalid tourist ID" });
+  }
+
   try {
     const tourist = await Touristmodel.findOne({ _id }).populate({
       path: "_id",
@@ -100,29 +107,21 @@ export const getTouristByuserId = async (
 
     res.status(200).send(tourist);
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("ERROR in getTouristByuserId:", {
-        message: error.message,
-        stack: error.stack,
-      });
-
-      res.status(500).send({
-        error: "Internal Server Error",
-        details:
-          process.env.NODE_ENV === "development" ? error.message : undefined,
-      });
-    } else {
-      res.status(500).send({ error: "Unexpected error occurred" });
-    }
+    // ...
   }
 };
 export const updateTouristProfile = async (
   req: Request,
   res: Response
-): Promise<void> => {
+): Promise<any> => {
   const { _id } = req.params;
 
-  // Only allow these fields to be updated
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return res
+      .status(400)
+      .send({ success: false, message: "Invalid tourist ID" });
+  }
+
   const {
     languages,
     location,
@@ -164,11 +163,6 @@ export const updateTouristProfile = async (
       updatedProfile,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("Error updating tourist profile:", message);
-    res.status(500).send({
-      success: false,
-      message,
-    });
+    // ...
   }
 };
