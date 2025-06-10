@@ -1,38 +1,69 @@
-import express, { json } from "express";
+import express, { json, Request, Response } from "express";
 import cors from "cors";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { Server as SocketIOServer } from "socket.io";
 import QRcode from "qrcode";
 import { v4 } from "uuid";
-
-import { tripPlanRouter } from "./routes/TripPlan";
 import OpenAI from "openai";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+
 import { postRouter } from "./routes/post";
 import { connectMongoDB } from "./connectDB";
-import { userRouter } from "./routes/User";
+import { touristRouter } from "./routes/touristProfile";
+import { userRouter } from "./routes/user";
+import { tripPlanRouter } from "./routes/tripPlan";
+import { authRouter } from "./routes/auth";
+import { commentRouter } from "./routes/comments";
+import { guideRouter } from "./routes/guideProfile";
+
+import AvailabilityRouter from "./routes/availability";
+
+import { Onlinerouter } from "./routes/online";
+
+
 dotenv.config();
+
 const app = express();
-const port = process.env.PORT || 4000;
-connectMongoDB();
-app.use(json());
+
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
+const allowedOrigins = [
+  "https://guide-mee.vercel.app",
+  "http://localhost:3000",
+];
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: allowedOrigins,
     credentials: true,
   })
 );
-app.use("/post", postRouter);
 
+app.use(json());
+app.use(cookieParser());
+
+app.use("/post", postRouter);
+app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
+app.use("/comment", commentRouter);
+app.use("/gprofile", guideRouter);
+app.use("/availability", AvailabilityRouter);
 
+// app.use('/GuideProfile', GuideProfileRouter);
+app.use("/tprofile", touristRouter);
+app.use("/api", Onlinerouter);
+
+////////////////////////////////////////////////////////////////
 // QR System
 let qrs: Record<string, boolean> = {};
 let clients: Record<string, WebSocket> = {};
 
-app.get("/", async (req, res) => {
+app.get("/", async (_req: Request, res: Response) => {
   const id = v4();
   const baseUrl = "https://guideme-8o9f.onrender.com";
 
@@ -53,12 +84,14 @@ app.get("/scanqr", (req, res) => {
   res.send("qr scanned");
 });
 
+////////////////////////////////////////////////////////////////
 // Use a single HTTP server
 const httpServer = createServer(app);
 
 // WebSocket for QR scan
 const ws = new WebSocketServer({ server: httpServer });
-ws.on("connection", (socket) => {
+
+ws.on("connection", (socket: WebSocket) => {
   socket.on("message", (value) => {
     const str = value.toString();
 
@@ -73,17 +106,14 @@ ws.on("connection", (socket) => {
   });
 });
 
+////////////////////////////////////////////////////////////////
 // Socket.IO for Chat
 const io = new SocketIOServer(httpServer, {
   cors: {
-    origin: "http://localhost:3000", // Replace with real frontend
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
+    credentials: true,
   },
-});
-
-// Run server
-httpServer.listen(port, () => {
-  console.log(`🚀 Server running on http://localhost:${port}`);
 });
 
 const openai = new OpenAI({
@@ -91,7 +121,6 @@ const openai = new OpenAI({
 });
 
 io.on("connection", (socket) => {
-  console.log("✅ Chat user connected:", socket.id);
   let chatHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
 
   // 1. AI Chatbot
@@ -103,7 +132,7 @@ io.on("connection", (socket) => {
       content: `
 You are an AI assistant for the GuideMe website. 
 Only provide information related to travel, destinations, hotels, transportation, and travel tips that are relevant to the GuideMe platform.
-Nad it can be in any language first detect which language is it then check.
+And it can be in any language—first detect which language it is, then respond accordingly.
 If a question is unrelated (like programming, celebrities, or personal advice), respond with: 
 "I'm here to help only with travel-related questions on GuideMe."`,
     };
@@ -126,12 +155,19 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
 
   // 2. User-to-User Chat
   socket.on("chat message", (msg: string) => {
-    // You can customize this with rooms, sender ID, etc.
     io.emit("chat message", msg);
   });
 
   socket.on("disconnect", () => {
-    console.log("❌ Chat user disconnected:", socket.id);
     chatHistory = [];
   });
+});
+
+////////////////////////////////////////////////////////////////
+// Connect DB & Start server
+connectMongoDB();
+
+const port = process.env.PORT || 4000;
+httpServer.listen(port, () => {
+  console.log(`🚀 Server running on http://localhost:${port}`);
 });

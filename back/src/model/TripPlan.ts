@@ -2,11 +2,6 @@ import mongoose from "mongoose";
 
 const tripPlanSchema = new mongoose.Schema(
   {
-    id: {
-      type: Number,
-      required: true,
-      unique: true,
-    },
     GuideId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Guide",

@@ -1,5 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { signOut, useSession } from "next-auth/react";
+
 import {
   Select,
   SelectContent,
@@ -8,11 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Bell, NotebookIcon, Settings, TentTree } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
-// Simple translations object (you can expand this or fetch dynamically)
+import { Bell, Settings, TentTree } from "lucide-react";
+import { axiosInstance } from "@/lib/utils";
+
 const translations = {
   en: {
     guides: "Guides",
@@ -22,6 +25,7 @@ const translations = {
     login: "Log In",
     settings: "Settings",
     logout: "Log out",
+    welcome: "Welcome",
   },
   mn: {
     guides: "Гайдууд",
@@ -31,6 +35,7 @@ const translations = {
     login: "Нэвтрэх",
     settings: "Тохиргоо",
     logout: "Гарах",
+    welcome: "Тавтай морил",
   },
 };
 
@@ -55,24 +60,26 @@ const NavButton = ({
   return (
     <span
       onClick={() => router.push(path)}
-      className={`${baseStyle} ${variants[variant]} cursor-pointer`}
-    >
+      className={`${baseStyle} ${variants[variant]} cursor-pointer`}>
       {label}
     </span>
   );
 };
+
 export const Navigation = () => {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [language, setLanguage] = useState<"en" | "mn">("en");
 
   const t = translations[language];
+
+  if (status === "loading") return null;
 
   return (
     <nav className="flex items-center justify-between px-8 py-4 bg-white shadow-lg">
       <div
         className="flex items-center gap-3 cursor-pointer"
-        onClick={() => router.push("/")}
-      >
+        onClick={() => router.push("/")}>
         <TentTree color="black" size={28} />
         <span className="text-xl font-extrabold text-gray-800">Guide</span>
       </div>
@@ -93,13 +100,53 @@ export const Navigation = () => {
           path="/touristProfile"
           variant="primary"
         />
-        <NavButton label={t.login} path="/log-in" variant="dark" />
 
-        {/* Language Selector */}
+        {session?.user ? (
+          <>
+            <span className="text-gray-800 font-semibold">
+              {t.welcome}, {session.user.name || session.user.email}
+            </span>
+
+            <Select
+              onValueChange={async (value) => {
+                console.log("Selected value:", value);
+
+                if (value === "logout") {
+                  try {
+                    const response = await axiosInstance.put("/api/online", {
+                      userId: session?.user?.id,
+                      isOnline: false,
+                    });
+
+                    if (response.status === 200) {
+                      await signOut({ callbackUrl: "/log-in" });
+                    } else {
+                      console.error("Failed to logout");
+                    }
+                  } catch (error) {
+                    console.error("Logout error:", error);
+                  }
+                }
+              }}
+              defaultValue="">
+              <SelectTrigger className="w-[100px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
+                <Settings color="white" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="settings">{t.settings}</SelectItem>
+                  <SelectItem value="logout">{t.logout}</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </>
+        ) : (
+          <NavButton label={t.login} path="/log-in" variant="dark" />
+        )}
+
         <Select
           onValueChange={(value) => setLanguage(value as "en" | "mn")}
-          defaultValue={language}
-        >
+          defaultValue={language}>
           <SelectTrigger className="w-[100px] border border-gray-300 p-2 rounded-md">
             <SelectValue placeholder="Language" />
           </SelectTrigger>
@@ -110,33 +157,11 @@ export const Navigation = () => {
             </SelectGroup>
           </SelectContent>
         </Select>
-
-        {/* Settings Dropdown */}
-        <Select
-          onValueChange={(value) => {
-            if (value === "logout") {
-              router.push("/log-in");
-            } else if (value === "settings") {
-              router.push("/Settings");
-            }
-          }}
-        >
-          <SelectTrigger className="w-[100px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
-            <Settings color="white" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="settings">{t.settings}</SelectItem>
-              <SelectItem value="logout">{t.logout}</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
       </div>
 
       <div
         onClick={() => router.push("/notification")}
-        className="cursor-pointer p-2 hover:bg-gray-100 rounded-full"
-      >
+        className="cursor-pointer p-2 hover:bg-gray-100 rounded-full">
         <Bell color="black" />
       </div>
     </nav>
