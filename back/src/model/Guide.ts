@@ -40,7 +40,19 @@ const guideschema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
-
+  availability: [
+    {
+      date: {
+        type: String,
+        required: true,
+      },
+      status: {
+        type: String,
+        enum: ["available", "busy", "booked"],
+        required: true,
+      },
+    },
+  ],
   profileimage: String,
   backgroundimage: String,
   experience: String,
