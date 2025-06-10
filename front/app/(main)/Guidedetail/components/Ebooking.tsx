@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import axios from "axios";
 import { useUser } from "@/app/context/Usercontext";
+import { useParams } from "next/navigation";
+import { axiosInstance } from "@/lib/utils";
 
 // Date статус төрөл тодорхойлох
 // (available, busy, booked гэсэн 3 төлөвтэй)
@@ -135,15 +137,13 @@ export default function Ebooking() {
 
   const handleSave = async () => {
     const transformedData = transformStatusesForDB();
+    console.log("days", transformedData);
 
     try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/availability`,
-        {
-          userId: "hello1",
-          availability: transformedData,
-        }
-      );
+      const res = await axiosInstance.put(`gprofile/availability`, {
+        userId: "hello1",
+        availability: transformedData,
+      });
 
       console.log("Availability saved successfully", res.data);
       setIsDialogOpen(false);
@@ -152,16 +152,14 @@ export default function Ebooking() {
       alert("Error saving availability");
     }
   };
+  const params = useParams();
 
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/availability`,
-          {
-            params: { userId: "hello1" },
-          }
-        );
+        const res = await axiosInstance.get(`/gprofile/availability`, {
+          params: { userId: params.id },
+        });
         const data = res.data;
         setData(res.data.availability);
         const restored: DateStatus = {};

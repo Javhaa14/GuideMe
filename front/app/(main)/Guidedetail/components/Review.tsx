@@ -24,9 +24,9 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "./Starrating";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/utils";
-import { UserPayload } from "../../components/Chat";
+import { useUser } from "@/app/context/Usercontext";
 
 const formSchema = z.object({
   communication: z.number().min(1, "Please review"),
@@ -43,8 +43,7 @@ type ReviewProps = {
 
 export const Review = ({ userId }: ReviewProps) => {
   const [open, setOpen] = useState(false);
-  const [currentuser, setCurrentuser] = useState<UserPayload | null>(null);
-
+  const { user } = useUser();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,20 +55,6 @@ export const Review = ({ userId }: ReviewProps) => {
       review: "",
     },
   });
-  const fetchUser = async () => {
-    try {
-      const res = await axiosInstance.get(`/user/me`, {
-        withCredentials: true,
-      });
-      const userData = res.data.user;
-      setCurrentuser(userData);
-    } catch (error) {
-      console.log("No user logged in or error fetching user");
-    }
-  };
-  useEffect(() => {
-    fetchUser();
-  }, []);
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const total =
       Number(values.communication) +
@@ -78,14 +63,14 @@ export const Review = ({ userId }: ReviewProps) => {
       Number(values.tripSatisfaction);
 
     const average = total / 4;
-    if (!currentuser) {
+    if (!user) {
       toast.error("You must be logged in to submit a review.");
       return;
     }
 
     const reviewWithGuide = {
       userId, // the guide's user ID
-      reviewerId: currentuser.id, // the reviewer
+      reviewerId: user.id, // the reviewer
       rating: average, // calculated average
       review: values.review, // new name instead of 'comments'
       recommend: values.recommend,
