@@ -2,6 +2,13 @@
 
 import { Calendar, Globe, Heart, Users, WalletCards } from "lucide-react";
 import React, { useRef, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const images = ["/altai.png", "/desert.jpg", "/lake.png", "/gobi.png"];
 
@@ -174,7 +181,16 @@ export const TripDetailPage = () => {
             <span className="flex items-center gap-2">
               <Users /> Person x 1
             </span>
-            <span className="ml-auto">▼</span>
+            <Select>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Theme" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="light">Light</SelectItem>
+                <SelectItem value="dark">Dark</SelectItem>
+                <SelectItem value="system">System</SelectItem>
+              </SelectContent>
+            </Select>
 
             {/* Dropdown panel */}
             <div className="absolute left-0 z-10 w-64 p-4 text-black bg-white shadow-lg top-14 rounded-xl">
