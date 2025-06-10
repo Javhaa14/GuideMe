@@ -25,9 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import axios from "axios";
-import { LanguageOption } from "../../touristProfile/components/TouristProfile";
 import dynamic from "next/dynamic";
-import type { OptionType } from "./Selectwrapper";
+import { SingleSelect, type OptionType } from "./Selectwrapper";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -36,6 +35,7 @@ const MultiSelect = dynamic(
   () => import("./Selectwrapper").then((mod) => mod.MultiSelect),
   { ssr: false }
 );
+
 export interface TouristProfile {
   firstName?: string;
   lastName?: string;
@@ -76,12 +76,14 @@ const formSchema = z.object({
 
 export function GProfile() {
   const { user } = useUser();
-  const [countries, setCountries] = useState<string[]>([]);
-  const [cities, setCities] = useState<string[]>([]);
-  const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
+  const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
+
+  const [cityOptions, setCityOptions] = useState<OptionType[]>([]);
+  const [selectedcity, setSelectedcity] = useState<string>("");
+
+  const [languageOptions, setLanguageOptions] = useState<OptionType[]>([]);
   const [tourist, setTourist] = useState<TouristProfile>();
-  const [countryFilter, setCountryFilter] = useState("");
-  const [cityFilter, setCityFilter] = useState("");
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -104,8 +106,6 @@ export function GProfile() {
       car: false,
     },
   });
-  const { watch, formState } = form;
-
   useEffect(() => {
     if (!user?.id) return;
 
@@ -140,19 +140,61 @@ export function GProfile() {
         console.error("Failed to fetch languages", error);
       }
     };
+    const fetchCountries = async () => {
+      try {
+        const res = await axios.get(
+          "https://restcountries.com/v3.1/all?fields=name"
+        );
+        const countrySet = new Set<string>();
 
+        res.data.forEach((country: any) => {
+          if (country.name && country.name.common) {
+            const name = country.name.common;
+            countrySet.add(name);
+          }
+        });
+
+        const options: OptionType[] = Array.from(countrySet)
+          .sort((a, b) => a.localeCompare(b))
+          .map((country) => ({
+            label: country,
+            value: country,
+          }));
+        setCountryOptions(options);
+      } catch (error) {
+        console.error("Failed to fetch countries", error);
+      }
+    };
     fetchProfile();
     fetchLanguages();
+    fetchCountries();
   }, [user]);
+  useEffect(() => {
+    const fetchCities = async (countryName: string) => {
+      if (!countryName) return;
 
-  const filteredCountries = countries.filter((c) =>
-    c.toLowerCase().includes(countryFilter.toLowerCase())
-  );
+      try {
+        const res = await axios.post(
+          "https://countriesnow.space/api/v0.1/countries/cities",
+          {
+            country: countryName,
+          }
+        );
 
-  const filteredCities = cities.filter((c) =>
-    c.toLowerCase().includes(cityFilter.toLowerCase())
-  );
+        const options: OptionType[] = res.data.data
+          .sort((a: string, b: string) => a.localeCompare(b))
+          .map((city: string) => ({
+            label: city,
+            value: city,
+          }));
 
+        setCityOptions(options);
+      } catch (error) {
+        console.error("Failed to fetch cities", error);
+      }
+    };
+    fetchCities(selectedCountry);
+  }, [selectedCountry]);
   useEffect(() => {
     if (tourist) {
       const [city = "", country = ""] =
@@ -180,30 +222,6 @@ export function GProfile() {
       }
     }
   }, [tourist]);
-
-  const watchCountry = watch("country");
-
-  useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all?fields=name")
-      .then((res) => res.json())
-      .then((data) => setCountries(data.map((c: any) => c.name.common).sort()))
-      .catch((err) => console.error("Failed to load countries", err));
-  }, []);
-
-  useEffect(() => {
-    if (!watchCountry) {
-      setCities([]);
-      return;
-    }
-    fetch("https://countriesnow.space/api/v0.1/countries/cities", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ country: watchCountry }),
-    })
-      .then((res) => res.json())
-      .then((data) => setCities(data.data || []))
-      .catch((err) => console.error("Failed to load cities", err));
-  }, [watchCountry]);
 
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -243,15 +261,15 @@ export function GProfile() {
         });
       }
 
-      await axiosInstance.put(`/tprofile/${user.id}`, {
-        languages: payload.languages,
-        location: payload.location,
-        profileimage: payload.profileimage,
-        backgroundimage: payload.backgroundimage,
-        socialAddress: payload.socialAddress,
-        about: payload.about,
-        gender: payload.gender,
-      });
+      // await axiosInstance.put(`/tprofile/${user.id}`, {
+      //   languages: payload.languages,
+      //   location: payload.location,
+      //   profileimage: payload.profileimage,
+      //   backgroundimage: payload.backgroundimage,
+      //   socialAddress: payload.socialAddress,
+      //   about: payload.about,
+      //   gender: payload.gender,
+      // });
 
       await axiosInstance.post(`/gprofile`, payload);
       router.push("/");
@@ -266,12 +284,14 @@ export function GProfile() {
     { value: "food", label: "Food" },
     { value: "shopping", label: "Shopping" },
   ];
-
   if (!user) return <p>Loading user...</p>;
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8 w-[500px]"
+      >
         <p className="text-[24px] font-bold">
           Complete your guide profile page, {user?.name}
         </p>
@@ -320,7 +340,7 @@ export function GProfile() {
         />
 
         {/* First and Last Name Fields */}
-        <div className="flex w-full gap-4">
+        <div className="flex w-full gap-4 justify-between">
           <FormField
             control={form.control}
             name="firstName"
@@ -349,13 +369,13 @@ export function GProfile() {
           />
         </div>
 
-        {/* Gender, Country, City Fields */}
-        <div className="flex gap-4 w-full">
+        {/* Gender*/}
+        <div className="flex w-full justify-between gap-4">
           <FormField
             control={form.control}
             name="gender"
             render={({ field }) => (
-              <FormItem className="w-full relative">
+              <FormItem className="w-[300px]">
                 <FormLabel>Gender</FormLabel>
                 <FormControl>
                   <Select value={field.value} onValueChange={field.onChange}>
@@ -372,19 +392,66 @@ export function GProfile() {
                     </SelectContent>
                   </Select>
                 </FormControl>
-                <FormMessage className="absolute top-17" />
+                <FormMessage />
               </FormItem>
             )}
           />
+
           {/* Languages MultiSelect */}
           <FormField
             control={form.control}
             name="languages"
             render={({ field: { onChange, value } }) => (
-              <FormItem className="w-full relative">
+              <FormItem className="w-[400px] ">
                 <FormLabel>Languages</FormLabel>
                 <FormControl>
                   <MultiSelect
+                    styles={{
+                      valueContainer: (base) => ({
+                        ...base,
+                      }),
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "#f0f0f0", // Custom background color
+                        borderRadius: "8px", // Custom border radius
+                        borderColor: "white", // Custom border color
+                        padding: "", // Custom padding
+                        boxShadow: "none", // Remove default box shadow
+                        "&:hover": {
+                          borderColor: "gray-500", // Change border color on hover
+                        },
+                      }),
+                      option: (base) => ({
+                        ...base,
+                        padding: "10px 15px", // Custom padding for options
+                        backgroundColor: "white", // Default background for options
+                        color: "black", // Default text color
+                        cursor: "pointer", // Pointer cursor
+                        "&:hover": {
+                          backgroundColor: "black", // Light blue background on hover
+                          color: "white", // Text color on hover
+                          borderColor: "#4C9AFF", // Border color on hover (though border doesn't show in options)
+                        },
+                      }),
+                      multiValue: (base) => ({
+                        ...base,
+                        minWidth: 65,
+                        backgroundColor: "black", // Custom background color for multi-select tags
+                        borderRadius: "4px", // Rounded corners for multi-value tags
+                      }),
+                      multiValueLabel: (base) => ({
+                        ...base,
+                        color: "white", // White text color for selected options
+                      }),
+                      multiValueRemove: (base) => ({
+                        ...base,
+                        color: "white", // White color for the "remove" button
+                        cursor: "pointer", // Pointer cursor for "remove" button
+                        "&:hover": {
+                          backgroundColor: "black", // Light background on hover for "remove" button
+                        },
+                      }),
+                    }}
                     isMulti
                     options={languageOptions}
                     value={languageOptions.filter((opt) =>
@@ -400,92 +467,119 @@ export function GProfile() {
                     placeholder="Select languages"
                   />
                 </FormControl>
-                <FormMessage className="absolute top-17" />
+                <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="country"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Country</FormLabel>
-              <FormControl>
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Search country..."
-                    value={countryFilter}
-                    onChange={(e) => setCountryFilter(e.target.value)}
-                    className="mb-2 w-full p-2 border rounded"
+        <div className="flex w-full gap-4 justify-between">
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field: { onChange, value } }) => (
+              <FormItem className="w-[207px]">
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <SingleSelect
+                    styles={{
+                      valueContainer: (base) => ({
+                        ...base,
+                      }),
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "#f0f0f0", // Custom background color
+                        borderRadius: "8px", // Custom border radius
+                        borderColor: "white", // Custom border color
+                        padding: "", // Custom padding
+                        boxShadow: "none", // Remove default box shadow
+                        "&:hover": {
+                          borderColor: "gray-500", // Change border color on hover
+                        },
+                      }),
+                      option: (base) => ({
+                        ...base,
+                        padding: "10px 15px", // Custom padding for options
+                        backgroundColor: "white", // Default background for options
+                        color: "black", // Default text color
+                        cursor: "pointer", // Pointer cursor
+                        "&:hover": {
+                          backgroundColor: "black", // Light blue background on hover
+                          color: "white", // Text color on hover
+                          borderColor: "#4C9AFF", // Border color on hover (though border doesn't show in options)
+                        },
+                      }),
+                    }}
+                    options={countryOptions}
+                    value={
+                      countryOptions.find((opt) => opt.value === value) || null
+                    }
+                    onChange={(newVal) => {
+                      onChange(newVal ? newVal.value : "");
+                      setSelectedCountry(newVal ? newVal.value : "");
+                    }}
+                    placeholder="Select a country"
+                    className="text-sm text-gray-700 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    defaultValue={field.value || ""}>
-                    <SelectTrigger className="w-full h-[40px]">
-                      <SelectValue placeholder="Select your country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {filteredCountries.map((country) => (
-                          <SelectItem key={country} value={country}>
-                            {country}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* City (Optional) */}
-        <FormField
-          control={form.control}
-          name="city"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>City (Optional)</FormLabel>
-              <FormControl>
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Search city..."
-                    value={cityFilter}
-                    onChange={(e) => setCityFilter(e.target.value)}
-                    className="mb-2 w-full p-2 border rounded"
-                    disabled={!watchCountry}
+          {/* City (Optional) */}
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field: { onChange, value } }) => (
+              <FormItem className="w-[207px]">
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <SingleSelect
+                    styles={{
+                      valueContainer: (base) => ({
+                        ...base,
+                      }),
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "#f0f0f0", // Custom background color
+                        borderRadius: "8px", // Custom border radius
+                        borderColor: "white", // Custom border color
+                        padding: "", // Custom padding
+                        boxShadow: "none", // Remove default box shadow
+                        "&:hover": {
+                          borderColor: "gray-500", // Change border color on hover
+                        },
+                      }),
+                      option: (base) => ({
+                        ...base,
+                        padding: "10px 15px", // Custom padding for options
+                        backgroundColor: "white", // Default background for options
+                        color: "black", // Default text color
+                        cursor: "pointer", // Pointer cursor
+                        "&:hover": {
+                          backgroundColor: "black", // Light blue background on hover
+                          color: "white", // Text color on hover
+                          borderColor: "#4C9AFF", // Border color on hover (though border doesn't show in options)
+                        },
+                      }),
+                    }}
+                    options={cityOptions}
+                    value={
+                      cityOptions.find((opt) => opt.value === value) || null
+                    }
+                    onChange={(newVal) => {
+                      onChange(newVal ? newVal.value : "");
+                      setSelectedcity(newVal ? newVal.value : "");
+                    }}
+                    placeholder="Select a city"
+                    className="text-sm text-gray-700 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={!watchCountry}
-                    defaultValue={field.value || ""}>
-                    <SelectTrigger className="w-full h-[40px]">
-                      <SelectValue placeholder="Select your city" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {filteredCities.map((city) => (
-                          <SelectItem key={city} value={city}>
-                            {city}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         {/* Price and Car */}
         <div className="flex gap-4 w-full items-center">
           <FormField
