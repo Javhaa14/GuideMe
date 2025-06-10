@@ -43,7 +43,7 @@ const guideschema = new mongoose.Schema({
   availability: [
     {
       date: {
-        type: String, // ISO format date string
+        type: String,
         required: true,
       },
       status: {

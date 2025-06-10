@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { PostType } from "../../Travelersinfo/page";
+import { useOnlineStatus } from "@/app/context/Onlinestatus";
 export type TouristProfile = {
   _id: {
     _id: string;
@@ -26,9 +27,18 @@ export type TouristProfile = {
   createdAt: string;
   updatedAt: string;
 };
+export interface OnlineUserStatus {
+  isOnline: boolean;
+  lastSeen: string;
+}
+
+export type OnlineUsers = {
+  [userId: string]: OnlineUserStatus;
+};
 
 export default function TravelerProfile() {
   const params = useParams();
+  const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
 
   const { user } = useUser();
   const [tourist, setTourist] = useState<TouristProfile>();
@@ -81,7 +91,7 @@ export default function TravelerProfile() {
               </div>
             </div>
             <div className="flex w-full">
-              <Chat user={user!} />
+              <Chat onlineUsers={onlineUsers} user={user!} />
             </div>
           </div>
         </div>
@@ -90,6 +100,7 @@ export default function TravelerProfile() {
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Main Profile Card */}
         <MainProfile
+          onlineUsers={onlineUsers}
           tourist={tourist!}
           post={post}
           chat={chat}

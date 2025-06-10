@@ -77,14 +77,15 @@ export const OnlineStatusProvider: React.FC<{ children: ReactNode }> = ({
 
     const interval = setInterval(() => {
       fetchOnlineUsers();
-    }, 1000); // every 10s
+    }, 10000); // every 10s
 
     return () => clearInterval(interval);
   }, []);
 
   return (
     <OnlineStatusContext.Provider
-      value={{ onlineUsers, setOnlineStatus, fetchOnlineUsers }}>
+      value={{ onlineUsers, setOnlineStatus, fetchOnlineUsers }}
+    >
       {children}
     </OnlineStatusContext.Provider>
   );

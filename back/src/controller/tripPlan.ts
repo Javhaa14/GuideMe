@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { TripPlanModel } from "../model/TripPlan";
+import mongoose from "mongoose";
 
 export const createTripPlan = async (req: Request, res: Response) => {
   try {
@@ -35,14 +36,23 @@ export const getAllTripPlans = async (_req: Request, res: Response) => {
 
 export const getTripPlanById = async (req: Request, res: Response) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid trip plan ID",
+    });
+  }
+
   try {
     const tripPlan = await TripPlanModel.findById(id).populate("GuideId");
     if (!tripPlan) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: "Trip Plan not found",
       });
     }
+
     res.status(200).json({
       success: true,
       tripPlan,
@@ -58,6 +68,14 @@ export const getTripPlanById = async (req: Request, res: Response) => {
 
 export const updateTripPlan = async (req: Request, res: Response) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid trip plan ID",
+    });
+  }
+
   try {
     const tripPlan = await TripPlanModel.findByIdAndUpdate(id, req.body, {
       new: true,
@@ -65,7 +83,7 @@ export const updateTripPlan = async (req: Request, res: Response) => {
     }).populate("GuideId");
 
     if (!tripPlan) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: "Trip Plan not found",
       });
@@ -86,14 +104,23 @@ export const updateTripPlan = async (req: Request, res: Response) => {
 
 export const deleteTripPlan = async (req: Request, res: Response) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid trip plan ID",
+    });
+  }
+
   try {
     const tripPlan = await TripPlanModel.findByIdAndDelete(id);
     if (!tripPlan) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: "Trip Plan not found",
       });
     }
+
     res.status(200).json({
       success: true,
       message: "Trip Plan deleted successfully",

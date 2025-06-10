@@ -15,16 +15,19 @@ export const createComment = async (
       review,
       recommend,
     });
-
-    await Guidemodel.findByIdAndUpdate(
-      userId,
-      { $push: { comments: comment._id } },
-      { new: true }
-    );
+    const guide = await Guidemodel.findById(userId);
+    if (!guide) {
+      console.error("Guide not found with ID:", userId);
+    } else {
+      guide.comments.push(comment._id);
+      await guide.save();
+      console.log("Comment pushed and guide saved:", guide);
+    }
 
     res.status(200).send({
       success: true,
       comment,
+      guide,
     });
   } catch (error: unknown) {
     if (error instanceof Error) {

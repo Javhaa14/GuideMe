@@ -14,6 +14,7 @@ import Ebooking from "./Ebooking";
 
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
+import { useOnlineStatus } from "@/app/context/Onlinestatus";
 
 type TourPost = {
   id: number;
@@ -43,14 +44,19 @@ type GuideProfile = {
 
 export default function GuideMainProfile() {
   const params = useParams();
+  if (!params.id) return <p>Missing guide ID</p>;
+
+  const guideId = Array.isArray(params.id) ? params.id[0] : params.id;
+
   const [guide, setGuide] = useState<GuideProfile>();
   const [chat, setChat] = useState(false);
+  const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
 
   const { user, status } = useUser(); // ✅ Hook-ууд бүгд шууд үндсэн түвшинд байна
 
   const fetchProfile = async () => {
     try {
-      const res = await axiosInstance.get(`/gprofile/${params.id}`);
+      const res = await axiosInstance.get(`/gprofile/${guideId}`);
       console.log("✅ Posts fetched:", res.data);
       setGuide(res.data);
     } catch (err) {
@@ -60,7 +66,7 @@ export default function GuideMainProfile() {
 
   useEffect(() => {
     fetchProfile();
-  }, [params.id]);
+  }, [guideId]);
 
   const router = useRouter();
   const todetail = (id: string) => {
@@ -90,7 +96,7 @@ export default function GuideMainProfile() {
               </div>
             </div>
             <div className="flex w-full">
-              <Chat user={user} />
+              <Chat onlineUsers={onlineUsers} user={user} />
             </div>
           </div>
         </div>
@@ -152,7 +158,7 @@ export default function GuideMainProfile() {
                   <MessageCircle className="w-5 h-5" />
                   Chat
                 </button>
-                <Review userId="683fadbacc15c5230fa20412" />
+                <Review userId={guideId} />
                 <Subscription />
                 <Ebooking />
               </div>

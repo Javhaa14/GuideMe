@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { PostType } from "../../Travelersinfo/page";
+import { OnlineUsers } from "./TouristMainProfile";
+import { useParams } from "next/navigation";
 export type TouristProfile = {
   _id: {
     _id: string;
@@ -31,6 +33,7 @@ type MainProfileProps = {
   post: PostType[];
   chat: boolean;
   setChat: React.Dispatch<React.SetStateAction<boolean>>;
+  onlineUsers: OnlineUsers;
 };
 
 export const MainProfile = ({
@@ -38,7 +41,14 @@ export const MainProfile = ({
   post,
   chat,
   setChat,
+  onlineUsers,
 }: MainProfileProps) => {
+  const params = useParams();
+  const profileId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  if (!profileId) {
+    return <p>User ID not found in URL params.</p>;
+  }
   return (
     <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100">
       {/* Cover Image */}
@@ -66,7 +76,12 @@ export const MainProfile = ({
             />
           </div>
           {/* Online Status */}
-          <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-3 border-white rounded-full"></div>
+
+          {onlineUsers[profileId]?.isOnline ? (
+            <div className="absolute bottom-2 right-2 w-6 h-6 animate-pulse bg-green-500 border-3 border-white rounded-full"></div>
+          ) : (
+            <div className="absolute bottom-2 right-2 w-6 h-6 bg-red-500 border-3 border-white rounded-full"></div>
+          )}
         </div>
 
         <div className="md:ml-52">
