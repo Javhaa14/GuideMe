@@ -203,7 +203,7 @@ export const getAvailability = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { userId } = req.body;
+  const { userId } = req.params;
 
   if (!userId || typeof userId !== "string") {
     res.status(400).json({ message: "userId is required" });

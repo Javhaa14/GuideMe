@@ -16,4 +16,4 @@ guideRouter
   .get("/availability", getAvailability)
   .get("/:_id", getGuideByuserId)
   .put("/", updateGuideProfile)
-  .put("/availability", saveAvailability);
+  .put("/availability/:userId", saveAvailability);
