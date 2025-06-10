@@ -13,7 +13,7 @@ export const guideRouter = express.Router();
 guideRouter
   .post("/", createGuideProfile)
   .get("/", getGuides)
-  .get("/availability", getAvailability)
+  .get("/availability/:userId", getAvailability)
   .get("/:_id", getGuideByuserId)
   .put("/", updateGuideProfile)
-  .put("/availability/:userId", saveAvailability);
+  .put("/availability", saveAvailability);
