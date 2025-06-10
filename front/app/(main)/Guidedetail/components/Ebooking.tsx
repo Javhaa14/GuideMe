@@ -124,7 +124,7 @@ export default function Ebooking() {
     );
     return dateStatuses[dateKey] || null;
   };
-
+  const params = useParams();
   const transformStatusesForDB = () => {
     return Object.entries(dateStatuses).map(([dateKey, status]) => {
       const [year, month, day] = dateKey.split("-").map(Number);
@@ -141,7 +141,7 @@ export default function Ebooking() {
 
     try {
       const res = await axiosInstance.put(`gprofile/availability`, {
-        userId: "hello1",
+        userId: params.id,
         availability: transformedData,
       });
 
@@ -152,7 +152,6 @@ export default function Ebooking() {
       alert("Error saving availability");
     }
   };
-  const params = useParams();
 
   useEffect(() => {
     const fetchAvailability = async () => {
