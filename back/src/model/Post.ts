@@ -1,18 +1,24 @@
 import mongoose from "mongoose";
 
 const postchema = new mongoose.Schema({
-  touristId: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Tourist",
     required: true,
   },
-  Date: String,
-  Country: String,
-  City: String,
-  Images: [String],
+  content: String,
+  country: String,
+  city: String,
+  images: [String],
   people: Number,
-  startDate: String,
-  endDate: String,
+  likedBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  startDate: Date,
+  endDate: Date,
   createdAt: { type: Date, default: Date.now },
   updatedAt: Date,
 });

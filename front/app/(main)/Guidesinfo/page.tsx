@@ -1,10 +1,33 @@
 "use client";
 import { GuideProfile } from "./components/GuideProfile";
-import { Filter } from "./components/Filter";
 import { ListFilter, Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { axiosInstance } from "@/lib/utils";
+export interface Guide {
+  _id: string;
+  location?: string;
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: string;
+  price?: string;
+  languages?: string[];
+  status: "available" | "inavailable" | "busy";
+  rating?: number;
+  comments?: string[];
+  experience?: string;
+  about?: string;
+  SocialAddress?: string;
+  car: "true" | "false";
+  likedBy: string[];
+  activities?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  image?: string;
+  name?: string;
+  profileimage: string;
+}
 export default function Home() {
   const filters = [
     "Top Rated",
@@ -16,129 +39,31 @@ export default function Home() {
     "Status",
   ];
 
-  const [guides, setGuides] = useState([
-    {
-      name: "Javhaa",
-      location: "Ulaanbaatar,Mongolia",
-      about: "It will be awesome trip",
-      price: 10,
-      rating: 2,
-      image: "/download.jpg",
-      status: "active",
-    },
-    {
-      name: "Javhaa",
-      location: "Tokyo,Japan",
-      about: "Hiiiiiii",
-      price: 10,
-      rating: 3,
-      image: "/download.jpg",
-      status: "active",
-    },
-    {
-      name: "Javhaa",
-      location: "Ulaanbaatar",
-      about: "Hiiiiiii",
-      price: 10,
-      rating: 4.5,
-      image: "/download.jpg",
-      status: "inactive",
-    },
-    {
-      name: "Javhaa",
-      location: "Bejing,China",
-      about: "Hiiiiiii",
-      price: 10,
-      rating: 3.5,
-      image: "/download.jpg",
-      status: "active",
-    },
-    {
-      name: "Cat",
-      location: "Madrid",
-      about: "lol",
-      price: 90,
-      rating: 5,
-      status: "inactive",
-      image: "",
-    },
-    {
-      name: "Javhaa",
-      location: "Ulaanbaatar",
-      about: "Hiiiiiii",
-      price: "FREE",
-      rating: 4.5,
-      image: "/download.jpg",
-      status: "inactive",
-    },
-  ]);
-
-  const [pop, setPop] = useState(false);
-  const [originalGuides] = useState([...guides]);
-  const [activeFilters, setActiveFilters] = useState<number[]>([]);
-
-  const togglePop = () => setPop(!pop);
-
-  const filter = (index: number) => {
-    let updatedFilters = [...activeFilters];
-
-    if (updatedFilters.includes(index)) {
-      // Remove filter if already active
-      updatedFilters = updatedFilters.filter((i) => i !== index);
-    } else {
-      // Add filter if not active
-      updatedFilters.push(index);
+  const [guides, setGuides] = useState<Guide[] | undefined>(undefined);
+  const fetchGuides = async () => {
+    try {
+      const res = await axiosInstance.get<Guide[]>(`/gprofile`);
+      setGuides(res.data);
+    } catch (error) {
+      console.log("No guides");
     }
-
-    setActiveFilters(updatedFilters);
-
-    // Apply all selected filters
-    let filteredGuides = [...originalGuides];
-
-    updatedFilters.forEach((filterIndex) => {
-      switch (filterIndex) {
-        case 0: // Top Rated
-          filteredGuides = filteredGuides.sort((a, b) => b.rating - a.rating); // example threshold
-          break;
-
-        case 1: // Price (sort by price ascending)
-          filteredGuides = filteredGuides.sort((a, b) => {
-            const priceA = a.price === "FREE" ? 0 : Number(a.price);
-            const priceB = b.price === "FREE" ? 0 : Number(b.price);
-            return priceA - priceB;
-          });
-          break;
-
-        // Add other filters here, for example:
-        case 2: // Language - example filtering if you have language data
-          // filteredGuides = filteredGuides.filter(g => g.language === 'English');
-          break;
-
-        case 3: // Gender
-          // filteredGuides = filteredGuides.filter(g => g.gender === 'Female');
-          break;
-
-        // ... and so on for your filters
-      }
-    });
-
-    setGuides(filteredGuides);
   };
+  console.log(guides);
+
+  useEffect(() => {
+    fetchGuides();
+  }, []);
   const router = useRouter();
   return (
     <div className="flex flex-col w-screen h-full items-center bg-white gap-10 pt-[40px] px-[20px]">
       <div className="w-[400px] text-black h-[30px] flex items-center border-[1px] border-black rounded-xl">
         <Search className="size-5 ml-3" />
         <input placeholder="Where you gonna travel?" className="w-full ml-2" />
-        <div
-          onClick={togglePop}
-          className="bg-blue-400 w-[80px] flex items-center justify-center rounded-r-xl h-full cursor-pointer"
-        >
+        <div className="bg-blue-400 w-[80px] flex items-center justify-center rounded-r-xl h-full cursor-pointer">
           <ListFilter />
         </div>
       </div>
-      {pop && (
-        <div className="flex border-black border-[3px] gap-4 w-fit h-fit rounded-md p-4">
+      {/* <div className="flex border-black border-[3px] gap-4 w-fit h-fit rounded-md p-4">
           {filters.map((v, i) => (
             <Filter
               onclick={filter}
@@ -148,23 +73,22 @@ export default function Home() {
               active={activeFilters.includes(i)}
             />
           ))}
-        </div>
-      )}
-      <div
-        onClick={() => router.push("/Guidedetail")}
-        //  onClick={() => router.push(`/Guidedetail/${v.id}`)}
-        className="grid grid-cols-2 gap-5 w-full px-30 h-fit"
-      >
-        {guides.map((v, i) => (
+        </div> */}
+
+      <div className="grid grid-cols-2 gap-5 w-full px-30 h-fit">
+        {guides?.map((guide, i) => (
           <GuideProfile
-            status={v.status}
-            image={v.image}
-            rating={v.rating}
-            price={v.price}
-            key={i}
-            name={v.name}
-            location={v.location}
-            about={v.about}
+            post={guide}
+            id={guide._id}
+            onclick={() => router.push(`/Guidedetail/${guide._id}`)}
+            key={guide._id || i}
+            status={guide.status}
+            profileimage={guide.profileimage || ""}
+            rating={guide.rating || 0}
+            price={guide.price || 0}
+            name={guide.username || ""}
+            location={guide.location || ""}
+            about={guide.about || ""}
           />
         ))}
       </div>

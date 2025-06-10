@@ -1,4 +1,4 @@
-import TouristMainProfile from "./components/TouristMainProfile";
+import TouristMainProfile from "../components/TouristMainProfile";
 
 export default function Home() {
   return (

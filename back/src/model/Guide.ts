@@ -1,16 +1,12 @@
 import mongoose from "mongoose";
 
-const gprofileschema = new mongoose.Schema({
-  userId: {
+const guideschema = new mongoose.Schema({
+  _id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Tourist",
+    ref: "User",
     required: true,
   },
-  profile: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Tprofile",
-    required: true,
-  },
+  username: String,
   location: String,
   firstName: String,
   lastName: String,
@@ -32,22 +28,32 @@ const gprofileschema = new mongoose.Schema({
     required: true,
   },
   rating: Number,
-  comments: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Comment",
-    required: true,
-  },
+  likedBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment",
+    },
+  ],
+
+  profileimage: String,
+  backgroundimage: String,
   experience: String,
   about: String,
   SocialAddress: String,
-  Car: {
+  car: {
     type: String,
-    enum: ["baigaa", "baihgu"],
-    default: "baihgu",
+    enum: ["true", "false"],
+    default: "false",
     required: true,
   },
   activities: [String],
   createdAt: { type: Date, default: Date.now },
   updatedAt: Date,
 });
-export const Gprofilemodel = mongoose.model("Gprofile", gprofileschema);
+export const Guidemodel = mongoose.model("Guide", guideschema);

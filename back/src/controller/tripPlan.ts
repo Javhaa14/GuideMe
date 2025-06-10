@@ -1,16 +1,17 @@
 import { Request, Response } from "express";
 import { TripPlanModel } from "../model/TripPlan";
+import mongoose from "mongoose";
 
 export const createTripPlan = async (req: Request, res: Response) => {
   try {
     const tripPlan = await TripPlanModel.create(req.body);
-    return res.status(201).json({
+    res.status(201).json({
       success: true,
       tripPlan,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: (error as Error).message,
     });
@@ -20,13 +21,13 @@ export const createTripPlan = async (req: Request, res: Response) => {
 export const getAllTripPlans = async (_req: Request, res: Response) => {
   try {
     const tripPlans = await TripPlanModel.find().populate("GuideId");
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       tripPlans,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: (error as Error).message,
     });
@@ -35,6 +36,14 @@ export const getAllTripPlans = async (_req: Request, res: Response) => {
 
 export const getTripPlanById = async (req: Request, res: Response) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid trip plan ID",
+    });
+  }
+
   try {
     const tripPlan = await TripPlanModel.findById(id).populate("GuideId");
     if (!tripPlan) {
@@ -43,13 +52,14 @@ export const getTripPlanById = async (req: Request, res: Response) => {
         message: "Trip Plan not found",
       });
     }
-    return res.status(200).json({
+
+    res.status(200).json({
       success: true,
       tripPlan,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: (error as Error).message,
     });
@@ -58,6 +68,14 @@ export const getTripPlanById = async (req: Request, res: Response) => {
 
 export const updateTripPlan = async (req: Request, res: Response) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid trip plan ID",
+    });
+  }
+
   try {
     const tripPlan = await TripPlanModel.findByIdAndUpdate(id, req.body, {
       new: true,
@@ -71,13 +89,13 @@ export const updateTripPlan = async (req: Request, res: Response) => {
       });
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       tripPlan,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: (error as Error).message,
     });
@@ -86,6 +104,14 @@ export const updateTripPlan = async (req: Request, res: Response) => {
 
 export const deleteTripPlan = async (req: Request, res: Response) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid trip plan ID",
+    });
+  }
+
   try {
     const tripPlan = await TripPlanModel.findByIdAndDelete(id);
     if (!tripPlan) {
@@ -94,13 +120,14 @@ export const deleteTripPlan = async (req: Request, res: Response) => {
         message: "Trip Plan not found",
       });
     }
-    return res.status(200).json({
+
+    res.status(200).json({
       success: true,
       message: "Trip Plan deleted successfully",
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: (error as Error).message,
     });
