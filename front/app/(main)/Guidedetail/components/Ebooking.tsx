@@ -157,9 +157,9 @@ export default function Ebooking() {
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
-        const res = await axiosInstance.get(`/gprofile/availability`, {
-          params: { userId: params.id },
-        });
+        const res = await axiosInstance.get(
+          `/gprofile/availability/${params.id}`
+        );
         const data = res.data;
         setData(res.data.availability);
         const restored: DateStatus = {};
@@ -193,8 +193,7 @@ export default function Ebooking() {
           <DialogTrigger asChild>
             <Button
               size="lg"
-              className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 text-lg"
-            >
+              className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 text-lg">
               <Edit className="mr-2 h-5 w-5" />
               Edit Availability
             </Button>
@@ -229,8 +228,7 @@ export default function Ebooking() {
                               ? `${statusConfig[status].color} hover:${statusConfig[status].color}/90 text-white`
                               : `${statusConfig[status].textColor} ${statusConfig[status].borderColor} hover:${statusConfig[status].bgColor}`
                           }`}
-                          onClick={() => setSelectedStatus(status)}
-                        >
+                          onClick={() => setSelectedStatus(status)}>
                           <div
                             className={`w-3 h-3 rounded-full ${statusConfig[status].color}`}
                           />
@@ -255,8 +253,7 @@ export default function Ebooking() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-gray-600 hover:bg-gray-100"
-                      onClick={() => navigateMonth("prev")}
-                    >
+                      onClick={() => navigateMonth("prev")}>
                       <ChevronLeft className="h-5 w-5" />
                     </Button>
 
@@ -269,8 +266,7 @@ export default function Ebooking() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-gray-600 hover:bg-gray-100"
-                      onClick={() => navigateMonth("next")}
-                    >
+                      onClick={() => navigateMonth("next")}>
                       <ChevronRight className="h-5 w-5" />
                     </Button>
                   </div>
@@ -279,8 +275,7 @@ export default function Ebooking() {
                     {dayNames.map((day) => (
                       <div
                         key={day}
-                        className="h-8 flex items-center justify-center text-sm font-medium text-gray-500"
-                      >
+                        className="h-8 flex items-center justify-center text-sm font-medium text-gray-500">
                         {day}
                       </div>
                     ))}
@@ -301,8 +296,7 @@ export default function Ebooking() {
                               ? `${config.bgColor} ${config.textColor} ${config.borderColor} border`
                               : "text-gray-900 hover:bg-gray-100 hover:border-gray-300 border border-transparent"
                           }`}
-                          onClick={() => handleDateClick(day)}
-                        >
+                          onClick={() => handleDateClick(day)}>
                           {day}
                           {status && (
                             <div
@@ -346,8 +340,7 @@ export default function Ebooking() {
               </Button>
               <Button
                 onClick={handleSave}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
+                className="bg-purple-600 hover:bg-purple-700">
                 Save Changes
               </Button>
             </div>
@@ -364,8 +357,7 @@ export default function Ebooking() {
               variant="ghost"
               size="icon"
               className="h-6 w-6 text-gray-600 hover:bg-gray-100"
-              onClick={() => navigateMonth("prev")}
-            >
+              onClick={() => navigateMonth("prev")}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
@@ -380,8 +372,7 @@ export default function Ebooking() {
               variant="ghost"
               size="icon"
               className="h-6 w-6 text-gray-600 hover:bg-gray-100"
-              onClick={() => navigateMonth("next")}
-            >
+              onClick={() => navigateMonth("next")}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -392,8 +383,7 @@ export default function Ebooking() {
               {dayNames.map((day) => (
                 <div
                   key={day}
-                  className="h-4 flex items-center justify-center text-[10px] text-gray-500 font-medium"
-                >
+                  className="h-4 flex items-center justify-center text-[10px] text-gray-500 font-medium">
                   {day[0]}
                 </div>
               ))}
@@ -413,8 +403,7 @@ export default function Ebooking() {
                       config
                         ? `${config.bgColor} ${config.textColor} ${config.borderColor} border`
                         : "text-gray-900"
-                    }`}
-                  >
+                    }`}>
                     {day}
                     {status && (
                       <div
