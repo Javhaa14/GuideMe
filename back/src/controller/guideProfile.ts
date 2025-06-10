@@ -177,3 +177,44 @@ export const updateGuideProfile = async (
     });
   }
 };
+export const saveAvailability = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId, availability } = req.body;
+
+  if (!userId || !Array.isArray(availability)) {
+    res.status(400).json({ message: "Invalid request body" });
+  }
+
+  try {
+    const updated = await Guidemodel.findOneAndUpdate(
+      { _id: userId },
+      { availability },
+      { upsert: true, new: true }
+    );
+    res.status(200).json({ success: true, availability: updated });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const getAvailability = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId } = req.body;
+
+  if (!userId || typeof userId !== "string") {
+    res.status(400).json({ message: "userId is required" });
+  }
+
+  try {
+    const doc = await Guidemodel.findOne({ userId });
+    res
+      .status(200)
+      .json({ success: true, availability: doc?.availability || [] });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
