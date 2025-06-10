@@ -1,4 +1,5 @@
 "use client";
+
 import { Camera } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -13,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -40,10 +41,13 @@ const MultiSelect = dynamic(
   () => import("./Selectwrapper").then((mod) => mod.MultiSelect),
   { ssr: false }
 );
+type dataTypes = {
+  name: string;
+  description: string;
+};
 
 const formSchema = z.object({
   username: z.string().min(2, "First name is required"),
-
   firstName: z.string().min(2, "First name is required"),
   lastName: z.string().min(2, "Last name is required"),
   gender: z.string().min(1, "Gender is required"),
@@ -67,10 +71,6 @@ const formSchema = z.object({
 
 export function GProfile() {
   const { user } = useUser();
-
-  if (!user) {
-    return <p>Loading user...</p>; // or a spinner
-  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -99,10 +99,23 @@ export function GProfile() {
     { label: "Food Tasting", value: "food" },
     { label: "Beach Day", value: "beach" },
   ];
+  if (!user) {
+    return <p>Loading user...</p>; // or a spinner
+  }
 
-  const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
+  const [results, setResults] = useState<dataTypes[]>([]);
   const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
   const [tourist, setTourist] = useState<TouristProfile>();
+  const [searchText, setSearchText] = useState(""); // new for input text for country search
+  const [isShown, setIsShown] = useState<boolean>(true);
+  const countryOptions = useMemo(
+    () =>
+      results.map((item) => ({
+        label: item.name,
+        value: item.name,
+      })),
+    [results]
+  );
 
   useEffect(() => {
     if (!user || !user.id) return;
@@ -140,28 +153,41 @@ export function GProfile() {
         console.error("Failed to fetch languages", error);
       }
     };
-    const fetchCountries = async () => {
+    const fetchResults = async (searchText: string) => {
       try {
-        const res = await axios.get(
-          "https://restcountries.com/v3.1/all?fields=name"
+        const res = await fetch(
+          `https://d14w0rz7s8v3pz.cloudfront.net/predictions?s=${searchText}`
         );
-        const options = res.data
-          .map((country: CountryType) => ({
-            label: country.name.common,
-            value: country.name.common,
-          }))
-          .sort((a: OptionType, b: OptionType) =>
-            a.label.localeCompare(b.label)
-          );
-        setCountryOptions(options);
+        const data = await res.json();
+        setResults(data || []);
       } catch (error) {
-        console.error("Failed to fetch countries", error);
+        console.error("Failed to fetch", error);
+        setResults([]);
       }
     };
+
     fetchProfile();
     fetchLanguages();
-    fetchCountries();
   }, [user]);
+  useEffect(() => {
+    if (searchText.trim().length > 2) {
+      const fetchResults = async () => {
+        try {
+          const res = await fetch(
+            `https://d14w0rz7s8v3pz.cloudfront.net/predictions?s=${searchText}`
+          );
+          const data = await res.json();
+          setResults(data || []);
+        } catch (error) {
+          console.error("Failed to fetch", error);
+          setResults([]);
+        }
+      };
+      fetchResults();
+    } else {
+      setResults([]);
+    }
+  }, [searchText]);
 
   useEffect(() => {
     if (tourist) {
@@ -350,7 +376,7 @@ export function GProfile() {
           <FormField
             control={form.control}
             name="location"
-            render={({ field: { onChange, value } }) => (
+            render={({ field }) => (
               <FormItem className="w-full relative">
                 <FormLabel>Country</FormLabel>
                 <FormControl>
@@ -358,13 +384,23 @@ export function GProfile() {
                     isMulti={false}
                     options={countryOptions}
                     value={
-                      countryOptions.find((option) => option.value === value) ||
-                      null
+                      countryOptions.find(
+                        (option) => option.value === field.value
+                      ) || null
                     }
+                    onInputChange={(value) => setSearchText(value)}
                     onChange={(newValue) => {
-                      onChange((newValue as OptionType | null)?.value || "");
+                      const selected = newValue as OptionType | null;
+                      if (selected) {
+                        setSearchText(selected.value);
+                        field.onChange(selected.value);
+                      } else {
+                        setSearchText("");
+                        field.onChange("");
+                      }
                     }}
-                    placeholder="Select a country"
+                    inputValue={searchText}
+                    placeholder="Search your country"
                     isClearable
                   />
                 </FormControl>

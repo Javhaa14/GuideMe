@@ -111,9 +111,9 @@ export const authOptions: NextAuthOptions = {
         const data = await res.json();
 
         // Attach Mongo _id to user.id
-        if (data?.user?._id) {
-          user.id = data.user._id;
-          (user as any).role = data.user.role;
+        if (data?.id) {
+          user.id = data.id;
+          (user as any).role = data.role;
         }
 
         return true;
