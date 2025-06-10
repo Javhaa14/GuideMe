@@ -7,25 +7,25 @@ import type { JWT } from "next-auth/jwt";
 import type { User, Session, NextAuthOptions } from "next-auth";
 
 // Helper to generate Apple client secret JWT
-function generateAppleClientSecret(): string {
-  const teamId = process.env.APPLE_TEAM_ID!;
-  const clientId = process.env.APPLE_CLIENT_ID!;
-  const keyId = process.env.APPLE_KEY_ID!;
-  const privateKey = process.env.APPLE_PRIVATE_KEY!.replace(/\\n/g, "\n");
+// function generateAppleClientSecret(): string {
+//   const teamId = process.env.APPLE_TEAM_ID!;
+//   const clientId = process.env.APPLE_CLIENT_ID!;
+//   const keyId = process.env.APPLE_KEY_ID!;
+//   const privateKey = process.env.APPLE_PRIVATE_KEY!.replace(/\\n/g, "\n");
 
-  const claims = {
-    iss: teamId,
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 15777000, // ~6 months
-    aud: "https://appleid.apple.com",
-    sub: clientId,
-  };
+//   const claims = {
+//     iss: teamId,
+//     iat: Math.floor(Date.now() / 1000),
+//     exp: Math.floor(Date.now() / 1000) + 15777000, // ~6 months
+//     aud: "https://appleid.apple.com",
+//     sub: clientId,
+//   };
 
-  return jwt.sign(claims, privateKey, {
-    algorithm: "ES256",
-    header: { alg: "ES256", kid: keyId },
-  });
-}
+//   return jwt.sign(claims, privateKey, {
+//     algorithm: "ES256",
+//     header: { alg: "ES256", kid: keyId },
+//   });
+// }
 
 export const authOptions: NextAuthOptions = {
   providers: [
