@@ -137,22 +137,22 @@ export const updateGuideProfile = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { userId, guideId } = req.body;
+  const { curruntUserId, profileId } = req.body;
+
   try {
-    const guideProfile = await Guidemodel.findByIdAndUpdate(guideId);
+    const guideProfile = await Guidemodel.findByIdAndUpdate(profileId);
     if (!guideProfile) {
       res.status(404).json({ message: "guide profile not found" });
     } else {
       const alreadyLiked = guideProfile.likedBy.some(
-        (id) => id.toString() === userId
+        (id) => id.toString() === curruntUserId
       );
-
       if (alreadyLiked) {
         guideProfile.likedBy = guideProfile.likedBy.filter(
-          (id) => id.toString() !== userId
+          (id) => id.toString() !== curruntUserId
         );
       } else {
-        guideProfile.likedBy.push(new mongoose.Types.ObjectId(userId));
+        guideProfile.likedBy.push(new mongoose.Types.ObjectId(curruntUserId));
       }
       await guideProfile.save();
       res.status(200).json({
@@ -165,5 +165,46 @@ export const updateGuideProfile = async (
       error: error,
       success: false,
     });
+  }
+};
+export const saveAvailability = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId, availability } = req.body;
+
+  if (!userId || !Array.isArray(availability)) {
+    res.status(400).json({ message: "Invalid request body" });
+  }
+
+  try {
+    const updated = await Guidemodel.findOneAndUpdate(
+      { userId },
+      { availability },
+      { upsert: true, new: true }
+    );
+    res.status(200).json({ success: true, availability: updated });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const getAvailability = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId } = req.body;
+
+  if (!userId || typeof userId !== "string") {
+    res.status(400).json({ message: "userId is required" });
+  }
+
+  try {
+    const doc = await Guidemodel.findOne({ userId });
+    res
+      .status(200)
+      .json({ success: true, availability: doc?.availability || [] });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

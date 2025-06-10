@@ -18,10 +18,7 @@ import { authRouter } from "./routes/auth";
 import { commentRouter } from "./routes/comments";
 import { guideRouter } from "./routes/guideProfile";
 
-import AvailabilityRouter from "./routes/availability";
-
 import { Onlinerouter } from "./routes/online";
-
 
 dotenv.config();
 
@@ -52,7 +49,6 @@ app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
 app.use("/comment", commentRouter);
 app.use("/gprofile", guideRouter);
-app.use("/availability", AvailabilityRouter);
 
 // app.use('/GuideProfile', GuideProfileRouter);
 app.use("/tprofile", touristRouter);

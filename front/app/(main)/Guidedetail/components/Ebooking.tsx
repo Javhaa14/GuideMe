@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import axios from "axios";
+import { useUser } from "@/app/context/Usercontext";
 
 // Date статус төрөл тодорхойлох
 // (available, busy, booked гэсэн 3 төлөвтэй)
@@ -28,7 +29,7 @@ export default function Ebooking() {
   const [dateStatuses, setDateStatuses] = useState<DateStatus>({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [data, setData] = useState([]);
-
+  const { user } = useUser();
   const monthNames = [
     "January",
     "February",
