@@ -15,6 +15,7 @@ import Ebooking from "./Ebooking";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { useOnlineStatus } from "@/app/context/Onlinestatus";
+import { GuideTrips } from "./GuideTrips";
 
 type TourPost = {
   id: number;
@@ -169,6 +170,7 @@ export default function GuideMainProfile() {
         {/* New Trip and Trip List */}
         <div className="mt-12 space-y-10">
           <NewTrip />
+          <GuideTrips />
         </div>
       </div>
     </div>
