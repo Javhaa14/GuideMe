@@ -1,9 +1,9 @@
-import TripDetailPage from "./components/TripDetailPage";
+import { TripDetailPage } from "./components/TripDetailPage";
 
-export const page = () => {
+export default function TripDetail() {
   return (
     <div>
       <TripDetailPage />
     </div>
   );
-};
+}
