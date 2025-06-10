@@ -67,20 +67,20 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
 
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-    }),
+    // FacebookProvider({
+    //   clientId: process.env.FACEBOOK_CLIENT_ID!,
+    //   clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+    // }),
 
-    AppleProvider({
-      clientId: process.env.APPLE_CLIENT_ID!,
-      clientSecret: generateAppleClientSecret(),
-      authorization: {
-        params: {
-          scope: "name email",
-        },
-      },
-    }),
+    // AppleProvider({
+    //   clientId: process.env.APPLE_CLIENT_ID!,
+    //   clientSecret: generateAppleClientSecret(),
+    //   authorization: {
+    //     params: {
+    //       scope: "name email",
+    //     },
+    //   },
+    // }),
   ],
 
   session: {
@@ -110,7 +110,6 @@ export const authOptions: NextAuthOptions = {
 
         const data = await res.json();
 
-        // Attach Mongo _id to user.id
         if (data?.user?._id) {
           user.id = data.user._id;
           (user as any).role = data.user.role;
