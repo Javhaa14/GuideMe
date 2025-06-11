@@ -1,124 +1,92 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
 
-export default function ResetPasswordPage() {
+const socket = io("http://localhost:4000"); // Your backend URL here
+
+export default function PasswordReset() {
   const [email, setEmail] = useState("");
-  const [step, setStep] = useState<"enter-email" | "waiting" | "approved">(
-    "enter-email"
-  );
-  const [status, setStatus] = useState("");
-  const [token, setToken] = useState("");
-  const [password, setPassword] = useState("");
+  const [step, setStep] = useState<
+    "enterEmail" | "waitingApproval" | "resetPassword"
+  >("enterEmail");
+  const [message, setMessage] = useState("");
 
-  // Submit email to request reset
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const res = await fetch(
-      "https://guideme-8o9f.onrender.com/auth/request-reset",
-      {
+  // Listen for reset approval from server via Socket.IO
+  useEffect(() => {
+    socket.on("resetApproved", (data) => {
+      setMessage(data.message);
+      setStep("resetPassword"); // move to next step automatically
+    });
+
+    return () => {
+      socket.off("resetApproved");
+    };
+  }, []);
+
+  const handleSendReset = async () => {
+    setMessage("");
+    try {
+      const res = await fetch("/api/auth/request-reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStep("waitingApproval");
+        setMessage("Check your email and click the approve button.");
+      } else {
+        setMessage(data.error || "Something went wrong");
       }
-    );
-    const data = await res.json();
-    setStatus(data.message || "Check your email to approve the reset.");
-    setStep("waiting");
-  };
-
-  // Submit token after clicking "Approve" in email (form POSTs to this page)
-  const handleApprove = async (formData: FormData) => {
-    const formToken = formData.get("token") as string;
-    const res = await fetch(
-      "https://guideme-8o9f.onrender.com/auth/verify-reset-token",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: formToken }),
-      }
-    );
-    const data = await res.json();
-    if (data.success) {
-      setToken(formToken);
-      setStep("approved");
-    } else {
-      setStatus("Invalid or expired token.");
+    } catch (err) {
+      setMessage("Failed to send request");
     }
   };
 
-  // Submit new password
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const res = await fetch(
-      "https://guideme-8o9f.onrender.com/auth/reset-password-final",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }),
-      }
-    );
-    const data = await res.json();
-    setStatus(data.message);
-  };
-
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-      <h2>Reset Password</h2>
-
-      {step === "enter-email" && (
-        <form onSubmit={handleEmailSubmit}>
+    <div style={{ maxWidth: 400, margin: "auto", padding: 20 }}>
+      {step === "enterEmail" && (
+        <>
+          <h2>Reset Password</h2>
           <input
             type="email"
-            placeholder="Enter your email"
-            required
+            placeholder="Your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ padding: "0.5rem", width: "100%", marginBottom: "1rem" }}
+            style={{ width: "100%", padding: 8, marginBottom: 12 }}
           />
-          <button type="submit" style={{ padding: "0.5rem 1rem" }}>
-            Send Reset Approval Email
+          <button onClick={handleSendReset} disabled={!email}>
+            Send Reset Email
           </button>
-        </form>
+        </>
       )}
 
-      {step === "waiting" && <p>{status}</p>}
+      {step === "waitingApproval" && (
+        <>
+          <h2>Waiting for approval</h2>
+          <p>{message}</p>
+          <p>Please click the button in your email to approve the reset.</p>
+        </>
+      )}
 
-      {/* This will be hit when email's form POSTs to this route */}
-      <form
-        action="/reset"
-        method="POST"
-        style={{ display: "none" }}
-        onSubmit={(e) => e.preventDefault()}>
-        <input
-          type="hidden"
-          name="token"
-          value={
-            typeof window !== "undefined"
-              ? new URLSearchParams(window.location.search).get("token") || ""
-              : ""
-          }
-        />
-      </form>
-
-      {/* Next step: Set new password */}
-      {step === "approved" && (
-        <form onSubmit={handlePasswordSubmit}>
+      {step === "resetPassword" && (
+        <>
+          <h2>Reset Password</h2>
+          <p>{message}</p>
+          {/* Here you can add your new password form */}
           <input
             type="password"
             placeholder="New password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ padding: "0.5rem", width: "100%", marginBottom: "1rem" }}
+            style={{ width: "100%", padding: 8, marginBottom: 12 }}
           />
-          <button type="submit" style={{ padding: "0.5rem 1rem" }}>
-            Set New Password
-          </button>
-        </form>
+          <button>Submit New Password</button>
+        </>
       )}
 
-      {status && <p style={{ marginTop: "1rem", color: "green" }}>{status}</p>}
+      {message && step === "enterEmail" && (
+        <p style={{ color: "red" }}>{message}</p>
+      )}
     </div>
   );
 }
