@@ -7,30 +7,30 @@ dotenv.config();
 import { sender } from "../../../utils/sendmail";
 import { io } from "../..";
 
-export const requestReset = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
+export const requestReset = async (req: Request, res: Response) => {
   const { email } = req.body;
-  const user = await UserModel.findOne({ email });
+  console.log("📩 Reset request for email:", email);
 
-  if (!user) return res.status(404).send({ error: "User not found" });
+  const user = await UserModel.findOne({ email });
+  if (!user) {
+    console.log("❌ User not found:", email);
+    return res.status(404).send({ error: "User not found" });
+  }
 
   const token = jwt.sign({ id: user._id, email }, process.env.JWT_SECRET!, {
     expiresIn: "15m",
   });
 
-  const resetUrl = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/reset?token=${token}`;
+  const resetUrl = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/reset/approve?token=${token}`;
+  console.log("🔗 Sending reset URL:", resetUrl);
 
-  const emailBody = `
-    <p>You requested a password reset. Click the button below to approve:</p>
-    <a href="${resetUrl}" target="_blank" style="padding:10px 20px; background:#1a73e8; color:#fff; text-decoration:none; border-radius:5px;">Approve Reset</a>
-  `;
-
-  await sender(email, "Password Reset Approval", emailBody);
+  const emailBody = `<a href="${resetUrl}">Approve Reset</a>`;
+  await sender(email, "Reset", emailBody);
+  console.log("📧 Email sent to:", email);
 
   res.send({ success: true, message: "Email sent" });
 };
+
 export const verifyResetToken = (req: Request, res: Response) => {
   const { token } = req.body;
 
@@ -50,19 +50,23 @@ export const verifyResetToken = (req: Request, res: Response) => {
 };
 export const approveReset = async (req: Request, res: Response) => {
   const { token } = req.body;
+  console.log("✅ Approve request received with token:", token);
+
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload & {
       id: string;
     };
+    console.log("🧠 Decoded payload:", payload);
 
-    // Now you can safely access payload.id
     io.to(`reset_${payload.id}`).emit("resetApproved", {
       message: "Password reset approved!",
       userId: payload.id,
     });
+    console.log("📢 Emitted resetApproved to room:", `reset_${payload.id}`);
 
     res.send({ success: true, message: "Reset approved" });
   } catch (err) {
+    console.error("❌ Token verification failed:", err);
     res
       .status(400)
       .send({ success: false, message: "Invalid or expired token" });

@@ -157,8 +157,9 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
 
   socket.on("joinResetRoom", (userId: string) => {
     socket.join(`reset_${userId}`);
-    console.log(`Socket ${socket.id} joined room reset_${userId}`);
+    console.log(`🛎️ Socket ${socket.id} joined room: reset_${userId}`);
   });
+
   socket.on("approveReset", async (data: { token: string }) => {
     try {
       const payload = jwt.verify(
