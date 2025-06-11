@@ -9,12 +9,16 @@ const transporter = nodemailer.createTransport({
     pass: process.env.PASS,
   },
 });
-export const sender = async (email: string, subject: string, text: string) => {
+export const sender = async (
+  email: string,
+  subject: string,
+  htmlContent: string
+) => {
   const info = {
     from: `Guide Me <${process.env.EMAIL}>`,
     to: email,
     subject: subject,
-    text: text,
+    html: htmlContent, // <-- use 'html' here, not 'text'
   };
   try {
     return await transporter.sendMail(info);
