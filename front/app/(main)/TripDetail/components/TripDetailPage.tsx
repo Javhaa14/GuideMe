@@ -1,14 +1,11 @@
 "use client";
 
-import { Calendar, Globe, Heart, Users, WalletCards } from "lucide-react";
+import { Globe, Heart, TimerReset, Users } from "lucide-react";
 import React, { useRef, useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
+import TourBookingPage from "./TourBookingPage";
+import TourMap from "./TourMap";
+import RoadRoute from "./RoadRoute";
 
 const images = ["/altai.png", "/desert.jpg", "/lake.png", "/gobi.png"];
 
@@ -130,15 +127,14 @@ export const TripDetailPage = () => {
         {/* Reserve and Pay */}
         <div className="flex items-start space-x-4">
           <div className="mt-1">
-            <WalletCards className="text-primary" />
+            <TimerReset />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-800">
-              Reserve now & pay later
+              Duration 5 days
             </h3>
             <p className="text-gray-600">
-              Keep your travel plans flexible — book your spot and pay nothing
-              today.
+              Check availability to see starting times
             </p>
           </div>
         </div>
@@ -169,66 +165,9 @@ export const TripDetailPage = () => {
           </div>
         </div>
       </div>
-
-      <div className="bg-[#2b0347] mt-6 text-white rounded-2xl p-6 max-w-5xl mx-auto">
-        <h2 className="mb-4 text-2xl font-bold">
-          Select participants, date, and language
-        </h2>
-
-        <div className="flex flex-wrap items-center gap-4">
-          {/* Participant Dropdown */}
-          <div className="relative flex items-center gap-2 px-4 py-2 text-black bg-white rounded-full w-52">
-            <span className="flex items-center gap-2">
-              <Users /> Person x 1
-            </span>
-            <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Theme" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="system">System</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Dropdown panel */}
-            <div className="absolute left-0 z-10 w-64 p-4 text-black bg-white shadow-lg top-14 rounded-xl">
-              <div>
-                <div className="flex items-center justify-between mt-3">
-                  <button className="px-2 text-xl text-black">−</button>
-                  <input
-                    type="text"
-                    value="1"
-                    readOnly
-                    className="w-10 text-center border rounded"
-                  />
-                  <button className="px-2 text-xl text-black">＋</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Date Picker */}
-          <div className="flex items-center gap-2 px-4 py-2 text-black bg-white rounded-full w-52">
-            <Calendar />
-            <span>Select date</span>
-            <span className="ml-auto">▼</span>
-          </div>
-
-          {/* Language Selector */}
-          <div className="flex items-center w-40 gap-2 px-4 py-2 text-black bg-white rounded-full">
-            <Globe />
-            <span>English</span>
-            <span className="ml-auto">▼</span>
-          </div>
-
-          {/* Button */}
-          <button className="bg-[#3e016d] hover:bg-black text-white font-semibold px-6 py-3 rounded-full ml-auto">
-            Check availability
-          </button>
-        </div>
-      </div>
+      <TourBookingPage />
+      <TourMap />
+      <RoadRoute />
     </div>
   );
 };
