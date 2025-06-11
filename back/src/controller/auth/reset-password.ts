@@ -20,7 +20,7 @@ export const requestReset = async (
     expiresIn: "15m",
   });
 
-  const resetUrl = `${process.env.FRONTEND_URL}/reset?token=${token}`;
+  const resetUrl = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/reset?token=${token}`;
 
   const emailBody = `
     <p>You requested a password reset. Click the button below to approve:</p>

@@ -1,9 +1,10 @@
 "use client";
 
+import axios from "axios";
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:4000"); // Your backend URL here
+const socket = io("https://guideme-8o9f.onrender.com"); // Your backend URL here
 
 export default function PasswordReset() {
   const [email, setEmail] = useState("");
@@ -27,17 +28,16 @@ export default function PasswordReset() {
   const handleSendReset = async () => {
     setMessage("");
     try {
-      const res = await fetch("/api/auth/request-reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (data.success) {
+      const res = await axios.post(
+        "https://guideme-8o9f.onrender.com/auth/request-reset",
+        { email }
+      );
+      // res.data is already the parsed JSON
+      if (res.data.success) {
         setStep("waitingApproval");
         setMessage("Check your email and click the approve button.");
       } else {
-        setMessage(data.error || "Something went wrong");
+        setMessage(res.data.error || "Something went wrong");
       }
     } catch (err) {
       setMessage("Failed to send request");
