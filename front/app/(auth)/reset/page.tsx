@@ -1,6 +1,6 @@
 "use client";
 
-import axios from "axios";
+import { axiosInstance } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 
@@ -15,9 +15,11 @@ export default function PasswordReset() {
 
   // Listen for reset approval from server via Socket.IO
   useEffect(() => {
+    console.log("🔌 Connecting to socket...");
     socket.on("resetApproved", (data) => {
+      console.log("✅ resetApproved received:", data);
       setMessage(data.message);
-      setStep("resetPassword"); // move to next step automatically
+      setStep("resetPassword");
     });
 
     return () => {
@@ -28,11 +30,10 @@ export default function PasswordReset() {
   const handleSendReset = async () => {
     setMessage("");
     try {
-      const res = await axios.post(
-        "https://guideme-8o9f.onrender.com/auth/request-reset",
-        { email }
-      );
-      // res.data is already the parsed JSON
+      console.log("📨 Sending reset email to:", email);
+      const res = await axiosInstance.post("/auth/request-reset", { email });
+      console.log("📩 Response from server:", res.data);
+
       if (res.data.success) {
         setStep("waitingApproval");
         setMessage("Check your email and click the approve button.");
@@ -40,6 +41,7 @@ export default function PasswordReset() {
         setMessage(res.data.error || "Something went wrong");
       }
     } catch (err) {
+      console.error("❌ Failed to send request:", err);
       setMessage("Failed to send request");
     }
   };
