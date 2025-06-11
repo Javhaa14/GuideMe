@@ -217,30 +217,6 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
               />
               Google
             </Button>
-            <Button
-              variant="outline"
-              className="flex items-center gap-2"
-              onClick={() => handleSocialSignIn("github")}>
-              <img
-                src="/icons/github.svg"
-                alt="GitHub"
-                className="w-5 h-5"
-                loading="lazy"
-              />
-              GitHub
-            </Button>
-            <Button
-              variant="outline"
-              className="flex items-center gap-2"
-              onClick={() => handleSocialSignIn("facebook")}>
-              <img
-                src="/icons/facebook.svg"
-                alt="Facebook"
-                className="w-5 h-5"
-                loading="lazy"
-              />
-              Facebook
-            </Button>
           </div>
         </div>
       </Card>

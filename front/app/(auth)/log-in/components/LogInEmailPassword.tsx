@@ -55,8 +55,7 @@ const FloatingStars = ({ count = 20 }: { count?: number }) => {
             top: star.top,
             animationDelay: star.delay,
             animationDuration: star.duration,
-          }}
-        >
+          }}>
           <Star className="w-2 h-2 text-white/20" />
         </div>
       ))}
@@ -137,8 +136,7 @@ export function LogInEmailPassword() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-6"
-          >
+            className="flex flex-col gap-6">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-white">
                 Welcome back
@@ -191,8 +189,7 @@ export function LogInEmailPassword() {
               <Button
                 type="submit"
                 className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={form.formState.isSubmitting}
-              >
+                disabled={form.formState.isSubmitting}>
                 Continue
               </Button>
             </CardFooter>
@@ -202,25 +199,8 @@ export function LogInEmailPassword() {
               <button
                 type="button"
                 onClick={() => handleOAuthSignIn("google")}
-                className="w-full py-3 font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition"
-              >
+                className="w-full py-3 font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition">
                 Continue with Google
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleOAuthSignIn("github")}
-                className="w-full py-3 font-semibold text-white bg-gray-800 rounded-xl hover:bg-gray-900 transition"
-              >
-                Continue with GitHub
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleOAuthSignIn("facebook")}
-                className="w-full py-3 font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition"
-              >
-                Continue with Facebook
               </button>
             </div>
 
@@ -229,8 +209,7 @@ export function LogInEmailPassword() {
               <button
                 type="button"
                 onClick={() => router.push("/sign-up")}
-                className="font-medium text-purple-300 hover:text-purple-200"
-              >
+                className="font-medium text-purple-300 hover:text-purple-200">
                 Sign up
               </button>
             </div>
