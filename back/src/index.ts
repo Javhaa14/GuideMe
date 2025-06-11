@@ -8,6 +8,7 @@ import { v4 } from "uuid";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 import { postRouter } from "./routes/post";
 import { connectMongoDB } from "./connectDB";
@@ -154,10 +155,42 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
     io.emit("chat message", msg);
   });
 
+  socket.on("joinResetRoom", (userId: string) => {
+    socket.join(`reset_${userId}`);
+    console.log(`Socket ${socket.id} joined room reset_${userId}`);
+  });
+  socket.on("approveReset", async (data: { token: string }) => {
+    try {
+      const payload = jwt.verify(
+        data.token,
+        process.env.JWT_SECRET!
+      ) as JwtPayload & { id: string };
+
+      // Emit event to this user's private room to notify approval
+      io.to(`reset_${payload.id}`).emit("resetApproved", {
+        message: "Password reset approved!",
+        userId: payload.id,
+      });
+
+      // Optionally, update DB to mark token as used or approved
+
+      socket.emit("approveResult", {
+        success: true,
+        message: "Reset approved.",
+      });
+    } catch (err) {
+      socket.emit("approveResult", {
+        success: false,
+        message: "Invalid or expired token.",
+      });
+    }
+  });
+
   socket.on("disconnect", () => {
     chatHistory = [];
   });
 });
+export { io };
 
 ////////////////////////////////////////////////////////////////
 // Connect DB & Start server

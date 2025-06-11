@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
 import { UserModel } from "../../model/User";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+
 import dotenv from "dotenv";
 dotenv.config();
 import { sender } from "../../../utils/sendmail";
+import { io } from "../..";
 
 export const requestReset = async (
   req: Request,
@@ -18,23 +20,16 @@ export const requestReset = async (
     expiresIn: "15m",
   });
 
-  // Store token in DB or Redis (optional, for tracking)
+  const resetUrl = `${process.env.FRONTEND_URL}/reset?token=${token}`;
 
-  // Send email with HTML form instead of URL
-  const form = `
-    <form method="POST" action="${process.env.NEXT_PUBLIC_FRONTEND_URL}/reset">
-      <input type="hidden" name="token" value="${token}" />
-      <button type="submit">Approve Reset</button>
-    </form>
+  const emailBody = `
+    <p>You requested a password reset. Click the button below to approve:</p>
+    <a href="${resetUrl}" target="_blank" style="padding:10px 20px; background:#1a73e8; color:#fff; text-decoration:none; border-radius:5px;">Approve Reset</a>
   `;
 
-  await sender(
-    email,
-    "Reset Your Password",
-    `You requested a password reset. Click the button below:<br>${form}`
-  );
+  await sender(email, "Password Reset Approval", emailBody);
 
-  res.send({ success: true });
+  res.send({ success: true, message: "Email sent" });
 };
 export const verifyResetToken = (req: Request, res: Response) => {
   const { token } = req.body;
@@ -47,6 +42,26 @@ export const verifyResetToken = (req: Request, res: Response) => {
       message: "Token approved, show reset form",
       payload,
     });
+  } catch (err) {
+    res
+      .status(400)
+      .send({ success: false, message: "Invalid or expired token" });
+  }
+};
+export const approveReset = async (req: Request, res: Response) => {
+  const { token } = req.body;
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload & {
+      id: string;
+    };
+
+    // Now you can safely access payload.id
+    io.to(`reset_${payload.id}`).emit("resetApproved", {
+      message: "Password reset approved!",
+      userId: payload.id,
+    });
+
+    res.send({ success: true, message: "Reset approved" });
   } catch (err) {
     res
       .status(400)
