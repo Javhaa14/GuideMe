@@ -22,7 +22,7 @@ export const requestReset = async (
 
   // Send email with HTML form instead of URL
   const form = `
-    <form method="POST" action="${process.env.NEXT_PUBLIC_FRONTEND_URL}/reset/approve">
+    <form method="POST" action="${process.env.NEXT_PUBLIC_FRONTEND_URL}/reset">
       <input type="hidden" name="token" value="${token}" />
       <button type="submit">Approve Reset</button>
     </form>
