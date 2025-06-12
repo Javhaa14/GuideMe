@@ -10,16 +10,26 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { useParams } from "next/navigation";
 import { OnlineUsers } from "../Touristdetail/components/TouristMainProfile";
 import { v4 as uuidv4 } from "uuid";
+import calendar from "dayjs/plugin/calendar";
+
+import localizedFormat from "dayjs/plugin/localizedFormat";
+dayjs.extend(relativeTime);
+dayjs.extend(localizedFormat);
+dayjs.extend(calendar);
+
+const socket = io("https://guideme-8o9f.onrender.com", {
+  transports: ["websocket"], // ensure it's clean
+  autoConnect: false,
+});
 
 export type ChatMessage = {
-  id: string; // new unique message id
+  id: string;
   user: string;
   text: string;
   profileImage: string | null;
-  roomId?: string; // add optional roomId if needed
+  roomId?: string;
+  createdAt?: string;
 };
-dayjs.extend(relativeTime);
-const socket = io("https://guideme-8o9f.onrender.com");
 
 export type UserPayload = {
   id: string;
@@ -71,33 +81,40 @@ export default function Chat({
     setUsername(user.name);
   }, [user]);
 
+  const listenerAttached = useRef(false);
+
   useEffect(() => {
     if (!roomId) return;
 
-    // Join the chat room on the socket server
+    if (!socket.connected) {
+      socket.connect(); // ensure connection
+    }
+
     socket.emit("joinRoom", roomId);
-    console.log(`Joined room: ${roomId}`);
 
-    socket.on("chat message", (msg: ChatMessage) => {
-      if (msg.roomId !== roomId) return;
+    if (!listenerAttached.current) {
+      socket.on("chat message", (msg: ChatMessage) => {
+        if (msg.roomId !== roomId) return;
 
-      setMessages((prev) => {
-        if (prev.some((m) => m.id === msg.id)) {
-          return prev; // duplicate found, ignore
-        }
-        return [...prev, msg];
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
       });
-    });
+
+      listenerAttached.current = true;
+    }
 
     return () => {
+      socket.emit("leaveRoom", roomId); // optional but good
       socket.off("chat message");
+      listenerAttached.current = false;
     };
   }, [roomId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -108,19 +125,19 @@ export default function Chat({
       text: input,
       profileImage,
       roomId,
+      createdAt: new Date().toISOString(), // ✅ Add this line
     };
-
-    setMessages((prev) => [...prev, messagePayload]); // add immediately
 
     try {
       const res = await axiosInstance.post("/api/chat", messagePayload);
       if (res.data.success) {
-        socket.emit("chat message", res.data.message);
+        // Now safe to append locally
+        setMessages((prev) => [...prev, res.data.message]);
+        socket.emit("chat message", res.data.message); // optional, to notify others
         setInput("");
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      // Optionally remove the optimistic message or mark it as failed
     }
   };
 
@@ -177,30 +194,43 @@ export default function Chat({
           </div>
         )}
 
-        {messages
-          .filter((_, i) => i % 2 === 0)
-          .map((msg, i) => {
-            const isCurrentUser = msg.user === username;
+        {messages.map((msg, i) => {
+          const isCurrentUser = msg.user === username;
+          const prevMsg = messages[i - 1];
+          const currentTime = dayjs(msg.createdAt);
+          const prevTime = prevMsg ? dayjs(prevMsg.createdAt) : null;
 
-            return (
+          const showTimestamp =
+            i === 0 || !prevTime || currentTime.diff(prevTime, "minute") >= 5;
+
+          return (
+            <div key={msg.id || i}>
+              {showTimestamp && (
+                <div className="text-center text-gray-400 text-xs py-2">
+                  {dayjs(msg.createdAt).format("MMM D, h:mm A")}
+                </div>
+              )}
+
               <div
-                key={i}
                 className={`flex ${
                   isCurrentUser ? "justify-end" : "justify-start"
-                }`}>
+                }`}
+              >
                 <div
                   className="relative max-w-xs group"
                   onMouseEnter={() => setHoveredIndex(i)}
-                  onMouseLeave={() => setHoveredIndex(null)}>
+                  onMouseLeave={() => setHoveredIndex(null)}
+                >
                   <div
                     className={`flex items-end gap-2 ${
                       isCurrentUser ? "flex-row-reverse" : "flex-row"
-                    }`}>
+                    }`}
+                  >
                     {/* Profile Image */}
                     <div className="flex-shrink-0">
                       {msg.profileImage ? (
                         <img
-                          src={msg.profileImage || "/placeholder.svg"}
+                          src={msg.profileImage}
                           alt="profile"
                           className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
                         />
@@ -217,7 +247,8 @@ export default function Chat({
                         isCurrentUser
                           ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
                           : "bg-white text-gray-800 border border-gray-200"
-                      }`}>
+                      }`}
+                    >
                       <p className="text-sm leading-relaxed">{msg.text}</p>
                     </div>
                   </div>
@@ -227,18 +258,22 @@ export default function Chat({
                     <div
                       className={`absolute -top-8 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg z-50 whitespace-nowrap ${
                         isCurrentUser ? "right-0" : "left-0"
-                      }`}>
+                      }`}
+                    >
                       {msg.user}
                       <div
                         className={`absolute top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800 ${
                           isCurrentUser ? "right-2" : "left-2"
-                        }`}></div>
+                        }`}
+                      ></div>
                     </div>
                   )}
                 </div>
               </div>
-            );
-          })}
+            </div>
+          );
+        })}
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -257,7 +292,8 @@ export default function Chat({
           <button
             type="submit"
             disabled={!input.trim()}
-            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg">
+            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg"
+          >
             <Send size={18} />
           </button>
         </form>
