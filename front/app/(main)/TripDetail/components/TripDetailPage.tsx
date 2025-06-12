@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, Heart, TimerReset, Users } from "lucide-react";
+import { CalendarDays, Globe, Heart, TimerReset, Users } from "lucide-react";
 import React, { useRef, useState } from "react";
 
 import TourBookingPage from "./TourBookingPage";
@@ -124,18 +124,24 @@ export const TripDetailPage = () => {
           About this activity
         </h2>
 
+        <div className="flex items-start space-x-4">
+          <div className="mt-1">
+            <CalendarDays />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">Start date</h3>
+            <p className="text-gray-600">2025/7/25</p>
+          </div>
+        </div>
+
         {/* Reserve and Pay */}
         <div className="flex items-start space-x-4">
           <div className="mt-1">
             <TimerReset />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-800">
-              Duration 5 days
-            </h3>
-            <p className="text-gray-600">
-              Check availability to see starting times
-            </p>
+            <h3 className="text-lg font-semibold text-gray-800">Duration</h3>
+            <p className="text-gray-600">5 days</p>
           </div>
         </div>
 
@@ -158,10 +164,8 @@ export const TripDetailPage = () => {
             <Users className="text-emerald-500" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-800">
-              Private group
-            </h3>
-            <p className="text-gray-600">Only your group will participate</p>
+            <h3 className="text-lg font-semibold text-gray-800">Group size</h3>
+            <p className="text-gray-600">Small</p>
           </div>
         </div>
       </div>

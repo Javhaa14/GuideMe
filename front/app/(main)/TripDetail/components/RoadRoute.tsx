@@ -1,17 +1,7 @@
 "use client";
 
-import {
-  MapPin,
-  Camera,
-  Utensils,
-  Mountain,
-  Trees,
-  Waves,
-  Clock,
-  Star,
-} from "lucide-react";
+import { MapPin, Camera, Utensils, Mountain, Trees, Waves } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 interface RouteStop {
   id: number;
@@ -168,6 +158,24 @@ export default function RoadRoute() {
           </span>
         </div>
       </div>
+
+      <Card className="mt-8 bg-gradient-to-r from-blue-50 to-green-50">
+        <CardContent className="p-6">
+          <h3 className="mb-3 text-lg font-semibold">Highlights</h3>
+          <ul className="space-y-2 text-sm text-gray-600">
+            <li>
+              • This tour operates during Mongolia's winter months, so
+              temperatures can be extremely cold. Guests should pack warm,
+              layered clothing suitable for sub-zero conditions.
+            </li>
+            <li>
+              • The tour is graded as easy and suitable for most fitness levels;
+              however, some light hiking and optional riding activities are
+              included.
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
 
       <Card className="mt-8 bg-gradient-to-r from-blue-50 to-green-50">
         <CardContent className="p-6">
