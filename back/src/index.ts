@@ -20,6 +20,7 @@ import { commentRouter } from "./routes/comments";
 import { guideRouter } from "./routes/guideProfile";
 
 import { Onlinerouter } from "./routes/online";
+import { ChatMessageModel } from "./model/ChatHistory";
 
 dotenv.config();
 
@@ -150,9 +151,30 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
     }
   });
 
+  // 1. Join room event
+  socket.on("joinRoom", (roomId: string) => {
+    socket.join(roomId);
+    console.log(`Socket ${socket.id} joined room ${roomId}`);
+  });
   // 2. User-to-User Chat
-  socket.on("chat message", (msg: string) => {
-    io.emit("chat message", msg);
+  socket.on("chat message", async (msg) => {
+    // Expect msg to be an object like:
+    // { user, text, profileImage, roomId }
+
+    try {
+      // Save message to DB
+      const newMessage = await ChatMessageModel.create({
+        user: msg.user,
+        text: msg.text,
+        profileImage: msg.profileImage,
+        roomId: msg.roomId,
+        timestamp: new Date(),
+      });
+      io.to(msg.roomId).emit("chat message", newMessage);
+      console.log(`Message saved and emitted to room ${msg.roomId}`);
+    } catch (err) {
+      console.error("Failed to save chat message:", err);
+    }
   });
 
   socket.on("joinResetRoom", (userId: string) => {
