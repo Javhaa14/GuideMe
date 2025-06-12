@@ -1,23 +1,23 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Edit } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+"use client";
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Edit } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import axios from 'axios';
-import { useUser } from '@/app/context/Usercontext';
-import { useParams } from 'next/navigation';
-import { axiosInstance } from '@/lib/utils';
+} from "@/components/ui/dialog";
+import axios from "axios";
+import { useUser } from "@/app/context/Usercontext";
+import { useParams } from "next/navigation";
+import { axiosInstance } from "@/lib/utils";
 
 // Date статус төрөл тодорхойлох
 // (available, busy, booked гэсэн 3 төлөвтэй)
-type AvailabilityStatus = 'available' | 'busy' | 'booked';
+type AvailabilityStatus = "available" | "busy" | "booked";
 
 // Обьектоор хадгалж буй статусуудын интерфэйс
 type DateStatus = {
@@ -27,49 +27,49 @@ type DateStatus = {
 export default function Ebooking() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedStatus, setSelectedStatus] =
-    useState<AvailabilityStatus>('available');
+    useState<AvailabilityStatus>("available");
   const [dateStatuses, setDateStatuses] = useState<DateStatus>({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [data, setData] = useState([]);
   const { user } = useUser();
   const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const statusConfig = {
     available: {
-      label: 'Available',
-      color: 'bg-green-500',
-      textColor: 'text-green-700',
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-200',
+      label: "Available",
+      color: "bg-green-500",
+      textColor: "text-green-700",
+      bgColor: "bg-green-50",
+      borderColor: "border-green-200",
     },
     busy: {
-      label: 'Busy',
-      color: 'bg-yellow-500',
-      textColor: 'text-yellow-700',
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-200',
+      label: "Busy",
+      color: "bg-yellow-500",
+      textColor: "text-yellow-700",
+      bgColor: "bg-yellow-50",
+      borderColor: "border-yellow-200",
     },
     booked: {
-      label: 'Booked',
-      color: 'bg-red-500',
-      textColor: 'text-red-700',
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-200',
+      label: "Booked",
+      color: "bg-red-500",
+      textColor: "text-red-700",
+      bgColor: "bg-red-50",
+      borderColor: "border-red-200",
     },
   };
 
@@ -91,10 +91,10 @@ export default function Ebooking() {
     return days;
   };
 
-  const navigateMonth = (direction: 'prev' | 'next') => {
+  const navigateMonth = (direction: "prev" | "next") => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
-      direction === 'prev'
+      direction === "prev"
         ? newDate.setMonth(prev.getMonth() - 1)
         : newDate.setMonth(prev.getMonth() + 1);
       return newDate;
@@ -127,17 +127,17 @@ export default function Ebooking() {
   const params = useParams();
   const transformStatusesForDB = () => {
     return Object.entries(dateStatuses).map(([dateKey, status]) => {
-      const [year, month, day] = dateKey.split('-').map(Number);
+      const [year, month, day] = dateKey.split("-").map(Number);
       const isoDate = new Date(year, month, day + 1)
         .toISOString()
-        .split('T')[0];
+        .split("T")[0];
       return { date: isoDate, status };
     });
   };
 
   const handleSave = async () => {
     const transformedData = transformStatusesForDB();
-    console.log('days', transformedData);
+    console.log("days", transformedData);
 
     try {
       const res = await axiosInstance.put(`gprofile/availability`, {
@@ -145,12 +145,12 @@ export default function Ebooking() {
         availability: transformedData,
       });
 
-      console.log('Availability saved successfully', res.data);
+      console.log("Availability saved successfully", res.data);
       await fetchAvailability();
       setIsDialogOpen(false);
     } catch (err) {
-      console.error('Error saving availability', err);
-      alert('Error saving availability');
+      console.error("Error saving availability", err);
+      alert("Error saving availability");
     }
   };
   const fetchAvailability = async () => {
@@ -174,7 +174,7 @@ export default function Ebooking() {
       );
       setDateStatuses(restored);
     } catch (err) {
-      console.error('Error fetching availability', err);
+      console.error("Error fetching availability", err);
     }
   };
   useEffect(() => {
@@ -186,7 +186,7 @@ export default function Ebooking() {
   return (
     <div className="flex flex-col gap-6">
       {/* Edit Button */}
-      {user == params._id ? (
+      {user.id == params.id ? (
         <div className="text-center">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -219,7 +219,7 @@ export default function Ebooking() {
                           <Button
                             key={status}
                             variant={
-                              selectedStatus === status ? 'default' : 'outline'
+                              selectedStatus === status ? "default" : "outline"
                             }
                             size="sm"
                             className={`flex items-center gap-2 ${
@@ -252,12 +252,12 @@ export default function Ebooking() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-gray-600 hover:bg-gray-100"
-                        onClick={() => navigateMonth('prev')}>
+                        onClick={() => navigateMonth("prev")}>
                         <ChevronLeft className="h-5 w-5" />
                       </Button>
 
                       <h3 className="text-xl font-semibold text-gray-900">
-                        {monthNames[currentDate.getMonth()]}{' '}
+                        {monthNames[currentDate.getMonth()]}{" "}
                         {currentDate.getFullYear()}
                       </h3>
 
@@ -265,7 +265,7 @@ export default function Ebooking() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-gray-600 hover:bg-gray-100"
-                        onClick={() => navigateMonth('next')}>
+                        onClick={() => navigateMonth("next")}>
                         <ChevronRight className="h-5 w-5" />
                       </Button>
                     </div>
@@ -293,7 +293,7 @@ export default function Ebooking() {
                             className={`h-10 flex items-center justify-center text-sm font-medium rounded cursor-pointer transition-all relative hover:scale-105 ${
                               config
                                 ? `${config.bgColor} ${config.textColor} ${config.borderColor} border`
-                                : 'text-gray-900 hover:bg-gray-100 hover:border-gray-300 border border-transparent'
+                                : "text-gray-900 hover:bg-gray-100 hover:border-gray-300 border border-transparent"
                             }`}
                             onClick={() => handleDateClick(day)}>
                             {day}
@@ -359,7 +359,7 @@ export default function Ebooking() {
               variant="ghost"
               size="icon"
               className="h-6 w-6 text-gray-600 hover:bg-gray-100"
-              onClick={() => navigateMonth('prev')}>
+              onClick={() => navigateMonth("prev")}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
@@ -374,7 +374,7 @@ export default function Ebooking() {
               variant="ghost"
               size="icon"
               className="h-6 w-6 text-gray-600 hover:bg-gray-100"
-              onClick={() => navigateMonth('next')}>
+              onClick={() => navigateMonth("next")}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -404,7 +404,7 @@ export default function Ebooking() {
                     className={`h-5 flex items-center justify-center text-[10px] font-medium rounded relative ${
                       config
                         ? `${config.bgColor} ${config.textColor} ${config.borderColor} border`
-                        : 'text-gray-900'
+                        : "text-gray-900"
                     }`}>
                     {day}
                     {status && (
