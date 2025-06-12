@@ -24,7 +24,12 @@ type TourPost = {
 };
 
 type GuideProfile = {
-  id: number;
+  _id: {
+    _id: string;
+    username: string;
+    email: string;
+    role: string;
+  };
   username: string;
   firstName: string;
   lastName: string;
@@ -86,11 +91,12 @@ export default function GuideMainProfile() {
           <div className="h-full w-full flex flex-col">
             <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 pb-0 text-white">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold">Chat with</h3>
+                <h3 className="font-semibold">
+                  Chat with {guide?._id.username}
+                </h3>
                 <button
                   onClick={() => setChat(false)}
-                  className="text-white hover:text-gray-200 transition-colors"
-                >
+                  className="text-white hover:text-gray-200 transition-colors">
                   x
                 </button>
               </div>
@@ -153,8 +159,7 @@ export default function GuideMainProfile() {
               <div className="flex flex-wrap items-center gap-6 mt-6 justify-end">
                 <button
                   onClick={() => setChat(!chat)}
-                  className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105"
-                >
+                  className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105">
                   <MessageCircle className="w-5 h-5" />
                   Chat
                 </button>
