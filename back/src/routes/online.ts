@@ -1,8 +1,10 @@
 import express, { Request, Response } from "express";
 import { UserModel } from "../model/User";
 import mongoose from "mongoose";
+import { saveChatMessage } from "../controller/chat";
 
 export const Onlinerouter = express.Router();
+Onlinerouter.post("/chat", saveChatMessage);
 
 // Helper: build filter based on userId
 function buildUserFilter(userId: string) {
