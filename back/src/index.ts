@@ -152,10 +152,22 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
   });
 
   // 1. Join room event
-  socket.on("joinRoom", (roomId: string) => {
+  socket.on("joinRoom", async (roomId: string) => {
     socket.join(roomId);
     console.log(`Socket ${socket.id} joined room ${roomId}`);
+
+    try {
+      const recentMessages = await ChatMessageModel.find({ roomId })
+        .sort({ timestamp: -1 })
+        .limit(50)
+        .exec();
+      // Send recent messages in chronological order
+      socket.emit("chat history", recentMessages.reverse());
+    } catch (error) {
+      console.error("Error fetching chat history:", error);
+    }
   });
+
   // 2. User-to-User Chat
   socket.on("chat message", async (msg) => {
     // Expect msg to be an object like:
