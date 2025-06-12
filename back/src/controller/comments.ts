@@ -15,7 +15,7 @@ export const createComment = async (
       review,
       recommend,
     });
-    const guide = await Guidemodel.findById(userId).populate("comments");
+    const guide = await Guidemodel.findById(userId).populate("comment");
     if (!guide) {
       console.error("Guide not found with ID:", userId);
     } else {
