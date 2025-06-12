@@ -118,6 +118,20 @@ export default function Chat({
       }
     }
   };
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const res = await axiosInstance.get(`/api/chat/${roomId}`);
+        if (res.data.success) {
+          setMessages(res.data.messages);
+        }
+      } catch (err) {
+        console.error("Failed to fetch chat history", err);
+      }
+    };
+
+    fetchChatHistory();
+  }, [roomId]);
 
   return (
     <div className="flex flex-col w-full bg-white">
