@@ -28,7 +28,6 @@ interface TripStop {
   id: string;
   name: string;
   description: string;
-  type: "attraction" | "restaurant" | "viewpoint" | "nature" | "beach";
   duration: string;
   price: number;
   language: string;
@@ -39,14 +38,12 @@ interface TripData {
   title: string;
   description: string;
   totalDuration: string;
-  totalDistance: string;
   difficulty: string;
   groupSize: string;
   price: number;
   stops: TripStop[];
   tips: string[];
   images: string[];
-
   language: "english" | "japanese" | "korean" | "german" | "russian" | "";
 }
 
@@ -54,7 +51,6 @@ const initialTripData: TripData = {
   title: "",
   description: "",
   totalDuration: "",
-  totalDistance: "",
   difficulty: "",
   groupSize: "",
   price: 0,
@@ -77,7 +73,6 @@ export default function CreateTrip() {
       id: Date.now().toString(),
       name: "",
       description: "",
-      type: "attraction",
       duration: "",
       price: 0,
       image: "",
@@ -129,12 +124,12 @@ export default function CreateTrip() {
           Basic Trip Information
         </h2>
         <p className="text-gray-600">
-          Let&apos;s start with the essential details of your trip.
+          Let's start with the essential details of your trip.
         </p>
       </div>
 
       {/* Trip Title */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div>
         <div className="space-y-2">
           <Label htmlFor="title">Trip Title *</Label>
           <Input

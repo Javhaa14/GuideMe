@@ -171,6 +171,19 @@ export default function RoadRoute() {
 
       <Card className="mt-8 bg-gradient-to-r from-blue-50 to-green-50">
         <CardContent className="p-6">
+          <h3 className="mb-3 text-lg font-semibold">Highlights</h3>
+          <ul className="space-y-2 text-sm text-gray-600">
+            <li>
+              • Awe-inspiring Genghis Khan Statue Complex: Marvel at the world's
+              largest
+            </li>
+            <li>• Camel ride and hunting eagle holding included</li>
+          </ul>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-8 bg-gradient-to-r from-blue-50 to-green-50">
+        <CardContent className="p-6">
           <h3 className="mb-3 text-lg font-semibold">Route Tips</h3>
           <ul className="space-y-2 text-sm text-gray-600">
             <li>

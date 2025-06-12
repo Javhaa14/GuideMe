@@ -73,7 +73,9 @@ export const Checking: React.FC<CheckingProps> = ({ data }) => {
               <Users className="w-5 h-5 text-[#453C67]" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Group size</p>
+              <p className="text-sm font-medium text-gray-500">
+                Count person(s)
+              </p>
               <p className="font-medium text-gray-800">
                 {totalParticipants} person(s)
               </p>
