@@ -1,12 +1,10 @@
 "use client";
 
 import type React from "react";
-
 import { useEffect, useState, useRef } from "react";
 import { Send, User } from "lucide-react";
 import io from "socket.io-client";
 import { axiosInstance } from "@/lib/utils";
-import { useOnlineStatus } from "@/app/context/Onlinestatus";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useParams } from "next/navigation";
@@ -19,6 +17,7 @@ type ChatMessage = {
   user: string;
   text: string;
   profileImage: string;
+  roomId?: string; // add optional roomId if needed
 };
 export type UserPayload = {
   id: string;
@@ -47,6 +46,9 @@ export default function Chat({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
+  // Define roomId (you can customize this)
+  const roomId = [profileId, user.id].sort().join("-");
+
   if (!user) {
     return <p>Loading user...</p>;
   }
@@ -61,32 +63,59 @@ export default function Chat({
       console.error("❌ Post fetch failed:", err);
     }
   };
+
   useEffect(() => {
     fetchProfile();
     setUsername(user.name);
+  }, [user]);
 
+  useEffect(() => {
+    if (!roomId) return;
+
+    // Join the chat room on the socket server
+    socket.emit("joinRoom", roomId);
+    console.log(`Joined room: ${roomId}`);
+
+    // Listen for room-specific chat messages
     socket.on("chat message", (msg: ChatMessage) => {
-      setMessages((prev) => [...prev, msg]);
+      // Only add messages from the current room
+      if (msg.roomId === roomId) {
+        setMessages((prev) => [...prev, msg]);
+      }
     });
 
     return () => {
       socket.off("chat message");
     };
-  }, []); // ✅ Empty dependency array = run only once
+  }, [roomId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = (e: React.FormEvent) => {
+  const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
-      socket.emit("chat message", {
-        user: username,
-        text: input,
-        profileImage: profileImage,
-      });
-      setInput("");
+      try {
+        const messagePayload = {
+          user: username,
+          text: input,
+          profileImage: profileImage,
+          roomId, // send the roomId with message
+        };
+
+        // Save message to DB
+        const res = await axiosInstance.post("/api/chat", messagePayload);
+        if (res.data.success) {
+          // Emit socket message for realtime update with roomId
+          socket.emit("chat message", res.data.message);
+          setInput("");
+        } else {
+          console.error("Failed to save message:", res.data.error);
+        }
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
   };
 
