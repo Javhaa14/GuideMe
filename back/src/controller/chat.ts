@@ -21,3 +21,16 @@ export const saveChatMessage = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
+// Get chat history for a room
+export const getChatHistory = async (req: Request, res: Response) => {
+  try {
+    const { roomId } = req.params;
+    const history = await ChatMessageModel.find({ roomId }).sort({
+      timestamp: 1,
+    });
+    res.json({ success: true, messages: history });
+  } catch (err) {
+    console.error("Error fetching chat history", err);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
