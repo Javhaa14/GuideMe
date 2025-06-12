@@ -9,16 +9,18 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useParams } from "next/navigation";
 import { OnlineUsers } from "../Touristdetail/components/TouristMainProfile";
+import { v4 as uuidv4 } from "uuid";
 
+export type ChatMessage = {
+  id: string; // new unique message id
+  user: string;
+  text: string;
+  profileImage: string | null;
+  roomId?: string; // add optional roomId if needed
+};
 dayjs.extend(relativeTime);
 const socket = io("https://guideme-8o9f.onrender.com");
 
-type ChatMessage = {
-  user: string;
-  text: string;
-  profileImage: string;
-  roomId?: string; // add optional roomId if needed
-};
 export type UserPayload = {
   id: string;
   name: string;
@@ -76,12 +78,15 @@ export default function Chat({
     socket.emit("joinRoom", roomId);
     console.log(`Joined room: ${roomId}`);
 
-    // Listen for room-specific chat messages
     socket.on("chat message", (msg: ChatMessage) => {
-      // Only add messages from the current room
-      if (msg.roomId === roomId) {
-        setMessages((prev) => [...prev, msg]);
-      }
+      if (msg.roomId !== roomId) return;
+
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) {
+          return prev; // duplicate found, ignore
+        }
+        return [...prev, msg];
+      });
     });
 
     return () => {
@@ -95,35 +100,42 @@ export default function Chat({
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim()) {
-      try {
-        const messagePayload = {
-          user: username,
-          text: input,
-          profileImage: profileImage,
-          roomId, // send the roomId with message
-        };
+    if (!input.trim()) return;
 
-        // Save message to DB
-        const res = await axiosInstance.post("/api/chat", messagePayload);
-        if (res.data.success) {
-          // Emit socket message for realtime update with roomId
-          socket.emit("chat message", res.data.message);
-          setInput("");
-        } else {
-          console.error("Failed to save message:", res.data.error);
-        }
-      } catch (error) {
-        console.error("Error sending message:", error);
+    const messagePayload = {
+      id: uuidv4(),
+      user: username,
+      text: input,
+      profileImage,
+      roomId,
+    };
+
+    setMessages((prev) => [...prev, messagePayload]); // add immediately
+
+    try {
+      const res = await axiosInstance.post("/api/chat", messagePayload);
+      if (res.data.success) {
+        socket.emit("chat message", res.data.message);
+        setInput("");
       }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      // Optionally remove the optimistic message or mark it as failed
     }
   };
+
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
         const res = await axiosInstance.get(`/api/chat/${roomId}`);
         if (res.data.success) {
-          setMessages(res.data.messages);
+          setMessages((prev) => {
+            const existingIds = new Set(prev.map((m) => m.id));
+            const newMessages = res.data.messages.filter(
+              (m: ChatMessage) => !existingIds.has(m.id)
+            );
+            return [...prev, ...newMessages];
+          });
         }
       } catch (err) {
         console.error("Failed to fetch chat history", err);
@@ -165,66 +177,68 @@ export default function Chat({
           </div>
         )}
 
-        {messages.map((msg, i) => {
-          const isCurrentUser = msg.user === username;
+        {messages
+          .filter((_, i) => i % 2 === 0)
+          .map((msg, i) => {
+            const isCurrentUser = msg.user === username;
 
-          return (
-            <div
-              key={i}
-              className={`flex ${
-                isCurrentUser ? "justify-end" : "justify-start"
-              }`}>
+            return (
               <div
-                className="relative max-w-xs group"
-                onMouseEnter={() => setHoveredIndex(i)}
-                onMouseLeave={() => setHoveredIndex(null)}>
+                key={i}
+                className={`flex ${
+                  isCurrentUser ? "justify-end" : "justify-start"
+                }`}>
                 <div
-                  className={`flex items-end gap-2 ${
-                    isCurrentUser ? "flex-row-reverse" : "flex-row"
-                  }`}>
-                  {/* Profile Image */}
-                  <div className="flex-shrink-0">
-                    {msg.profileImage ? (
-                      <img
-                        src={msg.profileImage || "/placeholder.svg"}
-                        alt="profile"
-                        className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
-                        {msg.user[0]?.toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Message Bubble */}
+                  className="relative max-w-xs group"
+                  onMouseEnter={() => setHoveredIndex(i)}
+                  onMouseLeave={() => setHoveredIndex(null)}>
                   <div
-                    className={`px-4 py-2 rounded-2xl shadow-sm ${
-                      isCurrentUser
-                        ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
-                        : "bg-white text-gray-800 border border-gray-200"
+                    className={`flex items-end gap-2 ${
+                      isCurrentUser ? "flex-row-reverse" : "flex-row"
                     }`}>
-                    <p className="text-sm leading-relaxed">{msg.text}</p>
-                  </div>
-                </div>
+                    {/* Profile Image */}
+                    <div className="flex-shrink-0">
+                      {msg.profileImage ? (
+                        <img
+                          src={msg.profileImage || "/placeholder.svg"}
+                          alt="profile"
+                          className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+                          {msg.user[0]?.toUpperCase()}
+                        </div>
+                      )}
+                    </div>
 
-                {/* Username Tooltip */}
-                {hoveredIndex === i && (
-                  <div
-                    className={`absolute -top-8 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg z-50 whitespace-nowrap ${
-                      isCurrentUser ? "right-0" : "left-0"
-                    }`}>
-                    {msg.user}
+                    {/* Message Bubble */}
                     <div
-                      className={`absolute top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800 ${
-                        isCurrentUser ? "right-2" : "left-2"
-                      }`}></div>
+                      className={`px-4 py-2 rounded-2xl shadow-sm ${
+                        isCurrentUser
+                          ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                          : "bg-white text-gray-800 border border-gray-200"
+                      }`}>
+                      <p className="text-sm leading-relaxed">{msg.text}</p>
+                    </div>
                   </div>
-                )}
+
+                  {/* Username Tooltip */}
+                  {hoveredIndex === i && (
+                    <div
+                      className={`absolute -top-8 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg z-50 whitespace-nowrap ${
+                        isCurrentUser ? "right-0" : "left-0"
+                      }`}>
+                      {msg.user}
+                      <div
+                        className={`absolute top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800 ${
+                          isCurrentUser ? "right-2" : "left-2"
+                        }`}></div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
         <div ref={messagesEndRef} />
       </div>
 
