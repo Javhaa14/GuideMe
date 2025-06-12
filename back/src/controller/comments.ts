@@ -15,11 +15,19 @@ export const createComment = async (
       review,
       recommend,
     });
-    const guide = await Guidemodel.findById(userId);
+    const guide = await Guidemodel.findById(userId).populate("comments");
     if (!guide) {
       console.error("Guide not found with ID:", userId);
     } else {
       guide.comments.push(comment._id);
+      const allRatings = await Commentmodel.find({ userId });
+      const validRatings = allRatings
+        .map((c) => c.rating ?? 0) // fallback to 0 if undefined/null
+        .filter((r) => typeof r === "number");
+      const totalRating = validRatings.reduce((sum, r) => sum + r, 0);
+      const averageRating = totalRating / allRatings.length;
+      guide.rating = averageRating;
+
       await guide.save();
       console.log("Comment pushed and guide saved:", guide);
     }
