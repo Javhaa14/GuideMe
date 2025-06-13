@@ -5,6 +5,7 @@ import Image from "next/image";
 import Chat from "../../components/Chat";
 import { MapPin, Globe, MessageCircle, User } from "lucide-react";
 import { useUser } from "@/app/context/Usercontext";
+import { useOnlineStatus } from "@/app/context/Onlinestatus";
 
 type TripMemory = {
   id: number;
@@ -56,12 +57,13 @@ export default function TravelerMainProfile() {
   const [traveler] = useState<TravelerProfile>(sampleTraveler);
   const [chat, setChat] = useState(false);
   const { user } = useUser();
+  const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
 
   return (
     <div className="w-screen px-4 md:px-20 pt-4 pb-20">
       {chat && (
         <div className="w-fit h-fit mx-5 rounded-md bg-green-500 absolute z-10 right-5 bottom-5">
-          <Chat user={user!} />
+          <Chat onlineUsers={onlineUsers} user={user!} />
         </div>
       )}
 
