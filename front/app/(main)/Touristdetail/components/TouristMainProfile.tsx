@@ -10,6 +10,7 @@ import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { PostType } from "../../Travelersinfo/page";
 import { useOnlineStatus } from "@/app/context/Onlinestatus";
+import { fetchTProfile } from "@/app/utils/fetchProfile";
 export type TouristProfile = {
   _id: {
     _id: string;
@@ -45,15 +46,6 @@ export default function TravelerProfile() {
   const [chat, setChat] = useState(false);
   const [post, setPost] = useState<PostType[]>([]);
 
-  const fetchProfile = async () => {
-    try {
-      const res = await axiosInstance.get(`/tprofile/${params.id}`);
-      console.log("✅ Posts fetched:", res.data);
-      setTourist(res.data);
-    } catch (err) {
-      console.error("❌ Post fetch failed:", err);
-    }
-  };
   const fetchPosts = async () => {
     try {
       const res = await axiosInstance.get(`/post/${params.id}`);
@@ -64,7 +56,10 @@ export default function TravelerProfile() {
     }
   };
   useEffect(() => {
-    fetchProfile();
+    if (params.id && typeof params.id === "string") {
+      fetchTProfile(params.id);
+    }
+
     fetchPosts();
   }, []);
   const router = useRouter();
@@ -85,7 +80,8 @@ export default function TravelerProfile() {
                 </h3>
                 <button
                   onClick={() => setChat(false)}
-                  className="text-white hover:text-gray-200 transition-colors">
+                  className="text-white hover:text-gray-200 transition-colors"
+                >
                   x
                 </button>
               </div>

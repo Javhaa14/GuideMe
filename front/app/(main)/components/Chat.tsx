@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 import calendar from "dayjs/plugin/calendar";
 
 import localizedFormat from "dayjs/plugin/localizedFormat";
+import { fetchTProfile } from "@/app/utils/fetchProfile";
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 dayjs.extend(calendar);
@@ -57,8 +58,6 @@ export default function Chat({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
-  // Define roomId (you can customize this)
   const roomId = [profileId, user.id].sort().join("-");
 
   if (!user) {
@@ -66,18 +65,8 @@ export default function Chat({
   }
   console.log(onlineUsers, "onlineusers");
 
-  const fetchProfile = async () => {
-    try {
-      const res = await axiosInstance.get(`/tprofile/${user.id}`);
-      console.log("✅ Posts fetched:", res.data);
-      setProfileImage(res.data.profileimage);
-    } catch (err) {
-      console.error("❌ Post fetch failed:", err);
-    }
-  };
-
   useEffect(() => {
-    fetchProfile();
+    fetchTProfile(user.id);
     setUsername(user.name);
   }, [user]);
 
@@ -87,7 +76,7 @@ export default function Chat({
     if (!roomId) return;
 
     if (!socket.connected) {
-      socket.connect(); // ensure connection
+      socket.connect();
     }
 
     socket.emit("joinRoom", roomId);
@@ -131,9 +120,8 @@ export default function Chat({
     try {
       const res = await axiosInstance.post("/api/chat", messagePayload);
       if (res.data.success) {
-        // Now safe to append locally
         setMessages((prev) => [...prev, res.data.message]);
-        socket.emit("chat message", res.data.message); // optional, to notify others
+        socket.emit("chat message", res.data.message);
         setInput("");
       }
     } catch (error) {

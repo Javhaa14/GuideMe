@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -26,6 +26,9 @@ import { Switch } from "@/components/ui/switch";
 import { Bell, LogOut, Moon, Settings, TentTree, User } from "lucide-react";
 import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
+import { fetchGProfile, fetchTProfile } from "@/app/utils/fetchProfile";
+import { TouristProfile } from "../Touristdetail/components/MainProfile";
+import { GuideProfile } from "../Guidedetail/components/GuideMainProfile";
 
 const translations = {
   en: {
@@ -62,12 +65,28 @@ const translations = {
 
 export const Navigation = () => {
   const router = useRouter();
+  const { user, setUser } = useUser();
+
   const { data: session, status } = useSession();
   const [language, setLanguage] = useState<"en" | "mn">("en");
-  const [role, setRole] = useState<"admin" | "guide" | "tourist">("tourist");
   const { theme, setTheme } = useTheme();
-  const { user } = useUser();
+  const [tprofile, setTprofile] = useState<TouristProfile>();
+  const [gprofile, setGprofile] = useState<GuideProfile>();
+
   const t = translations[language];
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (user?.id) {
+        const tpro = await fetchTProfile(user.id);
+        const gpro = await fetchGProfile(user.id);
+
+        setTprofile(tpro);
+        setGprofile(gpro);
+      }
+    };
+
+    loadProfile();
+  }, [user?.id]);
 
   const getInitials = (name: string) =>
     name
@@ -93,27 +112,20 @@ export const Navigation = () => {
     }
   };
   const handleGoToProfile = () => {
-    const profileVisitedKey = `visitedProfile-${role}`;
-
-    const visited = localStorage.getItem(profileVisitedKey);
-
-    if (!visited) {
-      localStorage.setItem(profileVisitedKey, "true");
-      if (role === "guide") {
-        router.push("/guideProfile");
-      } else if (role === "tourist") {
-        router.push("/touristProfile");
+    if (user.role === "Guide") {
+      if (!gprofile) {
+        router.push("/guideProfile"); // First time, create guide profile
       } else {
-        router.push("/");
+        router.push(`/Guidedetail/${gprofile._id}`); // Existing guide profile
+      }
+    } else if (user.role === "Tourist") {
+      if (!tprofile) {
+        router.push("/touristProfile"); // First time, create tourist profile
+      } else {
+        router.push(`/Touristdetail/${tprofile._id}`); // Existing tourist profile
       }
     } else {
-      if (role === "guide") {
-        router.push("/Guidedetail");
-      } else if (role === "tourist") {
-        router.push("/Touristdetail");
-      } else {
-        router.push("/");
-      }
+      router.push("/");
     }
   };
 
@@ -153,7 +165,7 @@ export const Navigation = () => {
                 <Button variant="ghost" className="flex items-center gap-2">
                   <Avatar className="h-7 w-7">
                     <AvatarImage
-                      src={session.user.image || ""}
+                      src={tprofile?.profileimage}
                       alt={session.user.name || ""}
                     />
                     <AvatarFallback>
@@ -171,16 +183,28 @@ export const Navigation = () => {
                 </DropdownMenuLabel>
                 <div className="p-2">
                   <Select
-                    value={role}
-                    onValueChange={(value) => setRole(value as any)}
+                    value={user.role}
+                    onValueChange={async (value) => {
+                      try {
+                        const res = await axiosInstance.put(
+                          `/user/${user.id}`,
+                          {
+                            role: value,
+                          }
+                        );
+                        setUser(res.data.user);
+                      } catch (err) {
+                        console.error("Failed to update role:", err);
+                      }
+                    }}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">{t.admin}</SelectItem>
-                      <SelectItem value="guide">{t.guide}</SelectItem>
-                      <SelectItem value="tourist">{t.tourist}</SelectItem>
+                      <SelectItem value="Admin">{t.admin}</SelectItem>
+                      <SelectItem value="Guide">{t.guide}</SelectItem>
+                      <SelectItem value="Tourist">{t.tourist}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
