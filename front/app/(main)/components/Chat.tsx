@@ -19,7 +19,7 @@ dayjs.extend(localizedFormat);
 dayjs.extend(calendar);
 
 const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL, {
-  transports: ["websocket"], // ensure it's clean
+  transports: ["websocket"],
   autoConnect: false,
 });
 
@@ -95,7 +95,7 @@ export default function Chat({
     }
 
     return () => {
-      socket.emit("leaveRoom", roomId); // optional but good
+      socket.emit("leaveRoom", roomId);
       socket.off("chat message");
       listenerAttached.current = false;
     };
@@ -114,7 +114,7 @@ export default function Chat({
       text: input,
       profileImage,
       roomId,
-      createdAt: new Date().toISOString(), // ✅ Add this line
+      createdAt: new Date().toISOString(),
     };
 
     try {
