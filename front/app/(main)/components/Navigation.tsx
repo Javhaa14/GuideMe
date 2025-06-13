@@ -29,6 +29,7 @@ import { useUser } from "@/app/context/Usercontext";
 import { fetchGProfile, fetchTProfile } from "@/app/utils/fetchProfile";
 import { TouristProfile } from "../Touristdetail/components/MainProfile";
 import { GuideProfile } from "../Guidedetail/components/GuideMainProfile";
+import MessengerButton from "./Messenger";
 
 const translations = {
   en: {
@@ -242,6 +243,8 @@ export const Navigation = () => {
             >
               <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
             </Button>
+            <MessengerButton />
+
             {/* Settings Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
