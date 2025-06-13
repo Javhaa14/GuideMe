@@ -32,6 +32,7 @@ import { axiosInstance } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { LocationFilterCard } from "../../Guidesinfo/components/SearchLocation";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
+import { fetchTProfile } from "@/app/utils/fetchProfile";
 
 const MultiSelect = dynamic(
   () => import("./Selectwrapper").then((mod) => mod.MultiSelect),
@@ -112,16 +113,6 @@ export function GProfile() {
   });
   useEffect(() => {
     if (!user?.id) return;
-
-    const fetchProfile = async () => {
-      try {
-        const res = await axiosInstance.get(`/tprofile/${user.id}`);
-        setTourist(res.data);
-      } catch (err) {
-        console.error("❌ Fetch profile failed:", err);
-      }
-    };
-
     const fetchLanguages = async () => {
       try {
         const res = await axios.get(
@@ -169,7 +160,7 @@ export function GProfile() {
         console.error("Failed to fetch countries", error);
       }
     };
-    fetchProfile();
+    fetchTProfile(user.id);
     fetchLanguages();
     fetchCountries();
   }, [user]);

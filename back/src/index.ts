@@ -51,8 +51,6 @@ app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
 app.use("/comment", commentRouter);
 app.use("/gprofile", guideRouter);
-
-// app.use('/GuideProfile', GuideProfileRouter);
 app.use("/tprofile", touristRouter);
 app.use("/api", Onlinerouter);
 
