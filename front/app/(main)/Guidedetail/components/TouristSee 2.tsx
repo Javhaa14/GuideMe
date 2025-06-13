@@ -8,6 +8,8 @@ import { Subscription } from "./Subscription";
 import { Globe, MapPin, MessageCircle, VenusAndMars } from "lucide-react";
 import { Trip } from "./Trip";
 import { TouristSeeTrip } from "./TouristSeeTrip";
+import { useOnlineStatus } from "@/app/context/Onlinestatus";
+import { useUser } from "@/app/context/Usercontext";
 
 type TourPost = {
   id: number;
@@ -17,7 +19,7 @@ type TourPost = {
 };
 
 type GuideProfile = {
-  id: number;
+  id: string;
   firstName: string;
   lastName: string;
   profileImage: string;
@@ -37,7 +39,7 @@ type GuideProfile = {
 };
 
 const sampleGuide: GuideProfile = {
-  id: 123,
+  id: "6846732d8f15039d35c10739",
   firstName: "Baldanpurev",
   lastName: "Eldenpurev",
   profileImage: "/profileImg.jpeg",
@@ -79,12 +81,14 @@ const sampleGuide: GuideProfile = {
 export default function TouristSee() {
   const [guide] = useState<GuideProfile>(sampleGuide);
   const [chat, setChat] = useState(false);
+  const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
 
+  const { user, status } = useUser();
   return (
     <div className="w-screen px-4 md:px-20 pt-4 pb-20">
       {chat && (
         <div className="w-fit h-fit mx-5 rounded-md bg-green-500 absolute z-10 right-5 bottom-5">
-          <Chat />
+          <Chat onlineUsers={onlineUsers} user={user} />
         </div>
       )}
 
@@ -129,12 +133,11 @@ export default function TouristSee() {
             <div className="flex flex-wrap items-center gap-6 mt-6 justify-end">
               <button
                 onClick={() => setChat(!chat)}
-                className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105"
-              >
+                className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105">
                 <MessageCircle className="w-5 h-5" />
                 Chat
               </button>
-              <Review guideName={`${guide.firstName} ${guide.lastName}`} />
+              <Review userId={guide.id} />
               <Subscription />
             </div>
           </div>
