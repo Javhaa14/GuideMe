@@ -139,8 +139,7 @@ export default function EnhancedChatBot({
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 3}s`,
               animationDuration: `${3 + Math.random() * 2}s`,
-            }}
-          >
+            }}>
             {i % 3 === 0 ? (
               <Plane className="w-3 h-3 text-blue-400" />
             ) : i % 3 === 1 ? (
@@ -156,8 +155,7 @@ export default function EnhancedChatBot({
         className={`transition-all duration-500 py-0 ease-in-out bg-white/95 backdrop-blur-lg border-0 shadow-2xl ${
           isMinimized ? "w-80 h-16" : "w-[450px] h-[600px]"
         }`}
-        style={{ borderRadius: "24px" }}
-      >
+        style={{ borderRadius: "24px" }}>
         <CardContent className="p-0 h-full flex flex-col">
           {/* Header */}
           <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-t-3xl">
@@ -192,16 +190,14 @@ export default function EnhancedChatBot({
                   variant="ghost"
                   size="icon"
                   className="text-white hover:bg-white/20 h-8 w-8"
-                  onClick={handleMinimize}
-                >
+                  onClick={handleMinimize}>
                   <Minimize2 className="w-4 h-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="text-white hover:bg-white/20 h-8 w-8"
-                  onClick={onClose}
-                >
+                  onClick={onClose}>
                   <X className="w-4 h-4" />
                 </Button>
               </div>
@@ -217,16 +213,14 @@ export default function EnhancedChatBot({
                     key={msg.id}
                     className={`flex items-start gap-3 animate-slide-up ${
                       msg.sender === "user" ? "flex-row-reverse" : ""
-                    }`}
-                  >
+                    }`}>
                     <Avatar className="w-8 h-8 flex-shrink-0">
                       <AvatarFallback
                         className={`text-xs ${
                           msg.sender === "user"
                             ? "bg-blue-500 text-white"
                             : "bg-green-500 text-white"
-                        }`}
-                      >
+                        }`}>
                         {msg.sender === "user" ? (
                           <User className="w-4 h-4" />
                         ) : (
@@ -238,15 +232,13 @@ export default function EnhancedChatBot({
                     <div
                       className={`max-w-[80%] ${
                         msg.sender === "user" ? "text-right" : ""
-                      }`}
-                    >
+                      }`}>
                       <div
                         className={`p-3 rounded-2xl text-sm shadow-sm ${
                           msg.sender === "user"
                             ? "bg-blue-500 text-white rounded-br-md"
                             : "bg-white text-gray-800 rounded-bl-md border border-gray-100"
-                        }`}
-                      >
+                        }`}>
                         {msg.sender === "ai" ? (
                           <div> {msg.text}</div>
                         ) : (
@@ -309,15 +301,14 @@ export default function EnhancedChatBot({
                     size="icon"
                     className="bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-all hover:scale-105 shadow-lg"
                     onClick={sendMessage}
-                    disabled={loading || !message.trim() || !isConnected}
-                  >
+                    disabled={loading || !message.trim() || !isConnected}>
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
                 {!isConnected && (
                   <p className="text-xs text-red-500 mt-2 text-center">
                     Connecting to server... Please make sure the backend is
-                    running on localhost:4000
+                    running on ${process.env.NEXT_PUBLIC_NACKEND_URL}
                   </p>
                 )}
               </div>
