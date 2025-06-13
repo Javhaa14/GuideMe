@@ -106,7 +106,8 @@ export default function TravelerMainProfile() {
             <div className="flex flex-wrap items-center gap-6 mt-6 justify-end">
               <button
                 onClick={() => setChat(!chat)}
-                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105">
+                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105"
+              >
                 <MessageCircle className="w-5 h-5" />
                 Chat
               </button>
@@ -122,7 +123,8 @@ export default function TravelerMainProfile() {
           {traveler.TripMemories.map((trip) => (
             <div
               key={trip.id}
-              className="rounded-xl overflow-hidden shadow-lg border bg-white">
+              className="rounded-xl overflow-hidden shadow-lg border bg-white"
+            >
               <div className="relative h-48 w-full">
                 <Image
                   src={trip.image}

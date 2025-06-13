@@ -33,6 +33,8 @@ import {
   MultiSelect,
   OptionType,
 } from "../../guideProfile/components/Selectwrapper";
+import { LocationFilterCard } from "../../Guidesinfo/components/SearchLocation";
+import { useSearchLocation } from "@/app/context/SearchLocationContext";
 
 export type CountryType = {
   name: {
@@ -91,6 +93,7 @@ export const TouristProfile = () => {
   const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
   const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const { searchedValue, setSearchedValue } = useSearchLocation();
 
   // Fetch countries for country select
   // Fetch unique languages for language select
@@ -209,7 +212,7 @@ export const TouristProfile = () => {
       socialAddress: values.social,
       gender: values.gender,
       location: values.location,
-      languages: values.languages,
+      languages: searchedValue,
       about: values.about,
       profileimage: values.profileimage,
       backgroundimage: "",
@@ -297,7 +300,8 @@ export const TouristProfile = () => {
                   <Select
                     {...field}
                     onValueChange={field.onChange}
-                    value={field.value || ""}>
+                    value={field.value || ""}
+                  >
                     <SelectTrigger className="w-full h-[40px]">
                       <SelectValue placeholder="Select your gender" />
                     </SelectTrigger>
@@ -316,7 +320,9 @@ export const TouristProfile = () => {
             )}
           />
 
-          <FormField
+          <LocationFilterCard />
+
+          {/* <FormField
             control={form.control}
             name="location"
             render={({ field: { onChange, value } }) => (
@@ -340,7 +346,7 @@ export const TouristProfile = () => {
                 <FormMessage className="absolute top-17" />
               </FormItem>
             )}
-          />
+          /> */}
         </div>
 
         <div className="flex gap-4 w-full">

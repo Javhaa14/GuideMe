@@ -30,6 +30,8 @@ import { SingleSelect, type OptionType } from "./Selectwrapper";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { LocationFilterCard } from "../../Guidesinfo/components/SearchLocation";
+import { useSearchLocation } from "@/app/context/SearchLocationContext";
 
 const MultiSelect = dynamic(
   () => import("./Selectwrapper").then((mod) => mod.MultiSelect),
@@ -84,6 +86,8 @@ export function GProfile() {
 
   const [languageOptions, setLanguageOptions] = useState<OptionType[]>([]);
   const [tourist, setTourist] = useState<TouristProfile>();
+  const { searchedValue, setSearchedValue } = useSearchLocation();
+
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -245,7 +249,7 @@ export function GProfile() {
       car: values.car,
       activities: values.activities,
       socialAddress: values.socialAddress,
-      location: `${values.city}, ${values.country}`,
+      location: searchedValue,
       about: values.about,
       gender: values.gender,
       profileimage: values.profileimage,
@@ -472,7 +476,9 @@ export function GProfile() {
             )}
           />
         </div>
-        <div className="flex w-full gap-4 justify-between">
+        <LocationFilterCard />
+
+        {/* <div className="flex w-full gap-4 justify-between">
           <FormField
             control={form.control}
             name="country"
@@ -525,8 +531,6 @@ export function GProfile() {
               </FormItem>
             )}
           />
-
-          {/* City (Optional) */}
           <FormField
             control={form.control}
             name="city"
@@ -579,7 +583,8 @@ export function GProfile() {
               </FormItem>
             )}
           />
-        </div>
+        </div> */}
+
         {/* Price and Car */}
         <div className="flex gap-4 w-full items-center">
           <FormField
