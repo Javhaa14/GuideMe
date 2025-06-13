@@ -7,6 +7,8 @@ export const createComment = async (
   res: Response
 ): Promise<void> => {
   const { userId, rating, review, recommend, reviewerId } = req.body;
+  console.log("Received body:", req.body);
+
   try {
     const comment = await Commentmodel.create({
       reviewerId,
@@ -22,7 +24,7 @@ export const createComment = async (
       guide.reviwedBy.push(comment._id);
       const allRatings = await Commentmodel.find({ userId });
       const validRatings = allRatings
-        .map((c) => c.rating ?? 0) // fallback to 0 if undefined/null
+        .map((c) => c.rating ?? 0)
         .filter((r) => typeof r === "number");
       const totalRating = validRatings.reduce((sum, r) => sum + r, 0);
       const averageRating =
