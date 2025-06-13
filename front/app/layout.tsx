@@ -6,6 +6,9 @@ import { SessionProvider } from "next-auth/react";
 import { UserProvider } from "./context/Usercontext";
 import OnlineTracker from "@/components/OnlineTracker";
 import { OnlineStatusProvider } from "./context/Onlinestatus";
+import { PriceRangeProvider } from "./context/PriceRangeContext";
+import { SearchLocationProvider } from "./context/SearchLocationContext";
+import { FilteredDataProvider } from "./context/FilteredDataContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,11 +30,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white w-screen h-screen`}
         cz-shortcut-listen="true"
-        style={{ cursor: "auto" }}>
+        style={{ cursor: "auto" }}
+      >
         <SessionProvider>
           <OnlineStatusProvider>
             <OnlineTracker />
-            <UserProvider>{children}</UserProvider>
+            <FilteredDataProvider>
+              <SearchLocationProvider>
+                <PriceRangeProvider>
+                  <UserProvider>{children}</UserProvider>
+                </PriceRangeProvider>
+              </SearchLocationProvider>
+            </FilteredDataProvider>
           </OnlineStatusProvider>
         </SessionProvider>
       </body>
