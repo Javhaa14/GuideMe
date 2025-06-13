@@ -17,7 +17,7 @@ dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 dayjs.extend(calendar);
 
-const socket = io("https://guideme-8o9f.onrender.com", {
+const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL, {
   transports: ["websocket"], // ensure it's clean
   autoConnect: false,
 });

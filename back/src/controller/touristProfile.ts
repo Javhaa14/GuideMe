@@ -101,15 +101,16 @@ export const getTouristByuserId = async (
     });
 
     if (!tourist) {
-      res.status(404).send({ message: "Tourist profile not found" });
-      return;
+      return res.status(200).send(null);
     }
 
     res.status(200).send(tourist);
   } catch (error: unknown) {
-    // ...
+    console.error(error);
+    res.status(500).send({ success: false, message: "Server error" });
   }
 };
+
 export const updateTouristProfile = async (
   req: Request,
   res: Response
