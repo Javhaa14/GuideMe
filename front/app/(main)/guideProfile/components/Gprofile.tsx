@@ -113,57 +113,51 @@ export function GProfile() {
   });
   useEffect(() => {
     if (!user?.id) return;
-    const fetchLanguages = async () => {
+
+    const loadData = async () => {
       try {
-        const res = await axios.get(
+        const tpro = await fetchTProfile(user.id);
+        setTourist(tpro);
+
+        const resLang = await axios.get(
           "https://restcountries.com/v3.1/all?fields=languages"
         );
         const langsSet = new Set<string>();
-        res.data.forEach((country: any) => {
+        resLang.data.forEach((country: any) => {
           if (country.languages) {
             const languages = Object.values(country.languages) as string[];
             languages.forEach((lang) => langsSet.add(lang));
           }
         });
-
-        const options = Array.from(langsSet).map((lang) => ({
+        const languageOptions = Array.from(langsSet).map((lang) => ({
           label: lang,
           value: lang,
         }));
-        setLanguageOptions(options);
-      } catch (error) {
-        console.error("Failed to fetch languages", error);
-      }
-    };
-    const fetchCountries = async () => {
-      try {
-        const res = await axios.get(
+        setLanguageOptions(languageOptions);
+        const resCountries = await axios.get(
           "https://restcountries.com/v3.1/all?fields=name"
         );
         const countrySet = new Set<string>();
-
-        res.data.forEach((country: any) => {
+        resCountries.data.forEach((country: any) => {
           if (country.name && country.name.common) {
-            const name = country.name.common;
-            countrySet.add(name);
+            countrySet.add(country.name.common);
           }
         });
-
-        const options: OptionType[] = Array.from(countrySet)
+        const countryOptions: OptionType[] = Array.from(countrySet)
           .sort((a, b) => a.localeCompare(b))
           .map((country) => ({
             label: country,
             value: country,
           }));
-        setCountryOptions(options);
+        setCountryOptions(countryOptions);
       } catch (error) {
-        console.error("Failed to fetch countries", error);
+        console.error("Failed to fetch data", error);
       }
     };
-    fetchTProfile(user.id);
-    fetchLanguages();
-    fetchCountries();
+
+    loadData();
   }, [user]);
+
   useEffect(() => {
     const fetchCities = async (countryName: string) => {
       if (!countryName) return;
@@ -229,8 +223,12 @@ export function GProfile() {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log("Form submitted with values:", values);
+
+    if (!user?.id) return;
+
     const payload = {
-      _id: user?.id || "",
+      _id: user.id,
       username: values.username,
       firstName: values.firstName,
       lastName: values.lastName,
@@ -256,6 +254,7 @@ export function GProfile() {
         });
       }
 
+      // Update tourist profile (if needed)
       // await axiosInstance.put(`/tprofile/${user.id}`, {
       //   languages: payload.languages,
       //   location: payload.location,
@@ -266,12 +265,15 @@ export function GProfile() {
       //   gender: payload.gender,
       // });
 
+      // Create or update guide profile — better to check if exists and then put/post accordingly
       await axiosInstance.post(`/gprofile`, payload);
+
       router.push("/");
     } catch (error) {
       console.error("Profile creation/update failed", error);
     }
   };
+
   const activityOptions: OptionType[] = [
     { value: "hiking", label: "Hiking" },
     { value: "city-tour", label: "City Tour" },
@@ -467,9 +469,9 @@ export function GProfile() {
             )}
           />
         </div>
-        <LocationFilterCard />
+        {/* <LocationFilterCard /> */}
 
-        {/* <div className="flex w-full gap-4 justify-between">
+        <div className="flex w-full gap-4 justify-between">
           <FormField
             control={form.control}
             name="country"
@@ -574,7 +576,7 @@ export function GProfile() {
               </FormItem>
             )}
           />
-        </div> */}
+        </div>
 
         {/* Price and Car */}
         <div className="flex gap-4 w-full items-center">

@@ -56,12 +56,17 @@ export default function TravelerProfile() {
     }
   };
   useEffect(() => {
-    if (params.id && typeof params.id === "string") {
-      fetchTProfile(params.id);
-    }
+    const loadData = async () => {
+      if (params.id && typeof params.id === "string") {
+        const tpro = await fetchTProfile(params.id);
+        setTourist(tpro);
+      }
+      fetchPosts();
+    };
 
-    fetchPosts();
+    loadData();
   }, []);
+
   const router = useRouter();
   const todetail = (id: string) => {
     router.push(`/Touristdetail/${id}`);
