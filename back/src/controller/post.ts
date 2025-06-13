@@ -97,11 +97,8 @@ export const getPosts = async (_: Request, res: Response): Promise<void> => {
       },
     ]);
 
-    if (!posts.length) {
-      console.warn("4. WARNING: Empty post array returned");
-    }
-
-    res.status(200).send(posts);
+    // Always return posts, even if empty array
+    res.status(200).json(posts);
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("ERROR in getPosts:", {
@@ -109,16 +106,17 @@ export const getPosts = async (_: Request, res: Response): Promise<void> => {
         stack: error.stack,
       });
 
-      res.status(500).send({
+      res.status(500).json({
         error: "Internal Server Error",
         details:
           process.env.NODE_ENV === "development" ? error.message : undefined,
       });
     } else {
-      res.status(500).send({ error: "Unexpected error occurred" });
+      res.status(500).json({ error: "Unexpected error occurred" });
     }
   }
 };
+
 
 export const getPostsByUserId = async (
   req: Request,
@@ -190,11 +188,7 @@ export const getPostsByUserId = async (
       },
     ]);
 
-    if (!posts.length) {
-      res.status(404).json({ message: "No posts found" });
-      return;
-    }
-
+    // Return empty array if no posts found (instead of 404)
     res.status(200).json(posts);
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -209,6 +203,7 @@ export const getPostsByUserId = async (
     }
   }
 };
+
 export const updatePost = async (
   req: Request<{}, {}, UpdatePostBody>,
   res: Response

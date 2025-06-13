@@ -1,12 +1,9 @@
 "use client";
 
-import ChatBot from "@/components/ui/Chatbot";
-import { Footer } from "./components/Footer";
 import { Guides } from "./components/Guides";
 import { ImageCarousel } from "./components/ImageCarousel";
-import { Navigation } from "./components/Navigation";
 import { Videos } from "./components/Videos";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import FloatingChatButton from "./components/FloatingChatButton";
 
 export default function Home() {

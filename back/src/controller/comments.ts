@@ -68,11 +68,7 @@ export const getCommentsByuserId = async (
       select: "username _id role",
     });
 
-    if (!comments || comments.length === 0) {
-      res.status(404).send({ message: "No comments found for this user" });
-      return;
-    }
-
+    // Always respond with success and comments array, even if empty
     res.status(200).send({ success: true, comments });
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -91,3 +87,4 @@ export const getCommentsByuserId = async (
     }
   }
 };
+
