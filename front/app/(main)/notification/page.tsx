@@ -5,7 +5,6 @@ const TravelersPost = () => {
   return (
     <div>
       <PriceRangeSlider />
-
       <CheckedGuides />
     </div>
   );

@@ -40,19 +40,10 @@ const tripPlanSchema = new mongoose.Schema(
     },
     route: [
       {
-        image: {
-          type: String,
-        },
-        title: {
-          type: String,
-          required: true,
-        },
-        about: {
-          type: String,
-        },
-        iconType: {
-          type: String,
-        },
+        image: String,
+        title: { type: String, required: true },
+        about: String,
+        iconType: String,
       },
     ],
     highlights: {

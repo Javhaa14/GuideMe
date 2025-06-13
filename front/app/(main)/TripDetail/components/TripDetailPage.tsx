@@ -1,11 +1,12 @@
 "use client";
 
-import { CalendarDays, Globe, Heart, TimerReset, Users } from "lucide-react";
+import { Heart } from "lucide-react";
 import React, { useRef, useState } from "react";
-
+import { toast } from "sonner";
 import TourBookingPage from "./TourBookingPage";
 import TourMap from "./TourMap";
 import RoadRoute from "./RoadRoute";
+import { Activity } from "./Activity";
 
 const images = ["/altai.png", "/desert.jpg", "/lake.png", "/gobi.png"];
 
@@ -30,19 +31,31 @@ export const TripDetailPage = () => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  const handleAddToWishlist = () => {
+    toast.success("Wishlist-д амжилттай нэмэгдлээ! 🎉");
+  };
+
   return (
     <div className="max-w-5xl p-4 mx-auto font-sans">
       <h1 className="mb-2 text-3xl font-bold">Khuvsgul lake</h1>
 
       <div className="flex items-center gap-3 mb-4">
         <div className="flex gap-4 ml-auto text-sm">
-          <button className="flex items-center gap-1">
-            <Heart size={16} color="red" /> Add to wishlist
+          <button
+            onClick={handleAddToWishlist}
+            className="flex items-center gap-1 px-3 py-1 transition-all border border-gray-300 rounded-lg hover:bg-red-50 active:scale-95"
+          >
+            <Heart
+              size={16}
+              className="text-red-500 transition-transform group-hover:scale-110"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              Add to wishlist
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Image Grid */}
       <div className="grid grid-cols-3 gap-2 mb-6">
         <img
           src="/altai.png"
@@ -72,21 +85,18 @@ export const TripDetailPage = () => {
         </div>
       </div>
 
-      {/* Description */}
       <p className="mb-6 text-base leading-relaxed text-gray-800">
         Khuvsgul Lake is located in the northwest of Mongolia, in the province
         of the same name, Khuvsgul Province. It is situated near the border with
         Russia, and its northern part extends into the Russian territory.
       </p>
 
-      {/* Image Viewer Dialog */}
       <dialog
         ref={dialogRef}
         className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-           backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]"
+          backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]"
       >
         <div className="relative flex items-center justify-center w-full h-full px-12">
-          {/* Close button */}
           <button
             onClick={closeDialog}
             className="absolute z-20 flex items-center justify-center w-12 h-12 text-4xl text-white transition duration-200 rounded-full top-4 right-6 hover:text-gray-300 bg-black/40 hover:bg-black/60 backdrop-blur"
@@ -102,7 +112,6 @@ export const TripDetailPage = () => {
             ‹
           </button>
 
-          {/* Image */}
           <img
             src={images[currentIndex]}
             alt="Preview"
@@ -119,56 +128,7 @@ export const TripDetailPage = () => {
         </div>
       </dialog>
 
-      <div className="max-w-5xl p-6 mx-auto space-y-6 bg-white border border-gray-100 shadow-lg rounded-2xl">
-        <h2 className="text-3xl font-bold text-gray-900">
-          About this activity
-        </h2>
-
-        <div className="flex items-start space-x-4">
-          <div className="mt-1">
-            <CalendarDays />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">Start date</h3>
-            <p className="text-gray-600">2025/7/25</p>
-          </div>
-        </div>
-
-        {/* Reserve and Pay */}
-        <div className="flex items-start space-x-4">
-          <div className="mt-1">
-            <TimerReset />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">Duration</h3>
-            <p className="text-gray-600">5 days</p>
-          </div>
-        </div>
-
-        {/* Live Tour Guide */}
-        <div className="flex items-start space-x-4">
-          <div className="mt-1">
-            <Globe className="text-blue-500" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">
-              Live tour guide
-            </h3>
-            <p className="text-gray-600">English, Mongolian</p>
-          </div>
-        </div>
-
-        {/* Private Group */}
-        <div className="flex items-start space-x-4">
-          <div className="mt-1">
-            <Users className="text-emerald-500" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">Group size</h3>
-            <p className="text-gray-600">Small</p>
-          </div>
-        </div>
-      </div>
+      <Activity />
       <TourBookingPage />
       <TourMap />
       <RoadRoute />

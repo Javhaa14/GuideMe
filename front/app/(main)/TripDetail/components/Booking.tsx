@@ -43,7 +43,6 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
 
   const totalPrice = totalParticipants * 100;
 
-  // 📌 Энэ function-г component дотор зарлана
   const handleCheckClick = () => {
     const data = {
       participants,
@@ -61,7 +60,6 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
       </h2>
 
       <div className="flex flex-wrap items-center gap-4">
-        {/* Participants */}
         <Popover>
           <PopoverTrigger asChild>
             <button className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow">
@@ -69,7 +67,7 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
               <span>{`Person x ${totalParticipants}`}</span>
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-72">
+          <PopoverContent className="z-50 w-72">
             {participantOptions.map(({ label, range, key }) => (
               <div key={key} className="mb-4">
                 <div className="flex items-center justify-between">
@@ -100,7 +98,6 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
           </PopoverContent>
         </Popover>
 
-        {/* Language Selector */}
         <Popover>
           <PopoverTrigger asChild>
             <button className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow">
@@ -121,13 +118,11 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
           </PopoverContent>
         </Popover>
 
-        {/* Price */}
         <div className="flex items-center gap-3 px-4 py-2 ml-auto text-black bg-white rounded-full shadow">
           <span className="text-sm text-gray-600">Total Price:</span>
           <span className="text-lg font-bold">${totalPrice}</span>
         </div>
 
-        {/* Button */}
         <button
           onClick={handleCheckClick}
           className="bg-[#6D67E4] hover:bg-[#46C2CB] transition text-white font-semibold px-6 py-3 rounded-full shadow-md"

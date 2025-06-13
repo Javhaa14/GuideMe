@@ -7,11 +7,8 @@ import { Review } from "./Review";
 import { Subscription } from "./Subscription";
 import { Globe, MapPin, MessageCircle, VenusAndMars } from "lucide-react";
 import { NewTrip } from "./NewTrip";
-
 import { useParams, useRouter } from "next/navigation";
-
 import Ebooking from "./Ebooking";
-
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { useOnlineStatus } from "@/app/context/Onlinestatus";
@@ -48,11 +45,9 @@ export default function GuideMainProfile() {
   if (!params.id) return <p>Missing guide ID</p>;
 
   const guideId = Array.isArray(params.id) ? params.id[0] : params.id;
-
   const [guide, setGuide] = useState<GuideProfile>();
   const [chat, setChat] = useState(false);
   const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
-
   const { user, status } = useUser(); // ✅ Hook-ууд бүгд шууд үндсэн түвшинд байна
 
   const fetchProfile = async () => {

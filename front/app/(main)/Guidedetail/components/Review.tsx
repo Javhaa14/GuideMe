@@ -144,7 +144,7 @@ export const Review = ({ userId }: ReviewProps) => {
                 />
               ))}
             </div>
-            <div className="flex flex-col gap-3 w-full">
+            <div className="flex flex-col w-full gap-3">
               <FormField
                 control={form.control}
                 name="recommend"
@@ -162,7 +162,7 @@ export const Review = ({ userId }: ReviewProps) => {
                             field.onChange(checked ? "yes" : "no")
                           }
                         />
-                        <span className="text-l font-bold ">
+                        <span className="font-bold text-l ">
                           {field.value === "yes" ? "Yes" : "No"}
                         </span>
                       </div>

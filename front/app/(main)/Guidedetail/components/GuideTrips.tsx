@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Calendar, Users } from "lucide-react";
+import { Calendar, PenLine, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 interface TripItem {
   id: number;
@@ -42,7 +43,7 @@ const sampleGuide: GuideProfile = {
       caption: "Khuvsgol lake",
       date: "2025-07-30",
       group: "Big group",
-      price: 200,
+      price: 2000,
     },
   ],
 };
@@ -52,13 +53,27 @@ export const GuideTrips = () => {
   const router = useRouter();
 
   return (
-    <div onClick={() => router.push("/TripDetail")}>
-      <div className="flex justify-between gap-6">
+    <div>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {guide.Trip.map((trip) => (
           <div
             key={trip.id}
-            className="w-full max-w-sm overflow-hidden transition duration-300 transform bg-white shadow rounded-xl hover:shadow-2xl hover:scale-105"
+            className="relative w-full overflow-hidden transition duration-300 transform bg-white shadow rounded-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer"
+            onClick={() => router.push("/TripDetail")}
           >
+            <Button
+              size="icon"
+              variant="secondary"
+              className="absolute z-10 p-2 text-gray-600 bg-white rounded-full shadow top-3 left-3 hover:bg-gray-100"
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/edit`);
+                //  router.push(`/TripDetail/edit/${trip.id}`);
+              }}
+            >
+              <PenLine size={18} />
+            </Button>
+
             <div className="relative w-full h-48">
               <Image
                 src={trip.image}
@@ -70,11 +85,11 @@ export const GuideTrips = () => {
               />
             </div>
 
-            <h3 className="px-5 pt-2 text-xl font-semibold">{trip.caption}</h3>
+            <h3 className="px-5 pt-3 text-xl font-semibold">{trip.caption}</h3>
 
             <div className="px-5 py-3">
               <div className="flex items-center gap-2 mb-1 text-gray-600">
-                <Calendar size={20} />
+                <Calendar size={18} />
                 <span>
                   {new Date(trip.date).toLocaleDateString(undefined, {
                     year: "numeric",
@@ -85,14 +100,14 @@ export const GuideTrips = () => {
               </div>
 
               <div className="flex items-center gap-2 mb-1 text-gray-600">
-                <Users size={20} />
+                <Users size={18} />
                 <span>{trip.group}</span>
               </div>
 
-              <div className="flex items-center justify-between pt-2 mt-2 border-t border-gray-200">
+              <div className="flex items-center justify-between pt-2 mt-3 border-t border-gray-200">
                 <span className="text-sm font-medium text-gray-500">From</span>
-                <span className="text-lg font-bold text-gray-600">
-                  ${trip.price} per person
+                <span className="text-lg font-bold text-gray-700">
+                  ${trip.price}
                 </span>
               </div>
             </div>

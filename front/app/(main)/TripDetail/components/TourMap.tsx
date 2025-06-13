@@ -1,6 +1,5 @@
 import dynamic from "next/dynamic";
 
-// SSR-гүй динамик импорт
 const TourMapClient = dynamic(() => import("./TourMapClient"), {
   ssr: false,
 });

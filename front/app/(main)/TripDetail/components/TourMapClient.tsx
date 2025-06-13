@@ -5,7 +5,6 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import { useEffect } from "react";
 
-// Зурагны тохиргоо
 L.Icon.Default.mergeOptions({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
   iconRetinaUrl:
@@ -13,7 +12,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-// ✅ image талбарыг нэмсэн
 type Stop = {
   name: string;
   position: [number, number];
@@ -78,7 +76,7 @@ export default function TourMapClient() {
       center={[49.5, 104.0]}
       zoom={6}
       scrollWheelZoom={false}
-      className="h-[500px] rounded-xl"
+      className="relative z-0 h-[500px] rounded-xl"
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

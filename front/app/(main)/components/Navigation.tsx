@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Bell, Settings, TentTree } from "lucide-react";
+import { Bell, Heart, Settings, TentTree } from "lucide-react";
 import { axiosInstance } from "@/lib/utils";
 
 const translations = {
@@ -60,7 +60,8 @@ const NavButton = ({
   return (
     <span
       onClick={() => router.push(path)}
-      className={`${baseStyle} ${variants[variant]} cursor-pointer`}>
+      className={`${baseStyle} ${variants[variant]} cursor-pointer`}
+    >
       {label}
     </span>
   );
@@ -79,12 +80,13 @@ export const Navigation = () => {
     <nav className="flex items-center justify-between px-8 py-4 bg-white shadow-lg">
       <div
         className="flex items-center gap-3 cursor-pointer"
-        onClick={() => router.push("/")}>
+        onClick={() => router.push("/")}
+      >
         <TentTree color="black" size={28} />
         <span className="text-xl font-extrabold text-gray-800">Guide</span>
       </div>
 
-      <div className="hidden md:flex items-center gap-6">
+      <div className="items-center hidden gap-6 md:flex">
         <NavButton label={t.guides} path="/Guidesinfo" />
         <NavButton label={t.travelers} path="/Travelersinfo" />
       </div>
@@ -103,7 +105,7 @@ export const Navigation = () => {
 
         {session?.user ? (
           <>
-            <span className="text-gray-800 font-semibold">
+            <span className="font-semibold text-gray-800">
               {t.welcome}, {session.user.name || session.user.email}
             </span>
 
@@ -128,7 +130,8 @@ export const Navigation = () => {
                   }
                 }
               }}
-              defaultValue="">
+              defaultValue=""
+            >
               <SelectTrigger className="w-[100px] border-none shadow-none bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md">
                 <Settings color="white" />
               </SelectTrigger>
@@ -146,7 +149,8 @@ export const Navigation = () => {
 
         <Select
           onValueChange={(value) => setLanguage(value as "en" | "mn")}
-          defaultValue={language}>
+          defaultValue={language}
+        >
           <SelectTrigger className="w-[100px] border border-gray-300 p-2 rounded-md">
             <SelectValue placeholder="Language" />
           </SelectTrigger>
@@ -161,8 +165,15 @@ export const Navigation = () => {
 
       <div
         onClick={() => router.push("/notification")}
-        className="cursor-pointer p-2 hover:bg-gray-100 rounded-full">
+        className="p-2 rounded-full cursor-pointer hover:bg-gray-100"
+      >
         <Bell color="black" />
+      </div>
+      <div
+        onClick={() => router.push("/wish")}
+        className="p-2 rounded-full cursor-pointer hover:bg-gray-100"
+      >
+        <Heart color="red" fill="red" />
       </div>
     </nav>
   );
