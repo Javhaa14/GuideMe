@@ -72,7 +72,6 @@ export const Navigation = () => {
   const { theme, setTheme } = useTheme();
   const [tprofile, setTprofile] = useState<TouristProfile>();
   const [gprofile, setGprofile] = useState<GuideProfile>();
-
   const t = translations[language];
   useEffect(() => {
     const loadProfile = async () => {
@@ -116,13 +115,13 @@ export const Navigation = () => {
       if (!gprofile) {
         router.push("/guideProfile"); // First time, create guide profile
       } else {
-        router.push(`/Guidedetail/${gprofile._id}`); // Existing guide profile
+        router.push(`/Guidedetail/${user.id}`); // Existing guide profile
       }
     } else if (user.role === "Tourist") {
       if (!tprofile) {
         router.push("/touristProfile"); // First time, create tourist profile
       } else {
-        router.push(`/Touristdetail/${tprofile._id}`); // Existing tourist profile
+        router.push(`/Touristdetail/${user.id}`); // Existing tourist profile
       }
     } else {
       router.push("/");
@@ -182,31 +181,43 @@ export const Navigation = () => {
                   <div className="text-sm font-medium">{t.role}</div>
                 </DropdownMenuLabel>
                 <div className="p-2">
-                  <Select
-                    value={user.role}
-                    onValueChange={async (value) => {
-                      try {
-                        const res = await axiosInstance.put(
-                          `/user/${user.id}`,
-                          {
-                            role: value,
-                          }
-                        );
-                        setUser(res.data.user);
-                      } catch (err) {
-                        console.error("Failed to update role:", err);
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Admin">{t.admin}</SelectItem>
-                      <SelectItem value="Guide">{t.guide}</SelectItem>
-                      <SelectItem value="Tourist">{t.tourist}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {user?.role && (
+                    <Select
+                      value={user.role}
+                      onValueChange={async (value) => {
+                        if (!user.id) {
+                          console.error("No user ID available for update");
+                          return;
+                        }
+
+                        try {
+                          const res = await axiosInstance.put(
+                            `/user/${user.id}`,
+                            {
+                              role: value,
+                            }
+                          );
+                          setUser({
+                            id: res.data.user._id,
+                            username: res.data.user.username,
+                            role: res.data.user.role,
+                            email: res.data.user.email,
+                          });
+                        } catch (err) {
+                          console.error("Failed to update role:", err);
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Admin">{t.admin}</SelectItem>
+                        <SelectItem value="Guide">{t.guide}</SelectItem>
+                        <SelectItem value="Tourist">{t.tourist}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleGoToProfile}>

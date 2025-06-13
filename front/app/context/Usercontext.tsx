@@ -23,9 +23,10 @@ const UserContext = createContext<UserContextType>({
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession();
-  const [user, setUser] = useState<any | null>(session?.user || null);
+  const [user, setUser] = useState<any | null>(null);
 
   useEffect(() => {
+    // Just set user to session user or null
     setUser(session?.user || null);
   }, [session]);
 

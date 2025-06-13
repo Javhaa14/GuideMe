@@ -58,13 +58,15 @@ export default function GuideMainProfile() {
   const { user, status } = useUser();
 
   useEffect(() => {
-    fetchGProfile(user.id);
-  }, [guideId]);
+    const loadProfile = async () => {
+      if (user?.id) {
+        const gpro = await fetchGProfile(user.id);
+        setGuide(gpro);
+      }
+    };
 
-  const router = useRouter();
-  const todetail = (id: string) => {
-    router.push(`/Guidedetail/${id}`);
-  };
+    loadProfile();
+  }, [user?.id]);
 
   if (!user || status === "loading") {
     return <p>Loading user...</p>;
