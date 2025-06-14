@@ -36,7 +36,6 @@ import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
 import { fetchGProfile, fetchTProfile } from "@/app/utils/fetchProfile";
 import { TouristProfile } from "../Touristdetail/components/MainProfile";
-import { GuideProfile } from "../Guidedetail/components/GuideMainProfile";
 import MessengerButton from "./Messenger";
 
 const translations = {
