@@ -20,7 +20,10 @@ export const getAllTripPlans = async (_req: Request, res: Response) => {
   }
 };
 
-export const getTripPlanById = async (req: Request, res: Response) => {
+export const getTripPlanById = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res
@@ -41,7 +44,10 @@ export const getTripPlanById = async (req: Request, res: Response) => {
   }
 };
 
-export const updateTripPlan = async (req: Request, res: Response) => {
+export const updateTripPlan = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res
@@ -67,7 +73,10 @@ export const updateTripPlan = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteTripPlan = async (req: Request, res: Response) => {
+export const deleteTripPlan = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res
