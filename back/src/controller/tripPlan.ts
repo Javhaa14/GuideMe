@@ -11,7 +11,6 @@ export const createTripPlan = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
 };
-
 export const getAllTripPlans = async (_req: Request, res: Response) => {
   try {
     const tripPlans = await TripPlanModel.find().populate("guideId");
