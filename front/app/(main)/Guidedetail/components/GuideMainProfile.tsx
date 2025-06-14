@@ -59,14 +59,14 @@ export default function GuideMainProfile() {
 
   useEffect(() => {
     const loadProfile = async () => {
-      if (user?.id) {
-        const gpro = await fetchGProfile(user.id);
+      if (params.id && typeof params.id == "string") {
+        const gpro = await fetchGProfile(params.id);
         setGuide(gpro);
       }
     };
 
     loadProfile();
-  }, [user?.id]);
+  }, [params.id]);
 
   if (!user || status === "loading") {
     return <p>Loading user...</p>;
@@ -85,8 +85,7 @@ export default function GuideMainProfile() {
                 </h3>
                 <button
                   onClick={() => setChat(false)}
-                  className="text-white hover:text-gray-200 transition-colors"
-                >
+                  className="text-white hover:text-gray-200 transition-colors">
                   x
                 </button>
               </div>
@@ -149,8 +148,7 @@ export default function GuideMainProfile() {
               <div className="flex flex-wrap items-center gap-6 mt-6 justify-end">
                 <button
                   onClick={() => setChat(!chat)}
-                  className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105"
-                >
+                  className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105">
                   <MessageCircle className="w-5 h-5" />
                   Chat
                 </button>
