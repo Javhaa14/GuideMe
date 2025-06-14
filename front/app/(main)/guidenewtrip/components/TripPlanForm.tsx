@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
+import { useRouter } from "next/navigation";
 const steps = [
   { id: "basic-info", title: "Basic Info" },
   { id: "route", title: "Route" },
@@ -80,7 +81,7 @@ export default function TripPlanForm() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
-
+  const router = useRouter();
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -100,6 +101,7 @@ export default function TripPlanForm() {
         description: "Trip plan created successfully!",
         className: "bg-green-100 text-green-800 border border-green-300",
       });
+      router.push(`/Guidedetail/${user.id}`);
     } catch (error) {
       console.error("Error creating trip plan:", error);
       toast("Error", {
