@@ -35,13 +35,14 @@ import {
 import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
 import { fetchGProfile, fetchTProfile } from "@/app/utils/fetchProfile";
-import { TouristProfile } from "../Touristdetail/components/MainProfile";
 import MessengerButton from "./Messenger";
+import type { TouristProfile } from "../Touristdetail/components/MainProfile";
 
 const translations = {
   en: {
     guides: "Guides",
     tourists: "Tourists",
+    trips: "Trips",
     settings: "Settings",
     logout: "Log out",
     welcome: "Welcome",
@@ -57,11 +58,12 @@ const translations = {
   mn: {
     guides: "Гайдууд",
     tourists: "Аялагчид",
+    trips: "Аялалууд",
     settings: "Тохиргоо",
     logout: "Гарах",
     welcome: "Тавтай морил",
     darkMode: "Харанхуй горим",
-    notifications: "Мэдэгдлүүд",
+    notifications: "Мэдэгдэл",
     role: "Үүрэг солих",
     language: "Хэл",
     admin: "Админ",
@@ -74,36 +76,38 @@ const translations = {
 export const Navigation = () => {
   const router = useRouter();
   const { user, setUser } = useUser();
-
   const { data: session, status } = useSession();
   const [language, setLanguage] = useState<"en" | "mn">("en");
   const { theme, setTheme } = useTheme();
   const [tprofile, setTprofile] = useState<TouristProfile>();
   const [gprofile, setGprofile] = useState<GuideProfile>();
   const t = translations[language];
+
   useEffect(() => {
     const loadProfile = async () => {
       if (user?.id) {
-        const tpro = await fetchTProfile(user.id);
-        const gpro = await fetchGProfile(user.id);
-
-        setTprofile(tpro);
-        setGprofile(gpro);
+        try {
+          const [tpro, gpro] = await Promise.all([
+            fetchTProfile(user.id),
+            fetchGProfile(user.id),
+          ]);
+          setTprofile(tpro);
+          setGprofile(gpro);
+        } catch (err) {
+          console.error("Failed to fetch profiles:", err);
+        }
       }
     };
-
     loadProfile();
   }, [user?.id]);
 
   const getInitials = (name: string) =>
     name
-      .split(" ")
-      .map((part) => part[0])
+      ?.split(" ")
+      .map((n) => n[0])
       .join("")
       .toUpperCase()
-      .substring(0, 2);
-
-  if (status === "loading") return null;
+      .slice(0, 2) || "U";
 
   const handleLogout = async () => {
     try {
@@ -114,66 +118,65 @@ export const Navigation = () => {
         });
       }
       await signOut({ callbackUrl: "/log-in" });
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch (err) {
+      console.error("Logout error:", err);
     }
   };
+
   const handleGoToProfile = () => {
+    if (!user?.role) return;
     if (user.role === "Guide") {
-      if (!gprofile) {
-        router.push("/guideProfile"); // First time, create guide profile
-      } else {
-        router.push(`/Guidedetail/${user.id}`); // Existing guide profile
-      }
+      router.push(gprofile ? `/Guidedetail/${user.id}` : "/guideProfile");
     } else if (user.role === "Tourist") {
-      if (!tprofile) {
-        router.push("/touristProfile"); // First time, create tourist profile
-      } else {
-        router.push(`/Touristdetail/${user.id}`); // Existing tourist profile
-      }
+      router.push(tprofile ? `/Touristdetail/${user.id}` : "/touristProfile");
     } else {
       router.push("/");
     }
   };
 
+  if (status === "loading") return null;
+
   return (
     <nav className="flex items-center justify-between px-4 md:px-8 py-3 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+      {/* Logo */}
       <div
         className="flex items-center gap-2 cursor-pointer"
-        onClick={() => router.push("/")}>
+        onClick={() => router.push("/")}
+      >
         <TentTree className="text-gray-900 dark:text-white" size={24} />
         <span className="text-lg font-bold text-gray-900 dark:text-white">
           GuideMe
         </span>
       </div>
 
+      {/* Nav Links */}
       <div className="hidden md:flex items-center gap-8 mx-auto">
-        <Link
-          href="/Guidesinfo"
-          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors">
+        <Link href="/Guidesinfo" className="nav-link">
           {t.guides}
         </Link>
-        <Link
-          href="/Travelersinfo"
-          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors">
+        <Link href="/Travelersinfo" className="nav-link">
           {t.tourists}
+        </Link>
+        <Link href="/Tripsinfo" className="nav-link">
+          {t.trips}
         </Link>
       </div>
 
+      {/* Right Side */}
       <div className="flex items-center gap-3">
         {session?.user ? (
           <>
-            {/* Profile Dropdown */}
+            {/* Profile Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2">
                   <Avatar className="h-7 w-7">
                     <AvatarImage
-                      src={tprofile?.profileimage}
-                      alt={session.user.name || ""}
+                      src={tprofile?.profileimage ?? ""}
+                      alt={session.user.name ?? "U"}
                     />
                     <AvatarFallback>
-                      {session.user.name ? getInitials(session.user.name) : "U"}
+                      {getInitials(session.user.name || "")}
                     </AvatarFallback>
                   </Avatar>
                   <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
@@ -182,36 +185,25 @@ export const Navigation = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60">
-                <DropdownMenuLabel>
-                  <div className="text-sm font-medium">{t.role}</div>
-                </DropdownMenuLabel>
-                <div className="p-2">
-                  {user?.role && (
+                <DropdownMenuLabel>{t.role}</DropdownMenuLabel>
+                {user?.role && (
+                  <div className="p-2">
                     <Select
                       value={user.role}
                       onValueChange={async (value) => {
-                        if (!user.id) {
-                          console.error("No user ID available for update");
-                          return;
-                        }
-
+                        if (!user.id) return;
                         try {
                           const res = await axiosInstance.put(
                             `/user/${user.id}`,
-                            {
-                              role: value,
-                            }
+                            { role: value }
                           );
-                          setUser({
-                            id: res.data.user._id,
-                            username: res.data.user.username,
-                            role: res.data.user.role,
-                            email: res.data.user.email,
-                          });
+                          const { _id, username, role, email } = res.data.user;
+                          setUser({ id: _id, username, role, email });
                         } catch (err) {
                           console.error("Failed to update role:", err);
                         }
-                      }}>
+                      }}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
@@ -221,35 +213,39 @@ export const Navigation = () => {
                         <SelectItem value="Tourist">{t.tourist}</SelectItem>
                       </SelectContent>
                     </Select>
-                  )}
-                </div>
+                  </div>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleGoToProfile}>
                   <User className="mr-2 h-4 w-4" />
                   <span>My Profile</span>
                 </DropdownMenuItem>
-
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-red-500 focus:text-red-500">
+                  className="text-red-500"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   {t.logout}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Buttons */}
             <Button
               variant="ghost"
               size="icon"
-              className="relative"
-              onClick={() => router.push("/notification")}>
+              onClick={() => router.push("/notification")}
+            >
               <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
             </Button>
             <MessengerButton />
             <div
               onClick={() => router.push("/wish")}
-              className="p-2 rounded-full cursor-pointer hover:bg-gray-100">
+              className="p-2 rounded-full cursor-pointer hover:bg-gray-100"
+            >
               <Heart color="red" fill="red" />
             </div>
+
             {/* Settings Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -258,7 +254,6 @@ export const Navigation = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60">
-                {/* Dark Mode */}
                 <DropdownMenuItem asChild>
                   <div className="flex items-center justify-between w-full px-2 py-1.5">
                     <div className="flex items-center space-x-2">
@@ -274,15 +269,12 @@ export const Navigation = () => {
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-
-                {/* Language */}
                 <DropdownMenuLabel>{t.language}</DropdownMenuLabel>
                 <div className="p-2">
                   <Select
                     value={language}
-                    onValueChange={(value) =>
-                      setLanguage(value as "en" | "mn")
-                    }>
+                    onValueChange={(value) => setLanguage(value as "en" | "mn")}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
@@ -301,7 +293,8 @@ export const Navigation = () => {
               variant="default"
               size="sm"
               onClick={() => router.push("/log-in")}
-              className="bg-gray-900 hover:bg-gray-800 text-white">
+              className="bg-gray-900 hover:bg-gray-800 text-white"
+            >
               {t.login}
             </Button>
             <DropdownMenu>
@@ -311,7 +304,6 @@ export const Navigation = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60">
-                {/* Dark Mode */}
                 <DropdownMenuItem asChild>
                   <div className="flex items-center justify-between w-full px-2 py-1.5">
                     <div className="flex items-center space-x-2">
@@ -327,15 +319,12 @@ export const Navigation = () => {
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-
-                {/* Language */}
                 <DropdownMenuLabel>{t.language}</DropdownMenuLabel>
                 <div className="p-2">
                   <Select
                     value={language}
-                    onValueChange={(value) =>
-                      setLanguage(value as "en" | "mn")
-                    }>
+                    onValueChange={(value) => setLanguage(value as "en" | "mn")}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
