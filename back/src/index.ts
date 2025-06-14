@@ -14,13 +14,13 @@ import { postRouter } from "./routes/post";
 import { connectMongoDB } from "./connectDB";
 import { touristRouter } from "./routes/touristProfile";
 import { userRouter } from "./routes/user";
-import { tripPlanRouter } from "./routes/tripPlan";
 import { authRouter } from "./routes/auth";
 import { commentRouter } from "./routes/comments";
 import { guideRouter } from "./routes/guideProfile";
 
 import { Onlinerouter } from "./routes/online";
 import { ChatMessageModel } from "./model/ChatHistory";
+import tripPlanRouter from "./routes/tripPlan";
 
 dotenv.config();
 
