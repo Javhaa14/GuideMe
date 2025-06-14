@@ -55,6 +55,7 @@ const tripPlanSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    strict: true,
   }
 );
 
