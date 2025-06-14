@@ -1,0 +1,15 @@
+export const languageOptions = [
+  { label: "English", value: "english" },
+  { label: "Spanish", value: "spanish" },
+  { label: "French", value: "french" },
+  { label: "German", value: "german" },
+  { label: "Italian", value: "italian" },
+  { label: "Portuguese", value: "portuguese" },
+  { label: "Russian", value: "russian" },
+  { label: "Japanese", value: "japanese" },
+  { label: "Chinese", value: "chinese" },
+  { label: "Korean", value: "korean" },
+  { label: "Arabic", value: "arabic" },
+  { label: "Hindi", value: "hindi" },
+  { label: "Turkish", value: "turkish" },
+];
