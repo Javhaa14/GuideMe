@@ -168,9 +168,6 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
 
   // 2. User-to-User Chat
   socket.on("chat message", async (msg) => {
-    // Expect msg to be an object like:
-    // { user, text, profileImage, roomId }
-
     try {
       // Save message to DB
       const newMessage = await ChatMessageModel.create({
@@ -182,14 +179,23 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
       });
       io.to(msg.roomId).emit("chat message", newMessage);
       console.log(`Message saved and emitted to room ${msg.roomId}`);
+
+      const [userA, userB] = msg.roomId.split("-");
+      const recipientId = msg.userId === userA ? userB : userA;
+
+      io.to(`notify_${recipientId}`).emit("notify", {
+        title: "New Message",
+        message: `${msg.user} sent you a message`,
+        roomId: msg.roomId,
+      });
     } catch (err) {
       console.error("Failed to save chat message:", err);
     }
   });
 
-  socket.on("joinResetRoom", (userId: string) => {
-    socket.join(`reset_${userId}`);
-    console.log(`🛎️ Socket ${socket.id} joined room: reset_${userId}`);
+  socket.on("joinNotificationRoom", (userId: string) => {
+    socket.join(`notify_${userId}`);
+    console.log(`🔔 User ${userId} joined notify_${userId}`);
   });
 
   socket.on("approveReset", async (data: { token: string }) => {
