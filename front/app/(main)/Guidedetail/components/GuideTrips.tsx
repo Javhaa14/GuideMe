@@ -3,8 +3,9 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Calendar, PenLine, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@/app/context/Usercontext";
 
 interface TripItem {
   id: number;
@@ -51,6 +52,8 @@ const sampleGuide: GuideProfile = {
 export const GuideTrips = () => {
   const [guide] = useState<GuideProfile>(sampleGuide);
   const router = useRouter();
+  const params = useParams();
+  const { user, status } = useUser();
 
   return (
     <div>
@@ -60,17 +63,18 @@ export const GuideTrips = () => {
             key={trip.id}
             className="relative w-full overflow-hidden transition duration-300 transform bg-white shadow rounded-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer"
             onClick={() => router.push("/tripdetail")}>
-            <Button
-              size="icon"
-              variant="secondary"
-              className="absolute z-10 p-2 text-gray-600 bg-white rounded-full shadow top-3 left-3 hover:bg-gray-100"
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(`/edit`);
-                //  router.push(`/TripDetail/edit/${trip.id}`);
-              }}>
-              <PenLine size={18} />
-            </Button>
+            {user.id === params.id && (
+              <Button
+                size="icon"
+                variant="secondary"
+                className="absolute z-10 p-2 text-gray-600 bg-white rounded-full shadow top-3 left-3 hover:bg-gray-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/edit`);
+                }}>
+                <PenLine size={18} />
+              </Button>
+            )}
 
             <div className="relative w-full h-48">
               <Image

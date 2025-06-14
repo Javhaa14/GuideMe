@@ -48,7 +48,7 @@ export default function GuideMainProfile() {
   const [guide, setGuide] = useState<GuideProfile>();
   const [chat, setChat] = useState(false);
   const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
-  const { user, status } = useUser(); // ✅ Hook-ууд бүгд шууд үндсэн түвшинд байна
+  const { user, status } = useUser();
 
   const fetchProfile = async () => {
     try {
@@ -69,7 +69,6 @@ export default function GuideMainProfile() {
     router.push(`/Guidedetail/${id}`);
   };
 
-  // ✅ Conditional return-ийг дараа нь хийдэг
   if (!user || status === "loading") {
     return <p>Loading user...</p>;
   }
@@ -162,7 +161,7 @@ export default function GuideMainProfile() {
 
         {/* New Trip and Trip List */}
         <div className="mt-12 space-y-10">
-          <NewTrip />
+          {user.id === params.id && <NewTrip />}
           <GuideTrips />
         </div>
       </div>
