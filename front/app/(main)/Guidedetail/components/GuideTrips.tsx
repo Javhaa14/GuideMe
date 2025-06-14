@@ -18,7 +18,7 @@ interface TripItem {
 }
 
 export const GuideTrips = () => {
-  const [trips, setTrips] = useState<TripItem[]>();
+  const [trips, setTrips] = useState<TripItem[]>([]);
   const router = useRouter();
   const params = useParams();
   const { user, status } = useUser();
@@ -27,7 +27,7 @@ export const GuideTrips = () => {
     try {
       const res = await axiosInstance.get(`/tripPlan/${params.id}`);
       console.log("✅ Posts fetched:", res.data);
-      setTrips(res.data);
+      setTrips(res.data.tripPlans); // <-- Use the correct array
     } catch (err) {
       console.error("❌ Post fetch failed:", err);
     }
