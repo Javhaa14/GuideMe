@@ -10,10 +10,10 @@ import { axiosInstance } from "@/lib/utils";
 
 interface TripItem {
   id: number;
-  image: string;
-  caption: string;
+  images: string;
+  title: string;
   date: string;
-  group: string;
+  groupSize: number;
   price: number;
 }
 
@@ -27,7 +27,7 @@ export const GuideTrips = () => {
     try {
       const res = await axiosInstance.get(`/tripPlan/${params.id}`);
       console.log("✅ Posts fetched:", res.data);
-      setTrips(res.data.tripPlans); // <-- Use the correct array
+      setTrips(res.data.tripPlans);
     } catch (err) {
       console.error("❌ Post fetch failed:", err);
     }
@@ -44,24 +44,28 @@ export const GuideTrips = () => {
           <div
             key={trip.id}
             className="relative w-full overflow-hidden transition duration-300 transform bg-white shadow rounded-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer"
-            onClick={() => router.push("/tripdetail")}>
-            {user.id === params.id && (
+            onClick={() => router.push(`/tripdetail/${trip.id}`)}
+          >
+            {user?.id?.toString() === params.id?.toString() && (
               <Button
                 size="icon"
                 variant="secondary"
                 className="absolute z-10 p-2 text-gray-600 bg-white rounded-full shadow top-3 left-3 hover:bg-gray-100"
                 onClick={(e) => {
                   e.stopPropagation();
-                  router.push(`/edit`);
-                }}>
+                  router.push(`/edit/${trip.id}`);
+                }}
+              >
                 <PenLine size={18} />
               </Button>
             )}
 
             <div className="relative w-full h-48">
               <Image
-                src={trip.image}
-                alt={`Trip image: ${trip.caption}`}
+                src={
+                  typeof trip.images === "string" ? trip.images : trip.images[0]
+                }
+                alt={`Trip image: ${trip.title}`}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 33vw"
@@ -69,7 +73,7 @@ export const GuideTrips = () => {
               />
             </div>
 
-            <h3 className="px-5 pt-3 text-xl font-semibold">{trip.caption}</h3>
+            <h3 className="px-5 pt-3 text-xl font-semibold">{trip.title}</h3>
 
             <div className="px-5 py-3">
               <div className="flex items-center gap-2 mb-1 text-gray-600">
@@ -85,7 +89,7 @@ export const GuideTrips = () => {
 
               <div className="flex items-center gap-2 mb-1 text-gray-600">
                 <Users size={18} />
-                <span>{trip.group}</span>
+                <span>{trip.groupSize}</span>
               </div>
 
               <div className="flex items-center justify-between pt-2 mt-3 border-t border-gray-200">
