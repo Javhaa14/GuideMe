@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { TripPlanModel } from "../model/TripPlan";
+import { Guidemodel } from "../model/Guide";
 
 export const createTripPlan = async (req: Request, res: Response) => {
   try {
@@ -10,7 +11,6 @@ export const createTripPlan = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
 };
-
 export const getAllTripPlans = async (_req: Request, res: Response) => {
   try {
     const tripPlans = await TripPlanModel.find().populate("guideId");
@@ -20,30 +20,33 @@ export const getAllTripPlans = async (_req: Request, res: Response) => {
   }
 };
 
-export const getTripPlanById = async (
+export const getTripPlansByGuideId = async (
   req: Request,
   res: Response
 ): Promise<any> => {
-  const { id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  const { userid } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(userid)) {
     return res
       .status(400)
-      .json({ success: false, message: "Invalid trip plan ID" });
+      .json({ success: false, message: "Invalid guide ID" });
   }
 
   try {
-    const tripPlan = await TripPlanModel.findById(id).populate("guideId");
-    if (!tripPlan) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Trip Plan not found" });
+    const tripPlans = await TripPlanModel.find({ guideId: userid });
+
+    if (!tripPlans || tripPlans.length === 0) {
+      return res.status(200).json({
+        success: false,
+        message: "No trip plans found for this guide",
+      });
     }
-    res.status(200).json({ success: true, tripPlan });
+
+    res.status(200).json({ success: true, tripPlans });
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
 };
-
 export const updateTripPlan = async (
   req: Request,
   res: Response

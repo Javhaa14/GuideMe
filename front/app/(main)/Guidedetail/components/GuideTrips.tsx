@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Calendar, PenLine, Users } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/app/context/Usercontext";
+import { axiosInstance } from "@/lib/utils";
 
 interface TripItem {
   id: number;
@@ -16,49 +17,30 @@ interface TripItem {
   price: number;
 }
 
-interface GuideProfile {
-  Trip: TripItem[];
-}
-
-const sampleGuide: GuideProfile = {
-  Trip: [
-    {
-      id: 1,
-      image: "/horse.png",
-      caption: "Gorkhi-Terelj National Park",
-      date: "2025-07-20",
-      group: "Small group",
-      price: 100,
-    },
-    {
-      id: 2,
-      image: "/terelj.jpg",
-      caption: "Buir Lake",
-      date: "2025-08-20",
-      group: "Middle group",
-      price: 150,
-    },
-    {
-      id: 3,
-      image: "/lake.png",
-      caption: "Khuvsgol lake",
-      date: "2025-07-30",
-      group: "Big group",
-      price: 2000,
-    },
-  ],
-};
-
 export const GuideTrips = () => {
-  const [guide] = useState<GuideProfile>(sampleGuide);
+  const [trips, setTrips] = useState<TripItem[]>([]);
   const router = useRouter();
   const params = useParams();
   const { user, status } = useUser();
 
+  const fetchTrips = async () => {
+    try {
+      const res = await axiosInstance.get(`/tripPlan/${params.id}`);
+      console.log("✅ Posts fetched:", res.data);
+      setTrips(res.data.tripPlans); // <-- Use the correct array
+    } catch (err) {
+      console.error("❌ Post fetch failed:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrips();
+  }, []);
+
   return (
     <div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {guide.Trip.map((trip) => (
+        {trips?.map((trip) => (
           <div
             key={trip.id}
             className="relative w-full overflow-hidden transition duration-300 transform bg-white shadow rounded-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer"

@@ -11,6 +11,9 @@ import HighlightsStep from "./HighlightsStep";
 import ReviewStep from "./ReviewStep";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { axiosInstance } from "@/lib/utils";
+import { useUser } from "@/app/context/Usercontext";
+import { useRouter } from "next/navigation";
 const steps = [
   { id: "basic-info", title: "Basic Info" },
   { id: "route", title: "Route" },
@@ -22,7 +25,7 @@ export default function TripPlanForm() {
   const [activeStep, setActiveStep] = useState("basic-info");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
-
+  const { user } = useUser();
   const [formData, setFormData] = useState({
     title: "",
     about: "",
@@ -78,30 +81,37 @@ export default function TripPlanForm() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
-
-  const handleSubmit = (e: FormEvent) => {
+  const router = useRouter();
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
     setIsSubmitting(true);
+    console.log(formData, "lol");
 
-    setTimeout(() => {
-      try {
-        console.log("Form submitted:", formData);
-        toast("Error", {
-          description: "Failed to create trip plan. Please try again.",
-          className: "bg-red-100 text-red-800 border border-red-300",
-        });
-      } catch (error) {
-        console.error("Error creating trip plan:", error);
-        toast("Error", {
-          description: "Failed to create trip plan. Please try again.",
-          className: "bg-red-100 text-red-800 border border-red-300",
-        });
-      } finally {
-        setIsSubmitting(false);
-      }
-    }, 1000);
+    try {
+      if (user.id == null) return;
+      const res = await axiosInstance.post(`/tripPlan`, {
+        guideId: user.id,
+        ...formData,
+      });
+
+      console.log("Form submitted:", res.data);
+
+      toast("Success", {
+        description: "Trip plan created successfully!",
+        className: "bg-green-100 text-green-800 border border-green-300",
+      });
+      router.push(`/Guidedetail/${user.id}`);
+    } catch (error) {
+      console.error("Error creating trip plan:", error);
+      toast("Error", {
+        description: "Failed to create trip plan. Please try again.",
+        className: "bg-red-100 text-red-800 border border-red-300",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
   return (
     <div className="space-y-8">
       <Toaster />
