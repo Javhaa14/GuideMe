@@ -1,4 +1,5 @@
 "use client";
+
 import { Camera } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -24,63 +25,81 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import axios from "axios";
-import { TouristProfile } from "../../Touristdetail/components/TouristMainProfile";
-import {
-  CountryType,
-  LanguageOption,
-} from "../../touristProfile/components/TouristProfile";
 import dynamic from "next/dynamic";
-import type { OptionType } from "./Selectwrapper";
-import { MultiValue, SingleValue } from "react-select";
+import { SingleSelect, type OptionType } from "./Selectwrapper";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { LocationFilterCard } from "../../Guidesinfo/components/SearchLocation";
+import { useSearchLocation } from "@/app/context/SearchLocationContext";
+import { fetchTProfile } from "@/app/utils/fetchProfile";
 
 const MultiSelect = dynamic(
   () => import("./Selectwrapper").then((mod) => mod.MultiSelect),
   { ssr: false }
 );
 
-const formSchema = z.object({
-  username: z.string().min(2, "First name is required"),
+export interface TouristProfile {
+  firstName?: string;
+  lastName?: string;
+  gender?: string;
+  location?: string;
+  languages?: string[];
+  socialAddress?: string;
+  profileimage?: string;
+  backgroundimage?: string | null;
+  price?: string;
+  experience?: string;
+  about?: string;
+  activities?: string[];
+  car?: boolean;
+}
 
+const formSchema = z.object({
+  username: z.string().min(2, "Username is required"),
   firstName: z.string().min(2, "First name is required"),
   lastName: z.string().min(2, "Last name is required"),
   gender: z.string().min(1, "Gender is required"),
-  location: z.string().min(1, "Country is required"),
+  country: z.string().min(1, "Country is required"),
+  city: z.string().min(1, "City is required"),
   languages: z
     .array(z.string())
-    .min(1, { message: "Please select at least one language" }),
-  socialAddress: z.string().min(2, "SocialAddress media link is required"),
+    .min(1, { message: "Select at least one language" }),
+  socialAddress: z.string().min(2, "Social media link is required"),
   profileimage: z.string().min(1, "Profile image is required"),
   backgroundimage: z.string().nullable().optional(),
-
   price: z.string().min(1, "Price is required"),
   experience: z.string().min(1, "Experience is required"),
   about: z.string().min(1, "About is required"),
   activities: z
     .array(z.string())
     .min(1, { message: "Select at least one activity" }),
-
   car: z.boolean(),
 });
 
 export function GProfile() {
   const { user } = useUser();
+  const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
 
-  if (!user) {
-    return <p>Loading user...</p>; // or a spinner
-  }
+  const [cityOptions, setCityOptions] = useState<OptionType[]>([]);
+  const [selectedcity, setSelectedcity] = useState<string>("");
+
+  const [languageOptions, setLanguageOptions] = useState<OptionType[]>([]);
+  const [tourist, setTourist] = useState<TouristProfile>();
+  const { searchedValue, setSearchedValue } = useSearchLocation();
+
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-
     defaultValues: {
-      username: user.name,
+      username: user?.name || "",
       firstName: "",
       lastName: "",
       gender: "",
-      location: "",
+      country: "",
+      city: "",
       languages: [],
       socialAddress: "",
       profileimage: "",
@@ -92,96 +111,125 @@ export function GProfile() {
       car: false,
     },
   });
-  const activityOptions = [
-    { label: "Hiking", value: "hiking" },
-    { label: "City Tour", value: "city-tour" },
-    { label: "Museum Visit", value: "museum" },
-    { label: "Food Tasting", value: "food" },
-    { label: "Beach Day", value: "beach" },
-  ];
-
-  const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
-  const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
-  const [tourist, setTourist] = useState<TouristProfile>();
-
   useEffect(() => {
-    if (!user || !user.id) return;
-    const fetchProfile = async () => {
+    if (!user?.id) return;
+
+    const loadData = async () => {
       try {
-        const res = await axiosInstance.get(`/tprofile/${user?.id}`);
-        console.log("✅ Posts fetched:", res.data);
-        setTourist(res.data);
-      } catch (err) {
-        console.error("❌ Post fetch failed:", err);
-      }
-    };
-    const fetchLanguages = async () => {
-      try {
-        const res = await axios.get(
+        const tpro = await fetchTProfile(user.id);
+        setTourist(tpro);
+
+        const resLang = await axios.get(
           "https://restcountries.com/v3.1/all?fields=languages"
         );
-
         const langsSet = new Set<string>();
-        res.data.forEach((country: any) => {
+        resLang.data.forEach((country: any) => {
           if (country.languages) {
-            (Object.values(country.languages) as string[]).forEach((lang) =>
-              langsSet.add(lang)
-            );
+            const languages = Object.values(country.languages) as string[];
+            languages.forEach((lang) => langsSet.add(lang));
           }
         });
-
-        const options = Array.from(langsSet).map((lang) => ({
+        const languageOptions = Array.from(langsSet).map((lang) => ({
           label: lang,
           value: lang,
         }));
-
-        setLanguageOptions(options);
-      } catch (error) {
-        console.error("Failed to fetch languages", error);
-      }
-    };
-    const fetchCountries = async () => {
-      try {
-        const res = await axios.get(
+        setLanguageOptions(languageOptions);
+        const resCountries = await axios.get(
           "https://restcountries.com/v3.1/all?fields=name"
         );
-        const options = res.data
-          .map((country: CountryType) => ({
-            label: country.name.common,
-            value: country.name.common,
-          }))
-          .sort((a: OptionType, b: OptionType) =>
-            a.label.localeCompare(b.label)
-          );
-        setCountryOptions(options);
+        const countrySet = new Set<string>();
+        resCountries.data.forEach((country: any) => {
+          if (country.name && country.name.common) {
+            countrySet.add(country.name.common);
+          }
+        });
+        const countryOptions: OptionType[] = Array.from(countrySet)
+          .sort((a, b) => a.localeCompare(b))
+          .map((country) => ({
+            label: country,
+            value: country,
+          }));
+        setCountryOptions(countryOptions);
       } catch (error) {
-        console.error("Failed to fetch countries", error);
+        console.error("Failed to fetch data", error);
       }
     };
-    fetchProfile();
-    fetchLanguages();
-    fetchCountries();
+
+    loadData();
   }, [user]);
 
   useEffect(() => {
+    const fetchCities = async (countryName: string) => {
+      if (!countryName) return;
+
+      try {
+        const res = await axios.post(
+          "https://countriesnow.space/api/v0.1/countries/cities",
+          {
+            country: countryName,
+          }
+        );
+
+        const options: OptionType[] = res.data.data
+          .sort((a: string, b: string) => a.localeCompare(b))
+          .map((city: string) => ({
+            label: city,
+            value: city,
+          }));
+
+        setCityOptions(options);
+      } catch (error) {
+        console.error("Failed to fetch cities", error);
+      }
+    };
+    fetchCities(selectedCountry);
+  }, [selectedCountry]);
+  useEffect(() => {
     if (tourist) {
+      const [city = "", country = ""] =
+        tourist.location?.split(",").map((x) => x.trim()) ?? [];
+
       form.reset({
-        gender: tourist.gender,
-        location: tourist.location,
-        about: tourist.about,
-        profileimage: tourist.profileimage,
-        backgroundimage: tourist.backgroundimage,
-        languages: tourist.languages ?? [],
+        username: user?.name || "",
+        firstName: tourist.firstName || "",
+        lastName: tourist.lastName || "",
+        gender: tourist.gender || "",
+        country,
+        city,
+        languages: tourist.languages || [],
+        socialAddress: tourist.socialAddress || "",
+        profileimage: tourist.profileimage || "",
+        backgroundimage: tourist.backgroundimage || "",
+        price: tourist.price || "",
+        experience: tourist.experience || "",
+        about: tourist.about || "",
+        activities: tourist.activities || [],
+        car: tourist.car || false,
       });
-    } else {
-      return;
+
+      if (country) {
+      }
     }
   }, [tourist]);
-  const router = useRouter();
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      form.setValue("profileimage", reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log("Form submitted with values:", values);
+
+    if (!user?.id) return;
+
     const payload = {
-      _id: user?.id || "",
-      username: user?.name || "",
+      _id: user.id,
+      username: values.username,
       firstName: values.firstName,
       lastName: values.lastName,
       languages: values.languages,
@@ -190,7 +238,7 @@ export function GProfile() {
       car: values.car,
       activities: values.activities,
       socialAddress: values.socialAddress,
-      location: values.location,
+      location: searchedValue,
       about: values.about,
       gender: values.gender,
       profileimage: values.profileimage,
@@ -198,57 +246,49 @@ export function GProfile() {
       status: "available",
       rating: 0,
     };
-    console.log("Payload being sent to gprofile:", payload);
 
-    if (payload.username !== user.name) {
-      try {
-        const res = await axiosInstance.put(`/user/${user.id}`, {
+    try {
+      if (payload.username !== user.name) {
+        await axiosInstance.put(`/user/${user.id}`, {
           username: payload.username,
         });
-
-        console.log("✅ Username updated:", res.data);
-      } catch (error) {
-        console.error("❌ Username update failed:", error);
       }
-    }
 
-    if (
-      payload.languages !== tourist?.languages ||
-      payload.location !== tourist?.location ||
-      payload.profileimage !== tourist?.profileimage ||
-      payload.backgroundimage !== tourist?.backgroundimage ||
-      payload.socialAddress !== tourist?.socialAddress ||
-      payload.about !== tourist?.about ||
-      payload.gender !== tourist?.gender
-    ) {
-    }
-    try {
-      const res = await axiosInstance.put(`/tprofile/${user.id}`, {
-        languages: payload.languages,
-        location: payload.location,
-        profileimage: payload.profileimage,
-        backgroundimage: payload.backgroundimage,
-        socialAddress: payload.socialAddress,
-        about: payload.about,
-        gender: payload.gender,
-      });
-      console.log("Successfully updated touristprofile", res.data);
-    } catch (error) {
-      console.error("Profile updated failed", error);
-    }
-    console.log(payload, "gprofile");
-    try {
-      const res = await axiosInstance.post(`/gprofile`, payload);
-      console.log("Successfully posted guideprofile", res.data);
+      // Update tourist profile (if needed)
+      // await axiosInstance.put(`/tprofile/${user.id}`, {
+      //   languages: payload.languages,
+      //   location: payload.location,
+      //   profileimage: payload.profileimage,
+      //   backgroundimage: payload.backgroundimage,
+      //   socialAddress: payload.socialAddress,
+      //   about: payload.about,
+      //   gender: payload.gender,
+      // });
+
+      // Create or update guide profile — better to check if exists and then put/post accordingly
+      await axiosInstance.post(`/gprofile`, payload);
+
       router.push("/");
     } catch (error) {
-      console.error("Profile creation failed", error);
+      console.error("Profile creation/update failed", error);
     }
-  }
+  };
+
+  const activityOptions: OptionType[] = [
+    { value: "hiking", label: "Hiking" },
+    { value: "city-tour", label: "City Tour" },
+    { value: "museums", label: "Museums" },
+    { value: "food", label: "Food" },
+    { value: "shopping", label: "Shopping" },
+  ];
+  if (!user) return <p>Loading user...</p>;
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8 w-[500px]"
+      >
         <p className="text-[24px] font-bold">
           Complete your guide profile page, {user?.name}
         </p>
@@ -260,25 +300,28 @@ export function GProfile() {
             <FormItem className="relative">
               <FormLabel>Add photo</FormLabel>
               <FormControl>
-                <div className="size-[160px] border-[1px] border-dashed rounded-full flex justify-center items-center relative">
+                <div className="size-[160px] border border-dashed rounded-full flex justify-center items-center relative">
                   <Camera />
                   <Input
-                    className="size-[160px] rounded-full absolute opacity-0 z-1"
+                    className="absolute size-[160px] rounded-full opacity-0 z-10 cursor-pointer"
                     type="file"
                     accept="image/*"
+                    onChange={handleProfileImageChange}
                   />
-
-                  <img
-                    className="size-[160px] rounded-full absolute object-cover"
-                    src={tourist?.profileimage}
-                    alt="Existing Profile"
-                  />
+                  {field.value && (
+                    <img
+                      className="absolute size-[160px] rounded-full object-cover"
+                      src={field.value}
+                      alt="Profile preview"
+                    />
+                  )}
                 </div>
               </FormControl>
               <FormMessage className="absolute top-47" />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="username"
@@ -292,7 +335,9 @@ export function GProfile() {
             </FormItem>
           )}
         />
-        <div className="flex w-full gap-4">
+
+        {/* First and Last Name Fields */}
+        <div className="flex w-full gap-4 justify-between">
           <FormField
             control={form.control}
             name="firstName"
@@ -321,12 +366,13 @@ export function GProfile() {
           />
         </div>
 
-        <div className="flex gap-4 w-full">
+        {/* Gender*/}
+        <div className="flex w-full justify-between gap-4">
           <FormField
             control={form.control}
             name="gender"
             render={({ field }) => (
-              <FormItem className="w-full relative">
+              <FormItem className="w-[300px]">
                 <FormLabel>Gender</FormLabel>
                 <FormControl>
                   <Select value={field.value} onValueChange={field.onChange}>
@@ -343,65 +389,196 @@ export function GProfile() {
                     </SelectContent>
                   </Select>
                 </FormControl>
-                <FormMessage className="absolute top-17" />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Languages MultiSelect */}
+          <FormField
+            control={form.control}
+            name="languages"
+            render={({ field: { onChange, value } }) => (
+              <FormItem className="w-[400px] ">
+                <FormLabel>Languages</FormLabel>
+                <FormControl>
+                  <MultiSelect
+                    styles={{
+                      valueContainer: (base) => ({
+                        ...base,
+                      }),
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "#f0f0f0", // Custom background color
+                        borderRadius: "8px", // Custom border radius
+                        borderColor: "white", // Custom border color
+                        padding: "", // Custom padding
+                        boxShadow: "none", // Remove default box shadow
+                        "&:hover": {
+                          borderColor: "gray-500", // Change border color on hover
+                        },
+                      }),
+                      option: (base) => ({
+                        ...base,
+                        padding: "10px 15px", // Custom padding for options
+                        backgroundColor: "white", // Default background for options
+                        color: "black", // Default text color
+                        cursor: "pointer", // Pointer cursor
+                        "&:hover": {
+                          backgroundColor: "black", // Light blue background on hover
+                          color: "white", // Text color on hover
+                          borderColor: "#4C9AFF", // Border color on hover (though border doesn't show in options)
+                        },
+                      }),
+                      multiValue: (base) => ({
+                        ...base,
+                        minWidth: 65,
+                        backgroundColor: "black", // Custom background color for multi-select tags
+                        borderRadius: "4px", // Rounded corners for multi-value tags
+                      }),
+                      multiValueLabel: (base) => ({
+                        ...base,
+                        color: "white", // White text color for selected options
+                      }),
+                      multiValueRemove: (base) => ({
+                        ...base,
+                        color: "white", // White color for the "remove" button
+                        cursor: "pointer", // Pointer cursor for "remove" button
+                        "&:hover": {
+                          backgroundColor: "black", // Light background on hover for "remove" button
+                        },
+                      }),
+                    }}
+                    isMulti
+                    options={languageOptions}
+                    value={languageOptions.filter((opt) =>
+                      (value as string[]).includes(opt.value)
+                    )}
+                    onChange={(newVal) => {
+                      onChange(
+                        Array.isArray(newVal)
+                          ? newVal.map((item) => item.value)
+                          : []
+                      );
+                    }}
+                    placeholder="Select languages"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        {/* <LocationFilterCard /> */}
+
+        <div className="flex w-full gap-4 justify-between">
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field: { onChange, value } }) => (
+              <FormItem className="w-[207px]">
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <SingleSelect
+                    styles={{
+                      valueContainer: (base) => ({
+                        ...base,
+                      }),
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "#f0f0f0", // Custom background color
+                        borderRadius: "8px", // Custom border radius
+                        borderColor: "white", // Custom border color
+                        padding: "", // Custom padding
+                        boxShadow: "none", // Remove default box shadow
+                        "&:hover": {
+                          borderColor: "gray-500", // Change border color on hover
+                        },
+                      }),
+                      option: (base) => ({
+                        ...base,
+                        padding: "10px 15px", // Custom padding for options
+                        backgroundColor: "white", // Default background for options
+                        color: "black", // Default text color
+                        cursor: "pointer", // Pointer cursor
+                        "&:hover": {
+                          backgroundColor: "black", // Light blue background on hover
+                          color: "white", // Text color on hover
+                          borderColor: "#4C9AFF", // Border color on hover (though border doesn't show in options)
+                        },
+                      }),
+                    }}
+                    options={countryOptions}
+                    value={
+                      countryOptions.find((opt) => opt.value === value) || null
+                    }
+                    onChange={(newVal) => {
+                      onChange(newVal ? newVal.value : "");
+                      setSelectedCountry(newVal ? newVal.value : "");
+                    }}
+                    placeholder="Select a country"
+                    className="text-sm text-gray-700 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
           <FormField
             control={form.control}
-            name="location"
+            name="city"
             render={({ field: { onChange, value } }) => (
-              <FormItem className="w-full relative">
-                <FormLabel>Country</FormLabel>
+              <FormItem className="w-[207px]">
+                <FormLabel>City</FormLabel>
                 <FormControl>
-                  <MultiSelect
-                    isMulti={false}
-                    options={countryOptions}
-                    value={
-                      countryOptions.find((option) => option.value === value) ||
-                      null
-                    }
-                    onChange={(newValue) => {
-                      onChange((newValue as OptionType | null)?.value || "");
+                  <SingleSelect
+                    styles={{
+                      valueContainer: (base) => ({
+                        ...base,
+                      }),
+                      control: (base) => ({
+                        ...base,
+                        backgroundColor: "#f0f0f0", // Custom background color
+                        borderRadius: "8px", // Custom border radius
+                        borderColor: "white", // Custom border color
+                        padding: "", // Custom padding
+                        boxShadow: "none", // Remove default box shadow
+                        "&:hover": {
+                          borderColor: "gray-500", // Change border color on hover
+                        },
+                      }),
+                      option: (base) => ({
+                        ...base,
+                        padding: "10px 15px", // Custom padding for options
+                        backgroundColor: "white", // Default background for options
+                        color: "black", // Default text color
+                        cursor: "pointer", // Pointer cursor
+                        "&:hover": {
+                          backgroundColor: "black", // Light blue background on hover
+                          color: "white", // Text color on hover
+                          borderColor: "#4C9AFF", // Border color on hover (though border doesn't show in options)
+                        },
+                      }),
                     }}
-                    placeholder="Select a country"
-                    isClearable
+                    options={cityOptions}
+                    value={
+                      cityOptions.find((opt) => opt.value === value) || null
+                    }
+                    onChange={(newVal) => {
+                      onChange(newVal ? newVal.value : "");
+                      setSelectedcity(newVal ? newVal.value : "");
+                    }}
+                    placeholder="Select a city"
+                    className="text-sm text-gray-700 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </FormControl>
-                <FormMessage className="absolute top-17" />
+                <FormMessage />
               </FormItem>
             )}
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="languages"
-          render={({ field: { onChange, value, ref } }) => (
-            <FormItem className="w-full relative">
-              <FormLabel>Languages</FormLabel>
-              <FormControl>
-                <MultiSelect
-                  isMulti
-                  options={languageOptions}
-                  value={languageOptions.filter((option) =>
-                    (value as string[]).includes(option.value)
-                  )}
-                  onChange={(
-                    newValue: SingleValue<OptionType> | MultiValue<OptionType>
-                  ) => {
-                    if (Array.isArray(newValue)) {
-                      onChange(newValue.map((item) => item.value));
-                    }
-                  }}
-                  placeholder="Select languages"
-                />
-              </FormControl>
-              <FormMessage className="absolute top-17" />
-            </FormItem>
-          )}
-        />
-
+        {/* Price and Car */}
         <div className="flex gap-4 w-full items-center">
           <FormField
             control={form.control}
@@ -437,6 +614,8 @@ export function GProfile() {
             )}
           />
         </div>
+
+        {/* Social Media URL */}
         <FormField
           control={form.control}
           name="socialAddress"
@@ -446,14 +625,16 @@ export function GProfile() {
               <FormControl>
                 <Input
                   className="w-[510px] h-[40px]"
-                  placeholder="Write about yourself here"
+                  placeholder="Enter a link to your social media"
                   {...field}
                 />
               </FormControl>
-              <FormMessage className=" absolute top-17" />
+              <FormMessage className="absolute top-17" />
             </FormItem>
           )}
         />
+
+        {/* About */}
         <FormField
           control={form.control}
           name="about"
@@ -463,7 +644,7 @@ export function GProfile() {
               <FormControl>
                 <Input
                   className="w-[510px] h-[40px]"
-                  placeholder="Write about yourself here"
+                  placeholder="Tell something about yourself"
                   {...field}
                 />
               </FormControl>
@@ -471,6 +652,8 @@ export function GProfile() {
             </FormItem>
           )}
         />
+
+        {/* Experience */}
         <FormField
           control={form.control}
           name="experience"
@@ -498,25 +681,26 @@ export function GProfile() {
           )}
         />
 
+        {/* Activities MultiSelect */}
         <FormField
           control={form.control}
           name="activities"
-          render={({ field: { onChange, value, ref } }) => (
+          render={({ field: { onChange, value } }) => (
             <FormItem className="w-full relative">
               <FormLabel>Activities</FormLabel>
               <FormControl>
                 <MultiSelect
                   isMulti
                   options={activityOptions}
-                  value={activityOptions.filter((option) =>
-                    (value as string[]).includes(option.value)
+                  value={activityOptions.filter((opt) =>
+                    (value as string[]).includes(opt.value)
                   )}
-                  onChange={(
-                    newValue: SingleValue<OptionType> | MultiValue<OptionType>
-                  ) => {
-                    if (Array.isArray(newValue)) {
-                      onChange(newValue.map((item) => item.value));
-                    }
+                  onChange={(newVal) => {
+                    onChange(
+                      Array.isArray(newVal)
+                        ? newVal.map((item) => item.value)
+                        : []
+                    );
                   }}
                   placeholder="Select activities"
                 />
@@ -526,9 +710,9 @@ export function GProfile() {
           )}
         />
 
-        <div className="flex justify-end">
-          <Button type="submit">Continue</Button>
-        </div>
+        <Button type="submit" className="w-full mt-8">
+          Save Profile
+        </Button>
       </form>
     </Form>
   );

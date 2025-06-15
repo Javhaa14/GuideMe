@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "main": "index.ts",
   "type": "module",
-"scripts": {
-  "dev": "nodemon --exec tsx src/index.ts",
-  "start": "tsx src/index.ts"
-}
-,
+  "scripts": {
+    "dev": "nodemon --exec tsx src/index.ts",
+    "start": "tsx src/index.ts"
+  },
   "author": "",
   "license": "ISC",
   "description": "",
@@ -21,6 +20,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
     "next": "^15.3.3",
+    "nodemailer": "^7.0.3",
     "openai": "^5.0.2",
     "qrcode": "^1.5.4",
     "react": "^19.1.0",
@@ -37,7 +37,8 @@
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.15.29",
+    "@types/node": "^22.15.31",
+    "@types/nodemailer": "^6.4.17",
     "@types/qrcode": "^1.5.5",
     "@types/ws": "^8.18.1",
     "nodemon": "^3.1.10",

@@ -34,13 +34,25 @@ const guideschema = new mongoose.Schema({
       ref: "User",
     },
   ],
-  comments: [
+  reviwedBy: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Comment",
     },
   ],
-
+  availability: [
+    {
+      date: {
+        type: String,
+        required: true,
+      },
+      status: {
+        type: String,
+        enum: ["available", "busy", "booked"],
+        required: true,
+      },
+    },
+  ],
   profileimage: String,
   backgroundimage: String,
   experience: String,

@@ -1,14 +1,5 @@
-import { CheckedGuides } from "@/app/(main)/notification/components/checkedGuides";
-import PriceRangeSlider from "./components/PriceRangeSlider";
-
 const TravelersPost = () => {
-  return (
-    <div>
-      <PriceRangeSlider />
-
-      <CheckedGuides />
-    </div>
-  );
+  return <div>Stage</div>;
 };
 
 export default TravelersPost;

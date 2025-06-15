@@ -1,15 +1,19 @@
-import express from "express";
+import express from 'express';
 import {
   createGuideProfile,
+  getAvailability,
   getGuideByuserId,
   getGuides,
+  saveAvailability,
   updateGuideProfile,
-} from "../controller/guideProfile";
+} from '../controller/guideProfile';
 
 export const guideRouter = express.Router();
 
 guideRouter
-  .post("/", createGuideProfile)
-  .get("/", getGuides)
-  .get("/:_id", getGuideByuserId)
-  .put("/", updateGuideProfile);
+  .post('/', createGuideProfile)
+  .get('/', getGuides)
+  .put('/', updateGuideProfile)
+  .put('/availability', saveAvailability)
+  .get('/:_id', getGuideByuserId)
+  .get('/availability/:userId', getAvailability);

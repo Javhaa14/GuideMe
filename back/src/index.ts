@@ -8,20 +8,19 @@ import { v4 } from "uuid";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 import { postRouter } from "./routes/post";
 import { connectMongoDB } from "./connectDB";
 import { touristRouter } from "./routes/touristProfile";
 import { userRouter } from "./routes/user";
-import { tripPlanRouter } from "./routes/tripPlan";
 import { authRouter } from "./routes/auth";
 import { commentRouter } from "./routes/comments";
 import { guideRouter } from "./routes/guideProfile";
 
-import AvailabilityRouter from "./routes/availability";
-
 import { Onlinerouter } from "./routes/online";
-
+import { ChatMessageModel } from "./model/ChatHistory";
+import tripPlanRouter from "./routes/tripPlan";
 
 dotenv.config();
 
@@ -52,9 +51,6 @@ app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
 app.use("/comment", commentRouter);
 app.use("/gprofile", guideRouter);
-app.use("/availability", AvailabilityRouter);
-
-// app.use('/GuideProfile', GuideProfileRouter);
 app.use("/tprofile", touristRouter);
 app.use("/api", Onlinerouter);
 
@@ -153,15 +149,81 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
     }
   });
 
+  // 1. Join room event
+  socket.on("joinRoom", async (roomId: string) => {
+    socket.join(roomId);
+    console.log(`Socket ${socket.id} joined room ${roomId}`);
+
+    try {
+      const recentMessages = await ChatMessageModel.find({ roomId })
+        .sort({ timestamp: -1 })
+        .limit(50)
+        .exec();
+      // Send recent messages in chronological order
+      socket.emit("chat history", recentMessages.reverse());
+    } catch (error) {
+      console.error("Error fetching chat history:", error);
+    }
+  });
+
   // 2. User-to-User Chat
-  socket.on("chat message", (msg: string) => {
-    io.emit("chat message", msg);
+  socket.on("chat message", async (msg) => {
+    // Expect msg to be an object like:
+    // { user, text, profileImage, roomId }
+
+    try {
+      // Save message to DB
+      const newMessage = await ChatMessageModel.create({
+        user: msg.user,
+        text: msg.text,
+        profileImage: msg.profileImage,
+        roomId: msg.roomId,
+        timestamp: new Date(),
+      });
+      io.to(msg.roomId).emit("chat message", newMessage);
+      console.log(`Message saved and emitted to room ${msg.roomId}`);
+    } catch (err) {
+      console.error("Failed to save chat message:", err);
+    }
+  });
+
+  socket.on("joinResetRoom", (userId: string) => {
+    socket.join(`reset_${userId}`);
+    console.log(`🛎️ Socket ${socket.id} joined room: reset_${userId}`);
+  });
+
+  socket.on("approveReset", async (data: { token: string }) => {
+    try {
+      const payload = jwt.verify(
+        data.token,
+        process.env.JWT_SECRET!
+      ) as JwtPayload & { id: string };
+
+      // Emit event to this user's private room to notify approval
+      io.to(`reset_${payload.id}`).emit("resetApproved", {
+        message: "Password reset approved!",
+        userId: payload.id,
+      });
+
+      // Optionally, update DB to mark token as used or approved
+
+      socket.emit("approveResult", {
+        success: true,
+        message: "Reset approved.",
+      });
+    } catch (err) {
+      socket.emit("approveResult", {
+        success: false,
+        message: "Invalid or expired token.",
+      });
+    }
   });
 
   socket.on("disconnect", () => {
     chatHistory = [];
   });
 });
+export { io };
 
 ////////////////////////////////////////////////////////////////
 // Connect DB & Start server
