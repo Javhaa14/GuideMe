@@ -1,3 +1,5 @@
-export default function Home() {
-  return <div>hi</div>;
+import TripsPagination from "./components/TripsPagination";
+
+export default function Page() {
+  return <TripsPagination />;
 }
