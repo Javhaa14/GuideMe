@@ -4,7 +4,7 @@ import mongoose, { Schema, Document } from "mongoose";
 interface IChatMessage extends Document {
   user: string;
   text: string;
-  profileImage?: string;
+  profileimage?: string;
   timestamp: Date;
   roomId?: string;
 }
@@ -14,7 +14,7 @@ const ChatMessageSchema = new mongoose.Schema(
     user: String,
     userId: String,
     text: String,
-    profileImage: String,
+    profileimage: String,
     roomId: String,
     readBy: {
       type: [String],

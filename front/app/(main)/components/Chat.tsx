@@ -23,7 +23,7 @@ export type ChatMessage = {
   id: string;
   user: string;
   text: string;
-  profileImage: string | null;
+  profileimage: string | null;
   roomId?: string;
   createdAt?: string;
 };
@@ -50,7 +50,7 @@ export default function Chat({
   const { socket, isConnected } = useSocket();
 
   const [username, setUsername] = useState("");
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileimage, setProfileImage] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -65,7 +65,7 @@ export default function Chat({
     const fetchProfile = async () => {
       try {
         const tpro = await fetchTProfile(user.id);
-        console.log("Fetched profile image:", tpro.profileImage);
+        console.log("Fetched profile image:", tpro.profileimage);
 
         setUsername(user.name);
         setProfileImage(tpro.profileimage);
@@ -132,7 +132,7 @@ export default function Chat({
       tempId, // used to match with server response
       user: username,
       text: input,
-      profileImage,
+      profileimage,
       roomId,
       createdAt: new Date().toISOString(),
       userId: user.id,
@@ -235,9 +235,9 @@ export default function Chat({
                   >
                     {/* Profile Image */}
                     <div className="flex-shrink-0">
-                      {msg.profileImage ? (
+                      {msg.profileimage ? (
                         <img
-                          src={msg.profileImage}
+                          src={msg.profileimage}
                           alt="profile"
                           className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
                         />
