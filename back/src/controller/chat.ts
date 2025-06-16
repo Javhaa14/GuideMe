@@ -53,23 +53,31 @@ export const getConversations = async (req: Request, res: Response) => {
 
       if (!conversationsMap.has(partnerId)) {
         // Fetch user to get username and role
-        const userInfo = await UserModel.findById(partnerId).select("username profileimage role");
+        const userInfo = await UserModel.findById(partnerId).select(
+          "username profileimage role"
+        );
 
         let profileimage = userInfo?.profileimage || null;
 
         // Depending on role, fetch profile image from the right profile collection
         if (userInfo?.role === "tourist") {
-          const touristProfile = await Touristmodel.findOne({ _id: partnerId }).select("profileimage");
-          if (touristProfile?.profileimage) profileimage = touristProfile.profileimage;
+          const touristProfile = await Touristmodel.findOne({
+            _id: partnerId,
+          }).select("profileimage");
+          if (touristProfile?.profileimage)
+            profileimage = touristProfile.profileimage;
         } else if (userInfo?.role === "guide") {
-          const guideProfile = await Guidemodel.findOne({ _id: partnerId }).select("profileimage");
-          if (guideProfile?.profileimage) profileimage = guideProfile.profileimage;
+          const guideProfile = await Guidemodel.findOne({
+            _id: partnerId,
+          }).select("profileimage");
+          if (guideProfile?.profileimage)
+            profileimage = guideProfile.profileimage;
         }
 
         // Count unread messages
         const unreadCount = await ChatMessageModel.countDocuments({
           roomId: msg.roomId,
-          "userId": { $ne: userId }, // Sent by the partner
+          userId: { $ne: userId }, // Sent by the partner
           readBy: { $ne: userId }, // Not read yet
         });
 
@@ -83,7 +91,9 @@ export const getConversations = async (req: Request, res: Response) => {
           lastMessage: {
             text: msg.text,
             createdAt: msg.createdAt,
+            userId: msg.user,
           },
+
           unreadCount,
         });
       }
@@ -98,7 +108,6 @@ export const getConversations = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
-
 
 // controller/chat.ts
 export const markMessagesAsRead = async (req: Request, res: Response) => {

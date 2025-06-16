@@ -17,7 +17,7 @@ import { axiosInstance } from "@/lib/utils";
 
 let socket: Socket | null = null;
 
-export default function MessengerButton() {
+export const MessengerButton = () => {
   const [open, setOpen] = useState(false);
   const [unreadTotal, setUnreadTotal] = useState(0);
   const [conversations, setConversations] = useState([]);
@@ -125,7 +125,6 @@ export default function MessengerButton() {
           <SheetTitle>Chat</SheetTitle>
         </SheetHeader>
         <ChatList
-          userId={userId}
           conversations={conversations}
           loading={loading}
           error={error}
@@ -133,4 +132,4 @@ export default function MessengerButton() {
       </SheetContent>
     </Sheet>
   );
-}
+};
