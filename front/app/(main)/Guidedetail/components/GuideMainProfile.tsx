@@ -21,7 +21,7 @@ type TourPost = {
   date: string;
 };
 
-type GuideProfile = {
+export type GuideProfile = {
   id: number;
   username: string;
   firstName: string;
