@@ -201,7 +201,7 @@ socket.on("leaveRoom", (roomId: string) => {
     const newMessage = await ChatMessageModel.create({
       user: msg.user,
       text: msg.text,
-      profileImage: msg.profileImage,
+      profileimage: msg.profileimage,
       roomId: msg.roomId,
       timestamp: new Date(),
     });

@@ -19,10 +19,11 @@ export const ChatList: React.FC<ChatListProps> = ({
       {conversations.map((conv) => (
         <div
           key={conv.roomId}
-          className="cursor-pointer flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+          className="cursor-pointer flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+        >
           <div className="relative">
             <img
-              src={conv.user.profileImage || ""}
+              src={conv.user.profileimage || ""}
               alt={conv.user.name}
               className="w-12 h-12 rounded-full object-cover"
             />

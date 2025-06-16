@@ -7,11 +7,11 @@ import { Guidemodel } from "../model/Guide";
 
 export const saveChatMessage = async (req: Request, res: Response) => {
   try {
-    const { user, text, profileImage, roomId } = req.body;
+    const { user, text, profileimage, roomId } = req.body;
     const newMessage = await ChatMessageModel.create({
       user,
       text,
-      profileImage,
+      profileimage,
       roomId,
     });
 
@@ -53,17 +53,17 @@ export const getConversations = async (req: Request, res: Response) => {
 
       if (!conversationsMap.has(partnerId)) {
         // Fetch user to get username and role
-        const userInfo = await UserModel.findById(partnerId).select("username profileImage role");
+        const userInfo = await UserModel.findById(partnerId).select("username profileimage role");
 
-        let profileImage = userInfo?.profileImage || null;
+        let profileimage = userInfo?.profileimage || null;
 
         // Depending on role, fetch profile image from the right profile collection
         if (userInfo?.role === "tourist") {
           const touristProfile = await Touristmodel.findOne({ _id: partnerId }).select("profileimage");
-          if (touristProfile?.profileimage) profileImage = touristProfile.profileimage;
+          if (touristProfile?.profileimage) profileimage = touristProfile.profileimage;
         } else if (userInfo?.role === "guide") {
           const guideProfile = await Guidemodel.findOne({ _id: partnerId }).select("profileimage");
-          if (guideProfile?.profileimage) profileImage = guideProfile.profileimage;
+          if (guideProfile?.profileimage) profileimage = guideProfile.profileimage;
         }
 
         // Count unread messages
@@ -78,7 +78,7 @@ export const getConversations = async (req: Request, res: Response) => {
           user: {
             id: partnerId,
             name: userInfo?.username || "Unknown",
-            profileImage,
+            profileimage,
           },
           lastMessage: {
             text: msg.text,
