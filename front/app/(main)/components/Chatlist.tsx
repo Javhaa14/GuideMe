@@ -2,6 +2,7 @@
 import { fetchTProfile } from "@/app/utils/fetchProfile";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useUser } from "@/app/context/Usercontext";
 
 interface ChatListProps {
   userId?: string;
@@ -16,8 +17,9 @@ export const ChatList: React.FC<ChatListProps> = ({
   error,
 }) => {
   const { data: session } = useSession();
-  const currentUserId = session?.user?.id;
-
+  // const currentUserId = session?.user?.id;
+  const { user } = useUser();
+  const currentUser = user;
   const [profileImages, setProfileImages] = useState<
     Record<string, string | null>
   >({});
@@ -49,8 +51,9 @@ export const ChatList: React.FC<ChatListProps> = ({
 
   if (loading) return <p>Loading chats...</p>;
   if (error) return <p>{error}</p>;
-  if (!currentUserId) return <p>Loading user info...</p>;
+  if (!currentUser) return <p>Loading user info...</p>;
   if (conversations.length === 0) return <p>No chats found.</p>;
+  console.log(currentUser);
 
   return (
     <div className="mt-4 max-h-[80vh] overflow-y-auto pr-2 space-y-4">
@@ -58,7 +61,7 @@ export const ChatList: React.FC<ChatListProps> = ({
         const lastMsg = conv.lastMessage;
 
         // Check if current user sent the last message
-        const isCurrentUserSender = lastMsg.userId === currentUserId;
+        const isCurrentUserSender = lastMsg.userId === currentUser.name;
 
         // Format date nicely
         const dateString = new Date(lastMsg.createdAt).toLocaleString(

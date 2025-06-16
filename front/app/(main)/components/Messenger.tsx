@@ -20,14 +20,54 @@ let socket: Socket | null = null;
 export const MessengerButton = () => {
   const [open, setOpen] = useState(false);
   const [unreadTotal, setUnreadTotal] = useState(0);
-  const [conversations, setConversations] = useState([]);
+  const [conversations, setConversations] = useState<
+    {
+      roomId: string;
+      user: {
+        id: string;
+        name: string;
+        profileimage?: string;
+      };
+      lastMessage: {
+        text: string;
+        createdAt: string;
+        senderId?: string;
+      };
+      unreadCount: number;
+    }[]
+  >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
-  // Connect socket & listen for notifications
+  // Fetch conversations & unread count
+  const fetchConversations = () => {
+    if (!userId) return;
+    setLoading(true);
+
+    axiosInstance
+      .get(`/api/chat/conversations/${userId}`)
+      .then((res) => {
+        if (res.data.success) {
+          const convs = res.data.conversations;
+          setConversations(convs);
+          const totalUnread = convs.reduce(
+            (sum: any, conv: any) => sum + (conv.unreadCount || 0),
+            0
+          );
+          setUnreadTotal(totalUnread);
+          setError(null);
+        } else {
+          setError("Failed to load conversations");
+        }
+      })
+      .catch(() => setError("Failed to load conversations"))
+      .finally(() => setLoading(false));
+  };
+
+  // Connect socket and listen
   useEffect(() => {
     if (!userId) return;
 
@@ -40,14 +80,12 @@ export const MessengerButton = () => {
       socket.on("connect", () => {
         socket?.emit("identify", userId);
         socket?.emit("joinNotificationRoom", userId);
-        console.log(`🟢 Socket connected and identified as ${userId}`);
+        console.log(`🟢 Socket connected as ${userId}`);
       });
 
       socket.on("notify", (data) => {
         if (!open) {
-          setUnreadTotal((prev) => prev + 1);
-
-          // Optional browser notification
+          fetchConversations(); // ✅ Keep this accurate
           if (
             "Notification" in window &&
             Notification.permission === "granted"
@@ -65,42 +103,32 @@ export const MessengerButton = () => {
     };
   }, [userId, open]);
 
-  // Request browser notification permission
+  // Ask for browser notification permission
   useEffect(() => {
     if ("Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission();
     }
   }, []);
 
-  // Fetch conversations and unread counts
+  // Initial + whenever messenger opens
   useEffect(() => {
-    if (!userId) return;
-
-    setLoading(true);
-    axiosInstance
-      .get(`/api/chat/conversations/${userId}`)
-      .then((res) => {
-        if (res.data.success) {
-          const convs = res.data.conversations;
-          setConversations(convs);
-          const totalUnread = convs.reduce(
-            (sum: number, conv: any) => sum + (conv.unreadCount || 0),
-            0
-          );
-          setUnreadTotal(totalUnread);
-          setError(null);
-        } else {
-          setError("Failed to load conversations");
-        }
-      })
-      .catch(() => setError("Failed to load conversations"))
-      .finally(() => setLoading(false));
+    if (userId) {
+      fetchConversations();
+    }
   }, [userId, open]);
-  console.log(conversations);
 
-  // Reset unread count when opening the messenger tab
+  // Mark messages as read when opening messenger
   useEffect(() => {
-    if (open) setUnreadTotal(0);
+    if (open && userId && conversations.length > 0) {
+      Promise.all(
+        conversations.map((conv) =>
+          axiosInstance.post("/api/chat/mark-read", {
+            roomId: conv.roomId,
+            userId,
+          })
+        )
+      ).then(() => fetchConversations());
+    }
   }, [open]);
 
   return (
