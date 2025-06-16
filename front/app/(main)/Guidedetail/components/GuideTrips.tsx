@@ -9,7 +9,8 @@ import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 
 interface TripItem {
-  id: number;
+  id: string;
+  _id: string;
   images: string;
   title: string;
   date: string;
@@ -44,7 +45,7 @@ export const GuideTrips = () => {
           <div
             key={trip.id}
             className="relative w-full overflow-hidden transition duration-300 transform bg-white shadow rounded-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer"
-            onClick={() => router.push(`/tripdetail/${trip.id}`)}
+            onClick={() => router.push(`/tripdetail/${trip._id}`)}
           >
             {user?.id?.toString() === params.id?.toString() && (
               <Button
@@ -53,7 +54,7 @@ export const GuideTrips = () => {
                 className="absolute z-10 p-2 text-gray-600 bg-white rounded-full shadow top-3 left-3 hover:bg-gray-100"
                 onClick={(e) => {
                   e.stopPropagation();
-                  router.push(`/edit/${trip.id}`);
+                  router.push(`/edit/${trip._id}`);
                 }}
               >
                 <PenLine size={18} />

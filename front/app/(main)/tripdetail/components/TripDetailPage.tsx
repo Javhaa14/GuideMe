@@ -11,7 +11,7 @@ import RoadRoute from "./RoadRoute";
 import { Activity } from "./Activity";
 
 interface TripItem {
-  id: number;
+  _id: string;
   title: string;
   about: string;
   images: string[] | string;
@@ -44,32 +44,27 @@ export const TripDetailPage = () => {
   };
 
   const fetchTrip = async () => {
+    if (!params.id) return;
     try {
       const res = await axiosInstance.get(`/tripPlan/${params.id}`);
-      const fetchedTrip = res.data.tripPlans?.[0];
+      console.log("API response:", res.data);
 
-      if (fetchedTrip) {
-        setTrip(fetchedTrip);
+      const tripData =
+        res.data?.tripPlan || res.data?.tripPlans?.[0] || res.data;
+      setTrip(tripData);
 
-        const imgData = fetchedTrip.images;
-        if (Array.isArray(imgData)) {
-          setImages(imgData);
-        } else if (typeof imgData === "string" && imgData.trim() !== "") {
-          setImages([imgData]);
-        } else {
-          setImages([]);
-        }
+      const imageData = tripData?.images;
+      if (imageData) {
+        setImages(Array.isArray(imageData) ? imageData : [imageData]);
       }
     } catch (err) {
-      console.error("❌ Trip fetch failed:", err);
+      console.error("❌ Post fetch failed:", err);
     }
   };
 
   useEffect(() => {
-    if (params?.id) {
-      fetchTrip();
-    }
-  }, [params?.id]);
+    fetchTrip();
+  }, []);
 
   return (
     <div className="max-w-5xl p-4 mx-auto font-sans">
@@ -126,14 +121,12 @@ export const TripDetailPage = () => {
         {trip?.about || "No trip description available."}
       </p>
 
-      {/* Dialog Preview */}
+      {/* Dialog for full-screen preview */}
       <dialog
         ref={dialogRef}
         aria-modal="true"
         role="dialog"
-        aria-label="Image preview"
-        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-        backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]"
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]"
       >
         <div className="relative flex items-center justify-center w-full h-full px-12">
           <button
@@ -142,7 +135,6 @@ export const TripDetailPage = () => {
           >
             ×
           </button>
-
           <button
             onClick={prevImage}
             className="absolute left-0 z-30 px-3 py-2 text-3xl text-white transition duration-200 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur"
@@ -150,7 +142,6 @@ export const TripDetailPage = () => {
           >
             ‹
           </button>
-
           {images.length > 0 && (
             <img
               src={images[currentIndex]}
@@ -158,7 +149,6 @@ export const TripDetailPage = () => {
               className="object-contain max-w-full max-h-full rounded-lg shadow-lg"
             />
           )}
-
           <button
             onClick={nextImage}
             className="absolute right-0 z-30 px-3 py-2 text-3xl text-white transition duration-200 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur"
@@ -169,6 +159,7 @@ export const TripDetailPage = () => {
         </div>
       </dialog>
 
+      {/* Additional Components */}
       <Activity />
       <TourBookingPage />
       <TourMap />

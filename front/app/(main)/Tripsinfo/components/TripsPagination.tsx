@@ -26,17 +26,17 @@ export default function TripsPagination() {
   useEffect(() => {
     const fetchTrips = async () => {
       try {
-        const res = await axiosInstance.get("/tripPlan");
-        // ✅ res.data.data эсвэл res.data-г шалга
-        const data = Array.isArray(res.data) ? res.data : res.data.data;
-        if (Array.isArray(data)) {
-          setTrips(data);
+        const res = await axiosInstance.get(`/tripPlan`);
+        console.log("✅ Response from /tripPlan:", res.data);
+
+        if (res.data && Array.isArray(res.data.tripPlans)) {
+          setTrips(res.data.tripPlans);
         } else {
-          console.error("❌ Data is not an array:", data);
+          console.error("❌ tripPlans not found or is not an array:", res.data);
           setTrips([]);
         }
       } catch (err) {
-        console.error("❌ Trip fetch failed:", err);
+        console.error("❌ Error fetching trip plans:", err);
         setTrips([]);
       } finally {
         setLoading(false);
@@ -46,7 +46,6 @@ export default function TripsPagination() {
     fetchTrips();
   }, []);
 
-  // ✨ Хоосон байхад урьдчилан шалгах
   if (loading) {
     return (
       <div className="text-center text-muted-foreground py-12">
@@ -90,12 +89,15 @@ export default function TripsPagination() {
           >
             <div className="relative overflow-hidden">
               <Image
-                src={trip.images || "/lake.png"}
+                src={
+                  typeof trip.images === "string" ? trip.images : trip.images[0]
+                }
                 alt={trip.title}
                 width={400}
                 height={300}
                 className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
               />
+
               <div className="absolute top-3 right-3">
                 <Badge variant="secondary" className="bg-white/90 text-black">
                   ${trip.price}
@@ -103,10 +105,6 @@ export default function TripsPagination() {
               </div>
             </div>
             <CardContent className="p-4">
-              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                <MapPin className="w-4 h-4" />
-                <span>{trip.location}</span>
-              </div>
               <h3 className="font-semibold text-lg mb-3 line-clamp-2 group-hover:text-primary transition-colors">
                 {trip.title}
               </h3>

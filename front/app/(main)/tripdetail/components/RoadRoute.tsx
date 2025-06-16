@@ -116,7 +116,8 @@ export default function RoadRoute() {
               <div
                 className={`relative z-10 flex items-center justify-center w-16 h-16 rounded-full ${getTypeColor(
                   stop.type
-                )} text-white shadow-lg`}>
+                )} text-white shadow-lg`}
+              >
                 {getIcon(stop.type)}
                 <div className="absolute p-1 bg-white rounded-full shadow-md -top-2 -right-2">
                   <span className="text-xs font-bold text-gray-700">

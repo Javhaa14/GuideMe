@@ -1,5 +1,10 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { MapPin, Calendar, Users, Heart } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,10 +14,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Calendar, Heart, MapPin, Users } from "lucide-react";
-import Image from "next/image";
-import { useState } from "react";
 
+// 🧩 Props type
 interface WishlistCardProps {
   id: string;
   name: string;
@@ -27,39 +30,44 @@ interface WishlistCardProps {
 }
 
 export default function WishlistCard({
-  id = "trip-123",
-  name = "Tropical Paradise Getaway",
-  location = "Bali, Indonesia",
-  image = "/placeholder.svg?height=400&width=600",
-  startDate = "June 15, 2025",
-  groupSize = "small",
-  price = 1299,
+  id,
+  name,
+  location,
+  image,
+  startDate,
+  groupSize,
+  price,
   currency = "USD",
   isFavorite = false,
-  onRemove = () => console.log(`Removing trip ${id} from wishlist`),
+  onRemove,
 }: WishlistCardProps) {
-  const [favorite, setFavorite] = useState(isFavorite);
+  const router = useRouter();
+
+  const handleViewTrip = () => {
+    router.push(`/trips/${id}`);
+  };
 
   return (
     <TooltipProvider>
       <Card className="w-full max-w-5xl overflow-hidden transition-all hover:shadow-lg">
         <div className="flex flex-col md:flex-row">
+          {/* Left Image section */}
           <div className="relative md:w-2/5">
             <Image
-              src={image || "/placeholder.svg"}
+              src={image || "/lake.png"}
               alt={name}
               width={600}
               height={400}
               className="object-cover w-full h-60 md:h-full"
             />
+
             <div className="absolute flex gap-2 right-2 top-2">
               <Button
                 variant="ghost"
                 size="icon"
-                className="bg-white/80 backdrop-blur-sm hover:bg-white/90 text-rose-500"
-                onClick={() => setFavorite(!favorite)}>
+                className="bg-white/80 text-rose-500"
+              >
                 <Heart fill="red" />
-                <span className="sr-only">Toggle favorite</span>
               </Button>
             </div>
             <Badge className="absolute left-2 top-2 bg-gradient-to-r from-violet-500 to-purple-700 hover:from-violet-600 hover:to-purple-800">
@@ -67,6 +75,7 @@ export default function WishlistCard({
             </Badge>
           </div>
 
+          {/* Right Content section */}
           <div className="flex flex-col justify-between md:w-3/5">
             <div className="p-5">
               <div className="flex items-start justify-between mb-4">
@@ -79,7 +88,8 @@ export default function WishlistCard({
                 </div>
                 <Badge
                   variant={groupSize === "small" ? "outline" : "secondary"}
-                  className="ml-2 whitespace-nowrap">
+                  className="ml-2 whitespace-nowrap"
+                >
                   {groupSize === "small" ? "Small Group" : "Large Group"}
                 </Badge>
               </div>
@@ -97,7 +107,7 @@ export default function WishlistCard({
                     <TooltipTrigger asChild>
                       <span>
                         {groupSize === "small"
-                          ? "4-10 travelers"
+                          ? "4–10 travelers"
                           : "11+ travelers"}
                       </span>
                     </TooltipTrigger>
@@ -112,6 +122,7 @@ export default function WishlistCard({
                 </div>
               </div>
 
+              {/* Price and Action Buttons */}
               <div className="flex items-center justify-between pt-4 border-t border-dashed">
                 <div>
                   <p className="text-2xl font-bold text-teal-700">
@@ -125,12 +136,15 @@ export default function WishlistCard({
                     variant="outline"
                     size="sm"
                     className="text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
-                    onClick={onRemove}>
+                    onClick={onRemove}
+                  >
                     Remove
                   </Button>
                   <Button
                     size="sm"
-                    className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600">
+                    className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600"
+                    onClick={handleViewTrip}
+                  >
                     View Trip
                   </Button>
                 </div>
