@@ -19,7 +19,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const newSocket = io(process.env.NEXT_PUBLIC_BACKEND_URL!, {
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
       withCredentials: true,
     });
 
@@ -35,6 +35,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       setIsConnected(false);
     });
 
+    newSocket.on("connect_error", (err) => {
+      console.error("🚨 Socket connection error:", err.message);
+    });
+
+    // ✅ Cleanup function MUST return void
     return () => {
       newSocket.disconnect();
     };
