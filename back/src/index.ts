@@ -118,6 +118,7 @@ const openai = new OpenAI({
 
 io.on("connection", (socket) => {
   let chatHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
+  console.log(`🔌 Socket connected: ${socket.id}`);
 
   // 1. AI Chatbot
   socket.on("ai chatbot", async (msg: string) => {
@@ -223,6 +224,10 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
         message: "Invalid or expired token.",
       });
     }
+  });
+  socket.on("leaveRoom", (roomId: string) => {
+    socket.leave(roomId);
+    console.log(`Socket ${socket.id} left room ${roomId}`);
   });
 
   socket.on("disconnect", () => {

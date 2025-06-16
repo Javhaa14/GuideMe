@@ -37,6 +37,7 @@ import { useUser } from "@/app/context/Usercontext";
 import { fetchGProfile, fetchTProfile } from "@/app/utils/fetchProfile";
 import { TouristProfile } from "../Touristdetail/components/MainProfile";
 import MessengerButton from "./Messenger";
+import { GuideProfile } from "../Guidedetail/components/GuideMainProfile";
 
 const translations = {
   en: {

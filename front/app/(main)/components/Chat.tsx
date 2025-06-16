@@ -85,36 +85,31 @@ export default function Chat({
   useEffect(() => {
     if (!roomId) return;
 
-    if (!socket.connected) {
-      socket.connect();
-    }
+    if (!socket.connected) socket.connect();
+    console.log(`🔌 Socket connected: ${socket.id}`);
 
     socket.emit("joinRoom", roomId);
 
-    if (!listenerAttached.current) {
-      socket.on("chat message", (msg: ChatMessage) => {
-        if (msg.roomId !== roomId) return;
+    socket.off("chat message");
+    socket.on("chat message", (msg: ChatMessage) => {
+      if (msg.roomId !== roomId) return;
 
-        setMessages((prev) => {
-          if (prev.some((m) => m.id === msg.id)) return prev;
-          return [...prev, msg];
-        });
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev;
+        return [...prev, msg];
       });
-
-      listenerAttached.current = true;
-    }
+    });
 
     return () => {
       socket.emit("leaveRoom", roomId);
       socket.off("chat message");
-      listenerAttached.current = false;
     };
   }, [roomId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-  const sendMessage = async (e: React.FormEvent) => {
+  const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
@@ -125,18 +120,11 @@ export default function Chat({
       profileImage,
       roomId,
       createdAt: new Date().toISOString(),
+      userId: user.id,
     };
 
-    try {
-      const res = await axiosInstance.post("/api/chat", messagePayload);
-      if (res.data.success) {
-        setMessages((prev) => [...prev, res.data.message]);
-        socket.emit("chat message", res.data.message);
-        setInput("");
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
+    socket.emit("chat message", messagePayload);
+    setInput("");
   };
 
   useEffect(() => {
