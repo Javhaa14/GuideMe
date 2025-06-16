@@ -37,7 +37,6 @@ export const getChatHistory = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
-
 export const getConversations = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
@@ -53,25 +52,25 @@ export const getConversations = async (req: Request, res: Response) => {
       const partnerId = id1 === userId ? id2 : id1;
 
       if (!conversationsMap.has(partnerId)) {
-        const userInfo = await UserModel.findById(partnerId).select("username");
+        // Fetch user to get username and role
+        const userInfo = await UserModel.findById(partnerId).select("username profileImage role");
 
-        // Try getting profile image from Tourist or Guide
-        let profileImage = null;
+        let profileImage = userInfo?.profileImage || null;
 
-        const tourist = await Touristmodel.findById(partnerId).select("profileimage");
-        if (tourist?.profileimage) {
-          profileImage = tourist.profileimage;
-        } else {
-          const guide = await Guidemodel.findById(partnerId).select("profileimage");
-          if (guide?.profileimage) {
-            profileImage = guide.profileimage;
-          }
+        // Depending on role, fetch profile image from the right profile collection
+        if (userInfo?.role === "tourist") {
+          const touristProfile = await Touristmodel.findOne({ _id: partnerId }).select("profileimage");
+          if (touristProfile?.profileimage) profileImage = touristProfile.profileimage;
+        } else if (userInfo?.role === "guide") {
+          const guideProfile = await Guidemodel.findOne({ _id: partnerId }).select("profileimage");
+          if (guideProfile?.profileimage) profileImage = guideProfile.profileimage;
         }
 
+        // Count unread messages
         const unreadCount = await ChatMessageModel.countDocuments({
           roomId: msg.roomId,
-          "userId": { $ne: userId },
-          readBy: { $ne: userId },
+          "userId": { $ne: userId }, // Sent by the partner
+          readBy: { $ne: userId }, // Not read yet
         });
 
         conversationsMap.set(partnerId, {
@@ -99,6 +98,7 @@ export const getConversations = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
+
 
 // controller/chat.ts
 export const markMessagesAsRead = async (req: Request, res: Response) => {
