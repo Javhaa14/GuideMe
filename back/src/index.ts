@@ -166,51 +166,78 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
   });
 
   // --- Chat room join ---
-  socket.on("joinRoom", async (roomId: string) => {
-    socket.join(roomId);
-    console.log(`Socket ${socket.id} joined room ${roomId}`);
+ socket.on("joinRoom", async (roomId: string) => {
+  socket.join(roomId);
+  socket.data.currentRoom = roomId; // 👈 track active room
+  console.log(`Socket ${socket.id} joined room ${roomId}`);
 
-    try {
-      const recentMessages = await ChatMessageModel.find({ roomId })
-        .sort({ timestamp: -1 })
-        .limit(50)
-        .exec();
-      socket.emit("chat history", recentMessages.reverse());
-    } catch (error) {
-      console.error("Error fetching chat history:", error);
-    }
-  });
+  try {
+    const recentMessages = await ChatMessageModel.find({ roomId })
+      .sort({ timestamp: -1 })
+      .limit(50)
+      .exec();
+    socket.emit("chat history", recentMessages.reverse());
+  } catch (error) {
+    console.error("Error fetching chat history:", error);
+  }
+});
+
+socket.on("leaveRoom", (roomId: string) => {
+  socket.leave(roomId);
+  if (socket.data.currentRoom === roomId) {
+    socket.data.currentRoom = null;
+  }
+  console.log(`Socket ${socket.id} left room ${roomId}`);
+});
 
   // --- User-to-user chat messages ---
-  socket.on("chat message", async (msg) => {
-    try {
-      const newMessage = await ChatMessageModel.create({
-        user: msg.user,
-        text: msg.text,
-        profileImage: msg.profileImage,
-        roomId: msg.roomId,
-        timestamp: new Date(),
-      });
+  socket.on("identify", (userId: string) => {
+  socket.data.userId = userId;
+  console.log(`📛 Socket ${socket.id} identified as user ${userId}`);
+});
 
-      io.to(msg.roomId).emit("chat message", {
-        ...newMessage.toObject(),
-        tempId: msg.tempId,
-      });
+ socket.on("chat message", async (msg) => {
+  try {
+    const newMessage = await ChatMessageModel.create({
+      user: msg.user,
+      text: msg.text,
+      profileImage: msg.profileImage,
+      roomId: msg.roomId,
+      timestamp: new Date(),
+    });
 
-      console.log(`Message saved and emitted to room ${msg.roomId}`);
+    io.to(msg.roomId).emit("chat message", {
+      ...newMessage.toObject(),
+      tempId: msg.tempId,
+    });
 
-      const [userA, userB] = msg.roomId.split("-");
-      const recipientId = msg.userId === userA ? userB : userA;
+    console.log(`Message saved and emitted to room ${msg.roomId}`);
 
+    // Determine recipient
+    const [userA, userB] = msg.roomId.split("-");
+    const recipientId = msg.userId === userA ? userB : userA;
+
+    // Check if recipient is already viewing the chat
+    const recipientSocket = [...io.sockets.sockets.values()].find(
+      (s) => s.data?.userId === recipientId
+    );
+
+    const isViewingChat = recipientSocket?.data?.currentRoom === msg.roomId;
+
+    if (!isViewingChat) {
       io.to(`notify_${recipientId}`).emit("notify", {
         title: "New Message",
         message: `${msg.user} sent you a message`,
         roomId: msg.roomId,
       });
-    } catch (err) {
-      console.error("Failed to save chat message:", err);
+    } else {
+      console.log(`🔕 No notification sent — user ${recipientId} is already viewing chat`);
     }
-  });
+  } catch (err) {
+    console.error("Failed to save chat message:", err);
+  }
+});
+
 
   socket.on("joinNotificationRoom", (userId: string) => {
     socket.join(`notify_${userId}`);
