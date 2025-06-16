@@ -43,7 +43,7 @@ export const GuideTrips = () => {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {trips?.map((trip) => (
           <div
-            key={trip.id}
+            key={trip._id}
             className="relative w-full overflow-hidden transition duration-300 transform bg-white shadow rounded-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer"
             onClick={() => router.push(`/tripdetail/${trip._id}`)}
           >

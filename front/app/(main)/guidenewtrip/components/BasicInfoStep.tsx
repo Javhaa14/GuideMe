@@ -103,7 +103,7 @@ export default function BasicInfoStep({
         </p>
       </div>
 
-      <motion.div variants={item}>
+      <motion.div variants={item} className="flex flex-col gap-1.5">
         <Label>Trip Title</Label>
         <Input
           value={formData.title}
@@ -113,7 +113,7 @@ export default function BasicInfoStep({
       </motion.div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <motion.div variants={item}>
+        <motion.div variants={item} className="flex flex-col gap-1.5">
           <Label className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-primary" />
             Date
@@ -125,7 +125,7 @@ export default function BasicInfoStep({
           />
         </motion.div>
 
-        <motion.div variants={item}>
+        <motion.div variants={item} className="flex flex-col gap-1.5">
           <Label className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-primary" />
             Duration
@@ -137,7 +137,7 @@ export default function BasicInfoStep({
           />
         </motion.div>
 
-        <motion.div variants={item}>
+        <motion.div variants={item} className="flex flex-col gap-1.5">
           <Label className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" />
             Group Size
@@ -149,7 +149,7 @@ export default function BasicInfoStep({
           />
         </motion.div>
 
-        <motion.div variants={item}>
+        <motion.div variants={item} className="flex flex-col gap-1.5">
           <Label className="flex items-center gap-2">
             <DollarSign className="w-4 h-4 text-primary" />
             Price
@@ -169,7 +169,7 @@ export default function BasicInfoStep({
         </motion.div>
       </div>
 
-      <motion.div variants={item}>
+      <motion.div variants={item} className="flex flex-col gap-1.5">
         <Label className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-primary" />
           Languages
@@ -182,7 +182,7 @@ export default function BasicInfoStep({
         />
       </motion.div>
 
-      <motion.div variants={item}>
+      <motion.div variants={item} className="flex flex-col gap-1.5">
         <Label className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-primary" />
           About This Trip
@@ -195,7 +195,7 @@ export default function BasicInfoStep({
         />
       </motion.div>
 
-      <motion.div variants={item}>
+      <motion.div variants={item} className="flex flex-col gap-1.5">
         <Label>Trip Images</Label>
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border">
           <div className="flex justify-between mb-4">
