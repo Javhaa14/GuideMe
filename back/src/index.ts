@@ -1,7 +1,6 @@
 import express, { json, Request, Response } from "express";
 import cors from "cors";
 import { createServer } from "http";
-import { WebSocketServer, WebSocket } from "ws";
 import { Server as SocketIOServer } from "socket.io";
 import QRcode from "qrcode";
 import { v4 } from "uuid";
@@ -55,55 +54,45 @@ app.use("/tprofile", touristRouter);
 app.use("/api", Onlinerouter);
 
 ////////////////////////////////////////////////////////////////
-// QR System
-let qrs: Record<string, boolean> = {};
-let clients: Record<string, WebSocket> = {};
+// QR Payment system using Socket.IO
+// Map paymentId => Set of socket IDs watching that payment
+const paymentWatchers: Record<string, Set<string>> = {};
 
+// Endpoint to generate QR code for payment
 app.get("/", async (_req: Request, res: Response) => {
   const id = v4();
   const baseUrl = "https://guideme-8o9f.onrender.com";
 
   const qr = await QRcode.toDataURL(`${baseUrl}/scanqr?id=${id}`);
-  qrs[id] = false;
+
+  // Initialize the payment as not scanned yet (optional tracking)
   res.send({ qr, id });
 });
 
-app.get("/scanqr", (req, res) => {
-  const { id }: any = req.query;
-  qrs[id] = true;
-
-  const client = clients[id];
-  if (client && client.readyState === WebSocket.OPEN) {
-    client.send(JSON.stringify({ status: true }));
+// Endpoint called when QR code is scanned
+app.get("/scanqr", (req, res:any) => {
+  const { id } = req.query;
+  if (typeof id !== "string") {
+    return res.status(400).send("Missing or invalid id");
   }
 
-  res.send("qr scanned");
-});
-
-////////////////////////////////////////////////////////////////
-// Use a single HTTP server
-const httpServer = createServer(app);
-
-// WebSocket for QR scan
-const ws = new WebSocketServer({ server: httpServer });
-
-ws.on("connection", (socket: WebSocket) => {
-  socket.on("message", (value) => {
-    const str = value.toString();
-
-    try {
-      const message = JSON.parse(str);
-      if (message.type === "watch" && message.paymentId) {
-        clients[message.paymentId] = socket;
+  // Notify all watchers of this paymentId via Socket.IO
+  const watchers = paymentWatchers[id];
+  if (watchers) {
+    watchers.forEach((socketId) => {
+      const socket = io.sockets.sockets.get(socketId);
+      if (socket) {
+        socket.emit("paymentScanned", { paymentId: id, status: true });
       }
-    } catch (err) {
-      console.log("Received non-JSON message:", str);
-    }
-  });
+    });
+  }
+
+  res.send("QR scanned, watchers notified");
 });
 
 ////////////////////////////////////////////////////////////////
-// Socket.IO for Chat
+// Create HTTP server and initialize Socket.IO
+const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
   cors: {
     origin: allowedOrigins,
@@ -121,7 +110,32 @@ io.on("connection", (socket) => {
   let chatHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
   console.log(`🔌 Socket connected: ${socket.id}`);
 
-  // 1. AI Chatbot
+  // --- QR payment watch handling ---
+
+  // Client asks to watch a payment by id
+  socket.on("watchPayment", (paymentId: string) => {
+    if (!paymentWatchers[paymentId]) paymentWatchers[paymentId] = new Set();
+    paymentWatchers[paymentId].add(socket.id);
+    console.log(`Socket ${socket.id} is watching payment ${paymentId}`);
+  });
+
+  // When socket disconnects, remove from all payment watchers
+  socket.on("disconnect", () => {
+    chatHistory = [];
+
+    for (const [paymentId, watchers] of Object.entries(paymentWatchers)) {
+      if (watchers.has(socket.id)) {
+        watchers.delete(socket.id);
+        console.log(`Socket ${socket.id} removed from watching payment ${paymentId}`);
+        if (watchers.size === 0) {
+          delete paymentWatchers[paymentId];
+        }
+      }
+    }
+  });
+
+  // --- AI Chatbot ---
+
   socket.on("ai chatbot", async (msg: string) => {
     chatHistory.push({ role: "user", content: msg });
 
@@ -151,7 +165,7 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
     }
   });
 
-  // 1. Join room event
+  // --- Chat room join ---
   socket.on("joinRoom", async (roomId: string) => {
     socket.join(roomId);
     console.log(`Socket ${socket.id} joined room ${roomId}`);
@@ -161,17 +175,15 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
         .sort({ timestamp: -1 })
         .limit(50)
         .exec();
-      // Send recent messages in chronological order
       socket.emit("chat history", recentMessages.reverse());
     } catch (error) {
       console.error("Error fetching chat history:", error);
     }
   });
 
-  // 2. User-to-User Chat
+  // --- User-to-user chat messages ---
   socket.on("chat message", async (msg) => {
     try {
-      // Save message to DB
       const newMessage = await ChatMessageModel.create({
         user: msg.user,
         text: msg.text,
@@ -179,10 +191,12 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
         roomId: msg.roomId,
         timestamp: new Date(),
       });
+
       io.to(msg.roomId).emit("chat message", {
         ...newMessage.toObject(),
         tempId: msg.tempId,
       });
+
       console.log(`Message saved and emitted to room ${msg.roomId}`);
 
       const [userA, userB] = msg.roomId.split("-");
@@ -210,13 +224,10 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
         process.env.JWT_SECRET!
       ) as JwtPayload & { id: string };
 
-      // Emit event to this user's private room to notify approval
       io.to(`reset_${payload.id}`).emit("resetApproved", {
         message: "Password reset approved!",
         userId: payload.id,
       });
-
-      // Optionally, update DB to mark token as used or approved
 
       socket.emit("approveResult", {
         success: true,
@@ -229,15 +240,13 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
       });
     }
   });
+
   socket.on("leaveRoom", (roomId: string) => {
     socket.leave(roomId);
     console.log(`Socket ${socket.id} left room ${roomId}`);
   });
-
-  socket.on("disconnect", () => {
-    chatHistory = [];
-  });
 });
+
 export { io };
 
 ////////////////////////////////////////////////////////////////
