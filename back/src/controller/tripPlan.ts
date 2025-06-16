@@ -44,9 +44,13 @@ export const getTripPlanById = async (
       });
     }
 
-    res.status(200).json({ success: true, tripPlan });
+    return res.status(200).json({ success: true, tripPlan });
   } catch (error) {
-    res.status(500).json({ success: false, message: (error as Error).message });
+    console.error(error); // dev үед
+    return res.status(500).json({
+      success: false,
+      message: (error as Error).message,
+    });
   }
 };
 

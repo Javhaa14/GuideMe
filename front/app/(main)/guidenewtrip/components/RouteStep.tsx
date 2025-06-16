@@ -157,7 +157,7 @@ export default function RouteStep({
 
   return (
     <motion.div
-      className="space-y-8"
+      className="space-y-8 flex flex-col gap-1.5"
       variants={container}
       initial="hidden"
       animate="show"
@@ -170,7 +170,7 @@ export default function RouteStep({
         </p>
       </div>
 
-      <motion.div variants={item}>
+      <motion.div variants={item} className="flex flex-col gap-1.5">
         <MapSearch onLocationSelect={handleLocationSelect} />
       </motion.div>
 
@@ -181,7 +181,11 @@ export default function RouteStep({
             MapPin;
 
           return (
-            <motion.div key={index} variants={item}>
+            <motion.div
+              key={index}
+              variants={item}
+              className="flex flex-col gap-1.5"
+            >
               <Card className="overflow-hidden border-l-4 border-l-primary">
                 <CardContent className="p-6">
                   <div className="grid gap-6">
@@ -228,7 +232,7 @@ export default function RouteStep({
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-6">
-                      <div>
+                      <div className="flex flex-col gap-1.5">
                         <Label>Location Name</Label>
                         <Input
                           value={route.title}
@@ -239,7 +243,7 @@ export default function RouteStep({
                         />
                       </div>
 
-                      <div>
+                      <div className="flex flex-col gap-1.5">
                         <Label>Location Type</Label>
                         <Select
                           value={route.iconType}
@@ -276,7 +280,7 @@ export default function RouteStep({
                       </div>
                     </div>
 
-                    <div>
+                    <div className="flex flex-col gap-1.5">
                       <Label>Description</Label>
                       <Textarea
                         value={route.about}
@@ -287,7 +291,7 @@ export default function RouteStep({
                       />
                     </div>
 
-                    <div>
+                    <div className="flex flex-col gap-1.5">
                       <Label>Trip Image</Label>
                       <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border">
                         <div className="flex justify-between items-center mb-4">
@@ -331,7 +335,7 @@ export default function RouteStep({
           );
         })}
 
-        <motion.div variants={item}>
+        <motion.div variants={item} className="flex flex-col gap-1.5">
           <Button
             type="button"
             variant="outline"
