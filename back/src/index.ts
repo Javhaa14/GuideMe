@@ -61,7 +61,7 @@ let clients: Record<string, WebSocket> = {};
 
 app.get("/", async (_req: Request, res: Response) => {
   const id = v4();
-  const baseUrl = "http://localhost:4000";
+  const baseUrl = "https://guideme-8o9f.onrender.com";
 
   const qr = await QRcode.toDataURL(`${baseUrl}/scanqr?id=${id}`);
   qrs[id] = false;
@@ -85,22 +85,22 @@ app.get("/scanqr", (req, res) => {
 const httpServer = createServer(app);
 
 // WebSocket for QR scan
-// const ws = new WebSocketServer({ server: httpServer });
+const ws = new WebSocketServer({ server: httpServer });
 
-// ws.on("connection", (socket: WebSocket) => {
-//   socket.on("message", (value) => {
-//     const str = value.toString();
+ws.on("connection", (socket: WebSocket) => {
+  socket.on("message", (value) => {
+    const str = value.toString();
 
-//     try {
-//       const message = JSON.parse(str);
-//       if (message.type === "watch" && message.paymentId) {
-//         clients[message.paymentId] = socket;
-//       }
-//     } catch (err) {
-//       console.log("Received non-JSON message:", str);
-//     }
-//   });
-// });
+    try {
+      const message = JSON.parse(str);
+      if (message.type === "watch" && message.paymentId) {
+        clients[message.paymentId] = socket;
+      }
+    } catch (err) {
+      console.log("Received non-JSON message:", str);
+    }
+  });
+});
 
 ////////////////////////////////////////////////////////////////
 // Socket.IO for Chat
@@ -242,8 +242,8 @@ export { io };
 ////////////////////////////////////////////////////////////////
 // Connect DB & Start server
 connectMongoDB();
-// process.env.PORT ||
-const port = 4000;
+
+const port = process.env.PORT || 4000;
 httpServer.listen(port, () => {
   console.log(`🚀 Server running on http://localhost:${port}`);
 });
