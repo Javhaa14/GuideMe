@@ -110,6 +110,7 @@ const io = new SocketIOServer(httpServer, {
     methods: ["GET", "POST"],
     credentials: true,
   },
+  transports: ["websocket", "polling"],
 });
 
 const openai = new OpenAI({
