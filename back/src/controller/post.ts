@@ -12,10 +12,20 @@ export const createPost = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { country, city, images, people, startDate, endDate, content, userId } =
-    req.body;
+  const {
+    activities,
+    country,
+    city,
+    images,
+    people,
+    startDate,
+    endDate,
+    content,
+    userId,
+  } = req.body;
   try {
     const post = await Postmodel.create({
+      activities,
       country,
       city,
       content,
@@ -116,7 +126,6 @@ export const getPosts = async (_: Request, res: Response): Promise<void> => {
     }
   }
 };
-
 
 export const getPostsByUserId = async (
   req: Request,
