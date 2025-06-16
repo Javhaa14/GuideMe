@@ -1,12 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Globe, Users } from "lucide-react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useParams } from "next/navigation";
+import { axiosInstance } from "@/lib/utils";
+
+interface TripItem {
+  _id: string;
+  price: number;
+}
 
 interface BookingProps {
   onCheck: (data: any) => void;
@@ -18,7 +25,28 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
     youth: 0,
     child: 0,
   });
+
   const [language, setLanguage] = useState("English");
+  const [trip, setTrip] = useState<TripItem | null>(null);
+  const params = useParams();
+
+  const fetchTrip = async () => {
+    const tripId = typeof params.id === "string" ? params.id : params.id?.[0];
+    if (!tripId) return;
+
+    try {
+      const res = await axiosInstance.get(`/tripPlan/${tripId}`);
+      const tripData =
+        res.data?.tripPlan || res.data?.tripPlans?.[0] || res.data;
+      setTrip(tripData);
+    } catch (err) {
+      console.error("❌ Trip fetch failed:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrip();
+  }, []);
 
   const adjustParticipant = (
     type: keyof typeof participants,
@@ -33,15 +61,7 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
   const totalParticipants =
     participants.adult + participants.youth + participants.child;
 
-  const participantOptions = [
-    { label: "Adult", range: "Age 18-99", key: "adult" },
-    { label: "Youth", range: "Age 13-17", key: "youth" },
-    { label: "Child", range: "Age 12 and younger", key: "child" },
-  ] as const;
-
-  const languages = ["English", "Mongolian", "Korean", "Japanese"];
-
-  const totalPrice = totalParticipants * 100;
+  const totalPrice = trip ? trip.price * totalParticipants : 0;
 
   const handleCheckClick = () => {
     const data = {
@@ -52,6 +72,14 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
     };
     onCheck(data);
   };
+
+  const participantOptions = [
+    { label: "Adult", range: "Age 18-99", key: "adult" },
+    { label: "Youth", range: "Age 13-17", key: "youth" },
+    { label: "Child", range: "Age 12 and younger", key: "child" },
+  ] as const;
+
+  const languages = ["English", "Mongolian", "Korean", "Japanese"];
 
   return (
     <div className="bg-[#453C67] mt-6 text-white rounded-2xl p-6 max-w-5xl mx-auto shadow-lg">
@@ -78,7 +106,8 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => adjustParticipant(key, -1)}
-                      className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300">
+                      className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300"
+                    >
                       −
                     </button>
                     <span className="w-6 font-medium text-center">
@@ -86,7 +115,8 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
                     </span>
                     <button
                       onClick={() => adjustParticipant(key, 1)}
-                      className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300">
+                      className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300"
+                    >
                       ＋
                     </button>
                   </div>
@@ -108,7 +138,8 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
               <div
                 key={lang}
                 onClick={() => setLanguage(lang)}
-                className="p-2 transition rounded cursor-pointer hover:bg-gray-100">
+                className="p-2 transition rounded cursor-pointer hover:bg-gray-100"
+              >
                 {lang}
               </div>
             ))}
@@ -122,7 +153,8 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
 
         <button
           onClick={handleCheckClick}
-          className="bg-[#6D67E4] hover:bg-[#46C2CB] transition text-white font-semibold px-6 py-3 rounded-full shadow-md">
+          className="bg-[#6D67E4] hover:bg-[#46C2CB] transition text-white font-semibold px-6 py-3 rounded-full shadow-md"
+        >
           Check availability
         </button>
       </div>

@@ -11,10 +11,40 @@ export const createTripPlan = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
 };
+
 export const getAllTripPlans = async (_req: Request, res: Response) => {
   try {
     const tripPlans = await TripPlanModel.find().populate("guideId");
     res.status(200).json({ success: true, tripPlans });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+};
+
+export const getTripPlanById = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid trip plan ID",
+    });
+  }
+
+  try {
+    const tripPlan = await TripPlanModel.findById(id).populate("guideId");
+
+    if (!tripPlan) {
+      return res.status(404).json({
+        success: false,
+        message: "Trip plan not found",
+      });
+    }
+
+    res.status(200).json({ success: true, tripPlan });
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
@@ -47,6 +77,7 @@ export const getTripPlansByGuideId = async (
     res.status(500).json({ success: false, message: (error as Error).message });
   }
 };
+
 export const updateTripPlan = async (
   req: Request,
   res: Response

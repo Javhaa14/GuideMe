@@ -121,7 +121,7 @@ export default function BasicInfoStep({
           <Input
             value={formData.date}
             onChange={(e) => updateFormData({ date: e.target.value })}
-            placeholder="e.g., 2024-06-15"
+            placeholder="e.g., 2025-06-16"
           />
         </motion.div>
 
