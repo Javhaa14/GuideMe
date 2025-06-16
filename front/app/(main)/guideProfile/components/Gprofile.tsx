@@ -1,5 +1,5 @@
 "use client";
-
+ 
 import { Camera } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -33,15 +33,18 @@ import { useRouter } from "next/navigation";
 import { LocationFilterCard } from "../../Guidesinfo/components/SearchLocation";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
 import { fetchTProfile } from "@/app/utils/fetchProfile";
-
+import Email from "next-auth/providers/email";
+import { Separator } from "@/components/ui/separator";
+ 
 const MultiSelect = dynamic(
   () => import("./Selectwrapper").then((mod) => mod.MultiSelect),
   { ssr: false }
 );
-
+ 
 export interface TouristProfile {
   firstName?: string;
   lastName?: string;
+  email: string
   gender?: string;
   location?: string;
   languages?: string[];
@@ -54,11 +57,12 @@ export interface TouristProfile {
   activities?: string[];
   car?: boolean;
 }
-
+ 
 const formSchema = z.object({
   username: z.string().min(2, "Username is required"),
   firstName: z.string().min(2, "First name is required"),
   lastName: z.string().min(2, "Last name is required"),
+  email: z.string().email("Please enter a valid email"),
   gender: z.string().min(1, "Gender is required"),
   country: z.string().min(1, "Country is required"),
   city: z.string().min(1, "City is required"),
@@ -76,27 +80,28 @@ const formSchema = z.object({
     .min(1, { message: "Select at least one activity" }),
   car: z.boolean(),
 });
-
+ 
 export function GProfile() {
   const { user } = useUser();
   const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
-
+ 
   const [cityOptions, setCityOptions] = useState<OptionType[]>([]);
   const [selectedcity, setSelectedcity] = useState<string>("");
-
+ 
   const [languageOptions, setLanguageOptions] = useState<OptionType[]>([]);
   const [tourist, setTourist] = useState<TouristProfile>();
   const { searchedValue, setSearchedValue } = useSearchLocation();
-
+ 
   const router = useRouter();
-
+ 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: user?.name || "",
       firstName: "",
       lastName: "",
+      email: "",
       gender: "",
       country: "",
       city: "",
@@ -113,12 +118,12 @@ export function GProfile() {
   });
   useEffect(() => {
     if (!user?.id) return;
-
+ 
     const loadData = async () => {
       try {
         const tpro = await fetchTProfile(user.id);
         setTourist(tpro);
-
+ 
         const resLang = await axios.get(
           "https://restcountries.com/v3.1/all?fields=languages"
         );
@@ -154,14 +159,14 @@ export function GProfile() {
         console.error("Failed to fetch data", error);
       }
     };
-
+ 
     loadData();
   }, [user]);
-
+ 
   useEffect(() => {
     const fetchCities = async (countryName: string) => {
       if (!countryName) return;
-
+ 
       try {
         const res = await axios.post(
           "https://countriesnow.space/api/v0.1/countries/cities",
@@ -169,14 +174,14 @@ export function GProfile() {
             country: countryName,
           }
         );
-
+ 
         const options: OptionType[] = res.data.data
           .sort((a: string, b: string) => a.localeCompare(b))
           .map((city: string) => ({
             label: city,
             value: city,
           }));
-
+ 
         setCityOptions(options);
       } catch (error) {
         console.error("Failed to fetch cities", error);
@@ -188,7 +193,7 @@ export function GProfile() {
     if (tourist) {
       const [city = "", country = ""] =
         tourist.location?.split(",").map((x) => x.trim()) ?? [];
-
+ 
       form.reset({
         username: user?.name || "",
         firstName: tourist.firstName || "",
@@ -206,12 +211,12 @@ export function GProfile() {
         activities: tourist.activities || [],
         car: tourist.car || false,
       });
-
+ 
       if (country) {
       }
     }
   }, [tourist]);
-
+ 
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -221,12 +226,12 @@ export function GProfile() {
     };
     reader.readAsDataURL(file);
   };
-
+ 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log("Form submitted with values:", values);
-
+ 
     if (!user?.id) return;
-
+ 
     const payload = {
       _id: user.id,
       username: values.username,
@@ -246,14 +251,14 @@ export function GProfile() {
       status: "available",
       rating: 0,
     };
-
+ 
     try {
       if (payload.username !== user.name) {
         await axiosInstance.put(`/user/${user.id}`, {
           username: payload.username,
         });
       }
-
+ 
       // Update tourist profile (if needed)
       // await axiosInstance.put(`/tprofile/${user.id}`, {
       //   languages: payload.languages,
@@ -264,16 +269,16 @@ export function GProfile() {
       //   about: payload.about,
       //   gender: payload.gender,
       // });
-
+ 
       // Create or update guide profile — better to check if exists and then put/post accordingly
       await axiosInstance.post(`/gprofile`, payload);
-
+ 
       router.push("/");
     } catch (error) {
       console.error("Profile creation/update failed", error);
     }
   };
-
+ 
   const activityOptions: OptionType[] = [
     { value: "hiking", label: "Hiking" },
     { value: "city-tour", label: "City Tour" },
@@ -282,18 +287,21 @@ export function GProfile() {
     { value: "shopping", label: "Shopping" },
   ];
   if (!user) return <p>Loading user...</p>;
-
-  return (
+ 
+ return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 w-[500px]"
+        className="flex flex-col w-full h-full gap-5 p-5"
       >
-        <p className="text-[24px] font-bold">
+          <p className="text-[16px] font-bold">
           Complete your guide profile page, {user?.name}
-        </p>
-
-        <FormField
+          </p>
+ 
+          <div className="flex w-full h-full gap-5">
+             {/* Profile picture & User name section */}
+        <div className="flex flex-col gap-3">
+         <FormField
           control={form.control}
           name="profileimage"
           render={({ field }) => (
@@ -321,7 +329,7 @@ export function GProfile() {
             </FormItem>
           )}
         />
-
+ 
         <FormField
           control={form.control}
           name="username"
@@ -335,9 +343,13 @@ export function GProfile() {
             </FormItem>
           )}
         />
-
-        {/* First and Last Name Fields */}
-        <div className="flex w-full gap-4 justify-between">
+        </div>
+ 
+        {/* Personal info section */}
+        <div className="flex flex-col gap-3">
+          
+          {/* First and Last Name Fields */}
+        <div className="flex flex-col gap-3">
           <FormField
             control={form.control}
             name="firstName"
@@ -345,12 +357,13 @@ export function GProfile() {
               <FormItem>
                 <FormLabel>First Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your first name" {...field} />
+                  <Input placeholder="Enter your first name" className="border solid border-[#d4d4d4] rounded-[10px] h-[40px] px-3 py-2 text-sm bg-[#fff]" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+ 
           <FormField
             control={form.control}
             name="lastName"
@@ -358,16 +371,32 @@ export function GProfile() {
               <FormItem>
                 <FormLabel>Last Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your last name" {...field} />
+                  <Input placeholder="Enter your last name" className="border solid border-[#d4d4d4] rounded-[10px] h-[40px] px-3 py-2 text-sm bg-[#fff]" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+ 
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your email" className="border solid border-[#d4d4d4] rounded-[10px] h-[40px] px-3 py-2 text-sm bg-[#fff]" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-
+ 
+        <Separator />
+ 
         {/* Gender*/}
-        <div className="flex w-full justify-between gap-4">
+        <div className="flex gap-4">
           <FormField
             control={form.control}
             name="gender"
@@ -393,13 +422,13 @@ export function GProfile() {
               </FormItem>
             )}
           />
-
+ 
           {/* Languages MultiSelect */}
           <FormField
             control={form.control}
             name="languages"
             render={({ field: { onChange, value } }) => (
-              <FormItem className="w-[400px] ">
+              <FormItem >
                 <FormLabel>Languages</FormLabel>
                 <FormControl>
                   <MultiSelect
@@ -469,8 +498,21 @@ export function GProfile() {
             )}
           />
         </div>
-        {/* <LocationFilterCard /> */}
-
+ 
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Country and City</FormLabel>
+                <FormControl>
+                  <Input placeholder="Search and select a country" className="border solid border-[#d4d4d4] rounded-[10px] h-[40px] px-3 py-2 text-sm bg-[#fff]" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+ 
         <div className="flex w-full gap-4 justify-between">
           <FormField
             control={form.control}
@@ -577,9 +619,9 @@ export function GProfile() {
             )}
           />
         </div>
-
+ 
         {/* Price and Car */}
-        <div className="flex gap-4 w-full items-center">
+        <div className="flex gap-4 items-center">
           <FormField
             control={form.control}
             name="price"
@@ -614,9 +656,12 @@ export function GProfile() {
             )}
           />
         </div>
-
+ 
+        </div>
+ 
         {/* Social Media URL */}
-        <FormField
+        <div>
+           <FormField
           control={form.control}
           name="socialAddress"
           render={({ field }) => (
@@ -633,7 +678,7 @@ export function GProfile() {
             </FormItem>
           )}
         />
-
+ 
         {/* About */}
         <FormField
           control={form.control}
@@ -652,7 +697,7 @@ export function GProfile() {
             </FormItem>
           )}
         />
-
+ 
         {/* Experience */}
         <FormField
           control={form.control}
@@ -680,7 +725,7 @@ export function GProfile() {
             </FormItem>
           )}
         />
-
+ 
         {/* Activities MultiSelect */}
         <FormField
           control={form.control}
@@ -709,11 +754,15 @@ export function GProfile() {
             </FormItem>
           )}
         />
-
+        </div>
+    
         <Button type="submit" className="w-full mt-8">
           Save Profile
         </Button>
+          </div>
       </form>
     </Form>
   );
 }
+ 
+ 
