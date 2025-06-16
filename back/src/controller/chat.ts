@@ -2,6 +2,8 @@
 import { Request, Response } from "express";
 import { ChatMessageModel } from "../model/ChatHistory";
 import { UserModel } from "../model/User";
+import { Touristmodel } from "../model/Tourist";
+import { Guidemodel } from "../model/Guide";
 
 export const saveChatMessage = async (req: Request, res: Response) => {
   try {
@@ -35,6 +37,7 @@ export const getChatHistory = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
+
 export const getConversations = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
@@ -50,16 +53,25 @@ export const getConversations = async (req: Request, res: Response) => {
       const partnerId = id1 === userId ? id2 : id1;
 
       if (!conversationsMap.has(partnerId)) {
-        // Get partner user info
-        const userInfo = await UserModel.findById(partnerId).select(
-          "username profileImage"
-        );
+        const userInfo = await UserModel.findById(partnerId).select("username");
 
-        // Count unread messages
+        // Try getting profile image from Tourist or Guide
+        let profileImage = null;
+
+        const tourist = await Touristmodel.findById(partnerId).select("profileimage");
+        if (tourist?.profileimage) {
+          profileImage = tourist.profileimage;
+        } else {
+          const guide = await Guidemodel.findById(partnerId).select("profileimage");
+          if (guide?.profileimage) {
+            profileImage = guide.profileimage;
+          }
+        }
+
         const unreadCount = await ChatMessageModel.countDocuments({
           roomId: msg.roomId,
-          "user.id": { $ne: userId }, // Sent by the partner
-          readBy: { $ne: userId }, // Not read yet
+          "userId": { $ne: userId },
+          readBy: { $ne: userId },
         });
 
         conversationsMap.set(partnerId, {
@@ -67,7 +79,7 @@ export const getConversations = async (req: Request, res: Response) => {
           user: {
             id: partnerId,
             name: userInfo?.username || "Unknown",
-            profileImage: userInfo?.profileImage || null,
+            profileImage,
           },
           lastMessage: {
             text: msg.text,

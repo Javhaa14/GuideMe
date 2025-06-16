@@ -6,7 +6,7 @@ interface IChatMessage extends Document {
   text: string;
   profileImage?: string;
   timestamp: Date;
-  roomId?: string; // Optional if you support rooms/chats
+  roomId?: string;
 }
 
 const ChatMessageSchema = new mongoose.Schema(

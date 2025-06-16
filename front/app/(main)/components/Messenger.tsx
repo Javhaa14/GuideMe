@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
-import axios from "axios";
 import { ChatList } from "./Chatlist";
 import { io, Socket } from "socket.io-client";
+import { axiosInstance } from "@/lib/utils";
 
 let socket: Socket | null = null;
 
@@ -77,7 +77,7 @@ export default function MessengerButton() {
     if (!userId) return;
 
     setLoading(true);
-    axios
+    axiosInstance
       .get(`/api/chat/conversations/${userId}`)
       .then((res) => {
         if (res.data.success) {
@@ -96,6 +96,7 @@ export default function MessengerButton() {
       .catch(() => setError("Failed to load conversations"))
       .finally(() => setLoading(false));
   }, [userId, open]);
+  console.log(conversations);
 
   // Reset unread count when opening the messenger tab
   useEffect(() => {
