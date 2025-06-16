@@ -1,3 +1,11 @@
+import { Building2, ShoppingBag, Telescope, Utensils } from "lucide-react";
+import { LiaHorseHeadSolid } from "react-icons/lia";
+import { MdOutlineHiking } from "react-icons/md";
+import { MdFestival } from "react-icons/md";
+import { PiMountainsBold } from "react-icons/pi";
+
+
+
 const mocData = [
   {
     id: "1",
@@ -174,4 +182,39 @@ const topLanguages = [
   },
 ];
 
-export { mocData, languages, experience, topLanguages };
+const selectActivites = [
+  {
+    icon: <Building2 />,
+    activity: "City tour"
+  },
+    {
+    icon: <Utensils />,
+    activity: "Eat & Drink"
+  },
+      {
+    icon: <ShoppingBag />,
+    activity: "Shopping"
+  },
+        {
+    icon: <LiaHorseHeadSolid />,
+    activity: "Horse riding"
+  },
+          {
+    icon: <MdOutlineHiking />,
+    activity: "Hiking"
+  },
+            {
+    icon:  <Telescope />,
+    activity: "Stargazing"
+  },
+              {
+    icon:  <MdFestival />,
+    activity: "Festivals"
+  },
+      {
+    icon:  <PiMountainsBold />,
+    activity: "Sightseeing"
+  },
+]
+
+export { mocData, languages, experience, topLanguages, selectActivites };

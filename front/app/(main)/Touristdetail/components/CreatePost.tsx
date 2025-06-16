@@ -1,12 +1,13 @@
 "use client";
-
+ 
 import type React from "react";
-
+ 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
+
 import {
   Select,
   SelectContent,
@@ -27,11 +28,20 @@ import {
   Mountain,
   Sun,
   Calendar,
+  MapPlus,
+  Flag,
+  Map,
+  MapIcon,
+  Building2,
+  Utensils,
+  Telescope,
+  ShoppingBag,
 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-
+import { selectActivites } from "@/app/utils/FilterData";
+ 
 // Updated Zod schema with optional fields
 const postSchema = z.object({
   content: z.string().min(1, "Share your travel story!"),
@@ -42,12 +52,12 @@ const postSchema = z.object({
   endDate: z.date().optional(),
   people: z.number().min(1, "At least one person required"),
 });
-
+ 
 type FormData = z.infer<typeof postSchema>;
 type CreatePostProps = {
   onPostCreated?: () => void;
 };
-
+ 
 export default function CreatePost({ onPostCreated }: CreatePostProps) {
   const params = useParams();
   const [countries, setCountries] = useState<string[]>([]);
@@ -55,7 +65,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
-
+ 
   const {
     register,
     handleSubmit,
@@ -75,20 +85,20 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       people: 1,
     },
   });
-
+ 
   const watchCountry = watch("country");
   const watchImages = watch("images");
   const watchContent = watch("content");
   const watchStartDate = watch("startDate");
   const watchEndDate = watch("endDate");
-
+ 
   useEffect(() => {
     fetch("https://restcountries.com/v3.1/all?fields=name")
       .then((res) => res.json())
       .then((data) => setCountries(data.map((c: any) => c.name.common).sort()))
       .catch((err) => console.error("Failed to load countries", err));
   }, []);
-
+ 
   useEffect(() => {
     if (!watchCountry) {
       setCities([]);
@@ -103,10 +113,10 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       .then((data) => setCities(data.data || []))
       .catch((err) => console.error("Failed to load cities", err));
   }, [watchCountry]);
-
+ 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-
+ 
     const formattedData = {
       ...data,
       startDate: data.startDate?.toISOString(),
@@ -118,7 +128,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       await axiosInstance.post(`/post`, formattedData);
       console.log("✅ Post created successfully");
       if (onPostCreated) onPostCreated();
-
+ 
       reset();
       setIsExpanded(false);
     } catch (err) {
@@ -127,18 +137,18 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       setIsSubmitting(false);
     }
   };
-
+ 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
+ 
     const uploadedUrls: string[] = [];
-
+ 
     for (const file of Array.from(files)) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", "guideme"); // Change this to your actual unsigned preset
-
+ 
       try {
         const res = await fetch(
           `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
@@ -147,9 +157,9 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
             body: formData,
           }
         );
-
+ 
         const data = await res.json();
-
+ 
         if (data.secure_url) {
           uploadedUrls.push(data.secure_url);
         } else {
@@ -159,7 +169,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
         console.error("Error uploading to Cloudinary:", error);
       }
     }
-
+ 
     // Update form state with uploaded image URLs
     setValue("images", [...(watchImages || []), ...uploadedUrls]);
     console.log("Updated images in form:", [
@@ -167,13 +177,13 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       ...uploadedUrls,
     ]);
   };
-
+ 
   const removeImage = (index: number) => {
     const updated = [...(watchImages || [])];
     updated.splice(index, 1);
     setValue("images", updated);
   };
-
+ 
   const formatDate = (date: Date | undefined) => {
     if (!date) return "";
     return date.toLocaleDateString("en-US", {
@@ -182,7 +192,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       year: "numeric",
     });
   };
-
+ 
   const handleDateChange = (type: "start" | "end", value: string) => {
     if (value) {
       const date = new Date(value);
@@ -191,19 +201,23 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       setValue(type === "start" ? "startDate" : "endDate", undefined);
     }
   };
-
+ 
   const handleSelectedActivities = (value: string) => {
     setSelectedActivities((prev) => [
       ...prev,
       selectedActivities.includes(value) ? "" : value,
     ]);
   };
-
+ 
+  const removeActivites = () => {
+        selectedActivities.pop()
+  }
+ 
   return (
     <div className="relative">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-3xl opacity-50"></div>
-
+ 
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/50 overflow-hidden"
@@ -223,7 +237,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
               Tell the world about your amazing journey!
             </p>
           </div>
-
+ 
           {/* Content Textarea */}
           <div className="relative">
             <textarea
@@ -240,7 +254,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
               </p>
             )}
           </div>
-
+ 
           {isExpanded && (
             <div className="space-y-6 animate-in slide-in-from-top-4 duration-500">
               {/* Image Upload Section */}
@@ -264,7 +278,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                     />
                   </label>
                 </div>
-
+ 
                 {watchImages && watchImages.length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {watchImages.map((img, i) => (
@@ -290,7 +304,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                   </div>
                 )}
               </div>
-
+ 
               {/* Travel Details Grid */}
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Location Section */}
@@ -301,7 +315,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                       Destination
                     </span>
                   </div>
-
+ 
                   <div className="space-y-4">
                     {/* Country */}
                     <div>
@@ -326,7 +340,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                         </p>
                       )}
                     </div>
-
+ 
                     {/* City (Optional) */}
                     <div>
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
@@ -348,7 +362,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                     </div>
                   </div>
                 </div>
-
+ 
                 {/* Travel Info Section */}
                 <div className="space-y-6">
                   {/* Date Range (Optional) */}
@@ -357,7 +371,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                       <Sun size={16} className="text-orange-600" />
                       Travel Dates (Optional)
                     </label>
-
+ 
                     <div className="grid grid-cols-2 gap-3">
                       {/* Start Date */}
                       <div>
@@ -380,7 +394,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                           <Calendar className="absolute right-3 top-3 w-4 h-4 text-orange-400 pointer-events-none" />
                         </div>
                       </div>
-
+ 
                       {/* End Date */}
                       <div>
                         <label className="text-xs text-gray-600 mb-1 block">
@@ -408,7 +422,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                         </div>
                       </div>
                     </div>
-
+ 
                     {/* Date Display */}
                     {(watchStartDate || watchEndDate) && (
                       <div className="mt-3 p-3 bg-orange-100 rounded-lg">
@@ -427,7 +441,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                       </div>
                     )}
                   </div>
-
+ 
                   {/* People Count */}
                   <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-4">
@@ -455,37 +469,37 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                   </div>
                 </div>
               </div>
-
+ 
               <div className="space-y-4">
                 {/* Activities */}
-                <div>
-                  {selectedActivities.map((el, index) => (
-                    <Button key={index} variant="ghost">
-                      {el}
-                    </Button>
+                <div className="bg-gradient-to-br from-red-50 to-rose-50 rounded-2xl p-6 border border-rose-200">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Flag className="w-5 h-5 text-rose-600" />
+                    <span className="font-semibold text-gray-700">
+                      Activities
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    {selectedActivities.map((el, index) => (
+                    <div key={index} className="flex bg-white/80 justify-center items-center border solid rounded-md px-2 py-0 gap-1 text-sm">
+                      {el} <Button onClick={removeActivites} variant="ghost" className="flex justify-center items-center p-0" > <X className="w-1 h-1 p-0"/> </Button>
+                    </div>
                   ))}
+                  </div>
+          
                   <Select
                     // {...register("activities")}
                     // value={activity}
                     onValueChange={(value) => handleSelectedActivities(value)}
                   >
-                    <SelectTrigger className="w-full p-3 border border-green-200 rounded-xl focus:ring-2 focus:ring-green-300 focus:border-green-400 bg-white/80 transition-all duration-200">
+                    <SelectTrigger className="w-full p-3 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-300 focus:border-rose-400 bg-white/80 transition-all duration-200">
                       <SelectValue placeholder="Select a activity" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        {[
-                          "City tour",
-                          "Eat & Drink",
-                          "Horse riding",
-                          "Stargazing",
-                          "Hiking",
-                          "Festivals",
-                          "Sightseeing",
-                          "Shopping",
-                        ].map((act, index) => (
-                          <SelectItem key={index} value={act}>
-                            {act}
+                        {selectActivites.map((act, index) => (
+                          <SelectItem key={index} value={act.activity}>
+                            {act.icon}{act.activity}
                           </SelectItem>
                         ))}
                       </SelectGroup>
@@ -498,7 +512,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                       )} */}
                 </div>
               </div>
-
+ 
               {/* Action Buttons */}
               <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
                 <button
@@ -524,7 +538,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                       Post your trip
                     </div>
                   )}
-
+ 
                   {/* Sparkle animation */}
                   <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300">
                     <div className="absolute top-1 left-1 w-1 h-1 bg-white rounded-full animate-ping"></div>
@@ -539,4 +553,4 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       </form>
     </div>
   );
-}
+};
