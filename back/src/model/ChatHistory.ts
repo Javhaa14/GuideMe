@@ -9,13 +9,20 @@ interface IChatMessage extends Document {
   roomId?: string; // Optional if you support rooms/chats
 }
 
-const ChatMessageSchema = new Schema<IChatMessage>({
-  user: { type: String, required: true },
-  text: { type: String, required: true },
-  profileImage: String,
-  timestamp: { type: Date, default: Date.now },
-  roomId: String,
-});
+const ChatMessageSchema = new mongoose.Schema(
+  {
+    user: String,
+    userId: String,
+    text: String,
+    profileImage: String,
+    roomId: String,
+    readBy: {
+      type: [String],
+      default: [],
+    },
+  },
+  { timestamps: true }
+);
 
 export const ChatMessageModel =
   mongoose.models.ChatMessage ||

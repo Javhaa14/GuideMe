@@ -8,6 +8,7 @@ import { PriceRangeProvider } from "./context/PriceRangeContext";
 import { SearchLocationProvider } from "./context/SearchLocationContext";
 import { FilteredDataProvider } from "./context/FilteredDataContext";
 import OnlineTracker from "@/components/OnlineTracker";
+import { SocketProvider } from "./context/SocketContext";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -15,15 +16,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
       attribute="class"
       defaultTheme="system"
       enableSystem={true}
-      disableTransitionOnChange
-    >
+      disableTransitionOnChange>
       <SessionProvider>
         <OnlineStatusProvider>
           <OnlineTracker />
           <FilteredDataProvider>
             <SearchLocationProvider>
               <PriceRangeProvider>
-                <UserProvider>{children}</UserProvider>
+                <SocketProvider>
+                  <UserProvider>{children}</UserProvider>
+                </SocketProvider>
               </PriceRangeProvider>
             </SearchLocationProvider>
           </FilteredDataProvider>
