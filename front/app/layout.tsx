@@ -1,20 +1,20 @@
-import "./globals.css";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Providers } from "./providers";
-
+import './globals.css';
+import { Geist, Geist_Mono } from 'next/font/google';
+import { Providers } from './providers';
+import Script from 'next/script';
 export const metadata = {
-  title: "GuideMe",
-  description: "GuideMe official website",
+  title: 'GuideMe',
+  description: 'GuideMe official website',
 };
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export default function RootLayout({
@@ -24,10 +24,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script id="google-translate-init" strategy="beforeInteractive">
+          {`
+            function googleTranslateElementInit() {
+              new google.translate.TranslateElement(
+                { pageLanguage: 'en', includedLanguages: 'en,mn,ru,ja,zh-CN', layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
+                'google_translate_element'
+              );
+            }
+          `}
+        </Script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white w-screen h-screen`}
-        style={{ cursor: "auto" }}
-      >
+        style={{ cursor: 'auto' }}>
         <Providers>{children}</Providers>
       </body>
     </html>
