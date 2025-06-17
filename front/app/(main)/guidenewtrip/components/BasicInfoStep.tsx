@@ -199,7 +199,9 @@ export default function BasicInfoStep({
         <Label>Trip Images</Label>
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border">
           <div className="flex justify-between mb-4">
-            <span className="font-semibold text-gray-700">Photos</span>
+            <span className="font-semibold text-gray-700">
+              Photos (You need 4 images)
+            </span>
             <label className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl cursor-pointer hover:scale-105 transition">
               <Camera size={18} />
               Add Photo
