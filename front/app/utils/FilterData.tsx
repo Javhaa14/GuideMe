@@ -4,8 +4,6 @@ import { MdOutlineHiking } from "react-icons/md";
 import { MdFestival } from "react-icons/md";
 import { PiMountainsBold } from "react-icons/pi";
 
-
-
 const mocData = [
   {
     id: "1",
@@ -185,36 +183,36 @@ const topLanguages = [
 const selectActivites = [
   {
     icon: <Building2 />,
-    activity: "City tour"
+    activity: "City tour",
   },
-    {
+  {
     icon: <Utensils />,
-    activity: "Eat & Drink"
+    activity: "Eat & Drink",
   },
-      {
+  {
     icon: <ShoppingBag />,
-    activity: "Shopping"
+    activity: "Shopping",
   },
-        {
+  {
     icon: <LiaHorseHeadSolid />,
-    activity: "Horse riding"
+    activity: "Horse riding",
   },
-          {
+  {
     icon: <MdOutlineHiking />,
-    activity: "Hiking"
+    activity: "Hiking",
   },
-            {
-    icon:  <Telescope />,
-    activity: "Stargazing"
+  {
+    icon: <Telescope />,
+    activity: "Stargazing",
   },
-              {
-    icon:  <MdFestival />,
-    activity: "Festivals"
+  {
+    icon: <MdFestival />,
+    activity: "Festivals",
   },
-      {
-    icon:  <PiMountainsBold />,
-    activity: "Sightseeing"
+  {
+    icon: <PiMountainsBold />,
+    activity: "Sightseeing",
   },
-]
+];
 
 export { mocData, languages, experience, topLanguages, selectActivites };
