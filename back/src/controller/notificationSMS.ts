@@ -3,7 +3,6 @@ import { UserModel } from "../model/User";
 import { Notification } from "../model/notification";
 
 export const sendNotification = async (req: Request, res: Response) => {
-  console.log(req.body); // Debugging step
   const { senderId, receiverId, message } = req.body;
 
   try {
@@ -13,18 +12,49 @@ export const sendNotification = async (req: Request, res: Response) => {
       message,
     });
 
-    await UserModel.findByIdAndUpdate(receiverId, {
-      $push: { notifications: notification._id },
-    });
+    const user = await UserModel.findById(receiverId);
+    if (!user) return res.status(404).json({ error: "User not found" });
 
-    res.status(200).json(notification);
+    const senderGroup = user.notifications.find(
+      (group: any) => group.sender.toString() === senderId
+    );
+
+    if (senderGroup) {
+      // Avoid duplicates
+      if (!senderGroup.notifications.includes(notification._id)) {
+        senderGroup.notifications.push(notification._id);
+      }
+    } else {
+      // Add new sender group
+      user.notifications.push({
+        sender: senderId,
+        notifications: [notification._id],
+      });
+    }
+
+    await user.save();
+
+    res.status(200).json({ success: true, notification });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
 };
 
 export const getNotificationsById = async (req: Request, res: Response) => {
-  const { receiverId } = req.body;
+  const { currentUser } = req.params;
+  try {
+    const Allnotifications = await Notification.find({ receiver: currentUser });
+
+    res.status(200).json(Allnotifications);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+};
+export const getOneusersNotificationsById = async (
+  req: Request,
+  res: Response
+) => {
+  const { receiverId } = req.params;
 
   try {
     const notifications = await Notification.find({ receiver: receiverId });
