@@ -15,7 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import "react-calendar/dist/Calendar.css";
 import { start } from "repl";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
 
@@ -142,7 +141,7 @@ export default function Home() {
               <PopoverContent className="flex items-start size-50 [&>button]:hidden bg-transparent border-none p-0 gap-0 margin-0 top-[30%] left-[30%] shadow-0 rounded-t">
                 {" "}
                 {/* <Calendar value={startDate} onChange={onChangeStart} /> */}
-                <CalendarFilter />
+                <Ebooking />
               </PopoverContent>
             </Popover>
           </div>
