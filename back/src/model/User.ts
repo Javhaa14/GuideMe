@@ -39,6 +39,12 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
+    notifications: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Notification",
+      },
+    ],
   },
   {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },

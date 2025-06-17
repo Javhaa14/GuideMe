@@ -20,6 +20,8 @@ import { guideRouter } from "./routes/guideProfile";
 import { Onlinerouter } from "./routes/online";
 import { ChatMessageModel } from "./model/ChatHistory";
 import tripPlanRouter from "./routes/tripPlan";
+import { Notifrouter } from "./routes/notificationSMS";
+import { Notification } from "./model/notification";
 declare module "socket.io" {
   interface Socket {
     userId?: string;
@@ -56,6 +58,7 @@ app.use("/comment", commentRouter);
 app.use("/gprofile", guideRouter);
 app.use("/tprofile", touristRouter);
 app.use("/api", Onlinerouter);
+app.use("/notif", Notifrouter);
 
 ////////////////////////////////////////////////////////////////
 // QR Payment system using Socket.IO
@@ -197,75 +200,53 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
     console.log("📩 Received message from client:", msg);
 
     try {
-      // Save the new message to DB
-      const newMessage = await ChatMessageModel.create({
+      const savedMessage = await ChatMessageModel.create({
         user: msg.user,
+        userId: msg.userId,
         text: msg.text,
         profileimage: msg.profileimage,
         roomId: msg.roomId,
         timestamp: new Date(),
       });
 
-      console.log(`Message saved and emitted to room ${msg.roomId}`);
+      // Emit to room (so both sender & recipient get the message)
+      io.to(msg.roomId).emit("chat message", savedMessage);
 
-      const senderId = msg.userId;
-      // Get the two user IDs from the roomId (format: "userA-userB")
+      // Determine the recipient
       const [userA, userB] = msg.roomId.split("-");
-      const recipientId = senderId === userA ? userB : userA;
+      const recipientId = msg.userId === userA ? userB : userA;
 
-      // --- IMPORTANT: Update unread count for recipient in DB ---
-      // You must have a collection or way to store conversation unread counts per user.
-      // Example: increment unreadCount for recipient in conversation with roomId
+      // Save the notification
+      await Notification.create({
+        sender: msg.userId,
+        receiver: recipientId,
+        messageId: savedMessage._id,
+        roomId: msg.roomId,
+        seen: false,
+      });
 
-      // Pseudocode, you must implement this based on your DB schema:
-      /*
-      await ConversationModel.updateOne(
-        { roomId: msg.roomId, "participants.userId": recipientId },
-        { $inc: { "participants.$.unreadCount": 1 } }
-      );
-    */
-
-      // --- Find recipient socket ---
+      // Find recipient socket
       const recipientSocket = [...io.sockets.sockets.values()].find(
-        (s) => (s.data?.userId ?? "") === recipientId
+        (s) => s.data?.userId === recipientId
       );
 
-      if (!recipientSocket) {
-        console.log(`⚠️ Recipient socket not found for user ${recipientId}`);
-      } else {
-        console.log(`✅ Found recipient socket: ${recipientSocket.id}`);
-      }
-
-      // Check if recipient is viewing the chat room
       const isViewingChat = recipientSocket?.data?.currentRoom === msg.roomId;
-      console.log("🔔 Sending notification to", recipientId, "from", senderId);
 
-      if (recipientId !== senderId) {
-        if (!isViewingChat) {
-          // Emit notify event to recipient (used by frontend to update conversations/unread counts)
-          io.to(`notify_${recipientId}`).emit("notify", {
-            title: "New Message",
-            message: `${msg.user} sent you a message`,
-            roomId: msg.roomId,
-            senderId: senderId,
-          });
-        } else {
-          console.log(
-            `🔕 No notification sent — user ${recipientId} is already viewing chat`
-          );
-          // Optionally you can reset unread count here since user is reading the messages
-          /*
-          await ConversationModel.updateOne(
-            { roomId: msg.roomId, "participants.userId": recipientId },
-            { $set: { "participants.$.unreadCount": 0 } }
-          );
-        */
-        }
+      if (!isViewingChat && recipientId !== msg.userId) {
+        // Send real-time notification
+        io.to(`notify_${recipientId}`).emit("notify", {
+          title: "New Message",
+          message: `${msg.user} sent you a message`,
+          roomId: msg.roomId,
+          senderId: msg.userId,
+        });
       } else {
-        console.log(`🔕 Skipped notification for sender ${senderId}`);
+        console.log(
+          `🔕 No notification — recipient is in room or is the sender`
+        );
       }
     } catch (err) {
-      console.error("Failed to save chat message:", err);
+      console.error("❌ Failed to save chat message or notification:", err);
     }
   });
 
