@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Calendar, MapPin, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,17 +23,15 @@ export default function TripsPagination() {
   const [trips, setTrips] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchTrips = async () => {
       try {
         const res = await axiosInstance.get(`/tripPlan`);
-        console.log("✅ Response from /tripPlan:", res.data);
-
         if (res.data && Array.isArray(res.data.tripPlans)) {
           setTrips(res.data.tripPlans);
         } else {
-          console.error("❌ tripPlans not found or is not an array:", res.data);
           setTrips([]);
         }
       } catch (err) {
@@ -54,7 +53,7 @@ export default function TripsPagination() {
     );
   }
 
-  if (!Array.isArray(trips) || trips.length === 0) {
+  if (trips.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-12">
         No trips found.
@@ -74,9 +73,9 @@ export default function TripsPagination() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-center mb-2">Adventure Trips</h1>
-        <p className="text-muted-foreground text-center">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold mb-2">Adventure Trips</h1>
+        <p className="text-muted-foreground">
           Discover amazing destinations with our guided tours
         </p>
       </div>
@@ -84,20 +83,22 @@ export default function TripsPagination() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {currentTrips.map((trip) => (
           <Card
-            key={trip._id || trip.id}
+            key={trip._id}
             className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
+            onClick={() => router.push(`/tripdetail/${trip._id}`)}
           >
             <div className="relative overflow-hidden">
               <Image
                 src={
-                  typeof trip.images === "string" ? trip.images : trip.images[0]
+                  typeof trip.images === "string"
+                    ? trip.images
+                    : trip.images[0] || "/placeholder.jpg"
                 }
                 alt={trip.title}
                 width={400}
                 height={300}
                 className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
               />
-
               <div className="absolute top-3 right-3">
                 <Badge variant="secondary" className="bg-white/90 text-black">
                   ${trip.price}
@@ -115,7 +116,7 @@ export default function TripsPagination() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  <span>{trip.date}</span>
+                  <span>{new Date(trip.date).toLocaleDateString()}</span>
                 </div>
               </div>
             </CardContent>

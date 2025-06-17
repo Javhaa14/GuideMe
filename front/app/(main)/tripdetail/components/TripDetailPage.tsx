@@ -44,21 +44,32 @@ export const TripDetailPage = () => {
   };
 
   const fetchTrip = async () => {
-    if (!params.id) return;
-    try {
-      const res = await axiosInstance.get(`/tripPlan/${params.id}`);
-      console.log("API response:", res.data);
+    const tripId = params?.id as string;
+    if (!tripId) return console.warn("⛔ params.id байхгүй байна");
 
-      const tripData =
-        res.data?.tripPlan || res.data?.tripPlans?.[0] || res.data;
+    try {
+      const res = await axiosInstance.get(`/tripPlan/tripPlan/${tripId}`);
+
+      if (!res.data.success || !res.data.tripPlan) {
+        console.warn("⛔ Аялал олдсонгүй:", res.data.message);
+        toast.error("Аялал олдсонгүй: " + res.data.message);
+        return;
+      }
+
+      const tripData = res.data.tripPlan;
+      console.log("➡️ tripData:", tripData);
       setTrip(tripData);
 
       const imageData = tripData?.images;
       if (imageData) {
         setImages(Array.isArray(imageData) ? imageData : [imageData]);
       }
-    } catch (err) {
-      console.error("❌ Post fetch failed:", err);
+    } catch (error: any) {
+      console.error(
+        "❌ API fetch error:",
+        error?.response?.data || error.message
+      );
+      toast.error("Алдаа гарлаа: " + error?.message);
     }
   };
 
