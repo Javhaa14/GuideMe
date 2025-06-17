@@ -6,6 +6,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
+import { Button } from "@/components/ui/button";
+import { selectActivites } from "@/app/utils/FilterData";
+import { LocationFilterCard } from "../Guidesinfo/components/SearchLocation";
+import Ebooking from "../Guidedetail/components/Ebooking";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
 export interface PostType {
   _id: string;
   userId: string;
@@ -37,15 +47,6 @@ export interface PostType {
 }
 
 export default function Home() {
-  const filters = [
-    "Most Recent",
-    "For you",
-    "Date",
-    "Languages",
-    "Gender",
-    "Location",
-    "Activites",
-  ];
   const [posts, setPosts] = useState<PostType[]>([]);
   const { user, status } = useUser();
 
@@ -67,12 +68,53 @@ export default function Home() {
     router.push(`/Touristdetail/${id}`);
   };
   return (
-    <div className="flex flex-col w-screen h-full items-center bg-white gap-10 pt-[40px] px-[20px]">
-      <div className="flex border-black border-[3px] gap-4 w-fit h-fit rounded-md p-4">
-        {filters.map((v, i) => {
+    <div className="flex flex-col w-screen h-full items-center bg-white gap-5 py-[40px] px-[20px]">
+      <div className="flex flex-col border-gray-200 border-[3px] gap-4 w-fit h-fit rounded-md p-4">
+        <div className="flex gap-3">
+          <Button variant="ghost">Search Location</Button>
+          <LocationFilterCard
+            isFilter={false}
+            placeholder="Search Location ..."
+          />
+        </div>
+
+        <div className="flex gap-3">
+          <Button variant="ghost">Choose a date:</Button>
+          <div>
+            <Popover>
+              <PopoverTrigger>Start Date</PopoverTrigger>
+              <PopoverContent className="flex items-start size-50 [&>button]:hidden bg-transparent border-none p-0 gap-0 margin-0 top-[30%] left-[30%] shadow-0 rounded-t">
+                {" "}
+                <Ebooking />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div>
+            <Popover>
+              <PopoverTrigger>End Date</PopoverTrigger>
+              <PopoverContent className="flex items-start size-50 [&>button]:hidden bg-transparent border-none p-0 gap-0 margin-0 top-[30%] left-[30%] shadow-0 rounded-t">
+                {" "}
+                <Ebooking />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <Button variant="ghost">Activities</Button>
+          {selectActivites.map((act, index) => (
+            <Button variant="secondary">
+              {act.icon}
+              {act.activity}
+            </Button>
+          ))}
+        </div>
+
+        {/* {filters.map((v, i) => {
           return <Filter key={i} name={v} />;
-        })}
+        })} */}
       </div>
+
       <div className="flex flex-col gap-5 w-[800px] h-fit">
         {posts.map((v, i) => {
           return (

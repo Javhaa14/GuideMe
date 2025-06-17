@@ -1,12 +1,19 @@
 "use client";
-import { HandCoins, Heart, Star, ThumbsUp } from "lucide-react";
+import {
+  HandCoins,
+  Heart,
+  Map,
+  MapPinCheck,
+  Star,
+  ThumbsUp,
+} from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@/app/context/Usercontext";
-import axios from "axios";
 import { axiosInstance } from "@/lib/utils";
 import { Guide } from "../page";
-import { useFilteredData } from "@/app/context/FilteredDataContext";
+import { Separator } from "@/components/ui/separator";
+
 export const GuideProfile = ({
   id,
   name,
@@ -34,7 +41,7 @@ export const GuideProfile = ({
   const [liked, setLiked] = useState(post.likedBy.includes(user?.id));
   const [showLikes, setShowLikes] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likedBy.length);
-  const { filteredData, setFilteredData } = useFilteredData();
+
   const handleLikeClick = async () => {
     try {
       const response = await axiosInstance.put(`/gprofile`, {
@@ -55,52 +62,69 @@ export const GuideProfile = ({
   };
 
   return (
-    <div className="w-[500px] h-[200px] border-[1px] border-black rounded-lg flex flex-row gap-2">
-      <img
-        src={profileimage == "" ? "/user.jpg" : profileimage}
-        className="size-[200px] rounded-lg"
-      ></img>
+    <div className="flex w-[500px] h-[200px] bg-white/20 border border-gray-200 rounded-lg gap-2">
+      <div className="flex flex-col gap-1 w-fit">
+        <img
+          src={profileimage == "" ? "/user.jpg" : profileimage}
+          className="flex w-[250px] h-[200px] rounded-bl-md rounded-tl-md"
+        ></img>
+      </div>
+
       <div className="flex flex-col justify-between py-2 w-full px-5">
         <div className="flex flex-row w-full justify-between">
           <div className="flex flex-col gap-1 w-full">
-            <p
-              onClick={onclick}
-              className="text-[23px] text-black font-bold hover:cursor-pointer"
-            >
-              {name}
-            </p>
-            <p className="text-[14px] text-blue-400">{location}</p>
+            <div className="flex justify-start items-center">
+              <p
+                onClick={onclick}
+                className="text-[20px] text-black font-bold hover:cursor-pointer"
+              >
+                {name}
+              </p>
+              <div
+                className={`flex w-2 h-2 rounded-full ml-3 ${
+                  status == "available" ? "bg-green-500" : "bg-red-500"
+                }`}
+              ></div>
+            </div>
           </div>
-          <HandCoins className="text-blue-600 size-5 mr-2" />
-          {price == "FREE" ? (
-            <p className="text-blue-400 font-bold">{price}</p>
-          ) : (
-            <p className="text-blue-400 font-bold">{price}$/h</p>
-          )}
-          <div
-            className={`w-3 h-2 rounded-full ml-3 ${
-              status == "available" ? "bg-green-500" : "bg-red-600"
-            }`}
-          ></div>
+          <div className="flex justify-center items-center gap-2">
+            <HandCoins className="text-amber-800 size-4" />
+            {price == "FREE" ? (
+              <p className="text-amber-700 font-bold">{price}</p>
+            ) : (
+              <p className="text-amber-700 font-bold">{price}$/h</p>
+            )}
+          </div>
         </div>
-        <div className="w-full h-[1px] border-[1px] border-gray-300"></div>
-        <p className="text-[14px] text-black">{about}</p>
+        <div className="w-full h-[100px] bg-blue-50">
+          <p className="flex gap-1 justify-center items-center text-sm text-black w-full">
+            {" "}
+            <MapPinCheck className="size-4 stroke-amber-700" /> {location}
+          </p>
+
+          <p className="text-[14px] text-black">{about}</p>
+        </div>
+
+        {/* <div className="w-full h-[1px] border-[1px] border-gray-300"></div> */}
+
+        <Separator />
         <div className="flex w-full justify-between flex-row gap-5">
           <div className="flex gap-2">
-            <p className="text-[14px] text-black">Rating</p>
+            {/* <p className="text-[14px] text-black">Rating</p> */}
 
-            <p className="text-black">{rating}</p>
-            <Star className="size-5 text-yellow-300" />
+            <div className="flex justify-center items-center gap-2">
+              <Star className="size-5 text-amber-500 fill-amber-500" />
+              <p className="text-black">{rating}</p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
-            {likesCount}
             <button
               onClick={() => {
                 setLiked(!liked);
                 handleLikeClick();
               }}
-              className={`size-10 flex  justify-center items-center rounded-full text-red-500  ${
-                liked ? " bg-green-200" : "bg-red-200"
+              className={`size-5 flex  justify-center items-center rounded-full text-red-500  ${
+                liked ? " bg-green-100" : "bg-red-100"
               }`}
             >
               {" "}
@@ -134,6 +158,7 @@ export const GuideProfile = ({
                   ))}
               </AnimatePresence>
             </button>
+            {likesCount}
           </div>
         </div>
       </div>

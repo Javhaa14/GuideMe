@@ -14,20 +14,16 @@ import calendar from "dayjs/plugin/calendar";
 
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { fetchTProfile } from "@/app/utils/fetchProfile";
+import { useSocket } from "@/app/context/SocketContext";
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 dayjs.extend(calendar);
-
-const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL, {
-  transports: ["websocket"],
-  autoConnect: false,
-});
 
 export type ChatMessage = {
   id: string;
   user: string;
   text: string;
-  profileImage: string | null;
+  profileimage: string | null;
   roomId?: string;
   createdAt?: string;
 };
@@ -41,19 +37,19 @@ export type UserPayload = {
 export default function Chat({
   user,
   onlineUsers,
+  profileId,
 }: {
   user: UserPayload;
   onlineUsers: OnlineUsers;
+  profileId: string;
 }) {
-  const params = useParams();
-  const profileId = Array.isArray(params.id) ? params.id[0] : params.id;
-
   if (!profileId) {
     return <p>User ID not found in URL params.</p>;
   }
+  const { socket, isConnected } = useSocket();
 
   const [username, setUsername] = useState("");
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileimage, setProfileImage] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -68,7 +64,7 @@ export default function Chat({
     const fetchProfile = async () => {
       try {
         const tpro = await fetchTProfile(user.id);
-        console.log("Fetched profile image:", tpro.profileImage);
+        console.log("Fetched profile image:", tpro.profileimage);
 
         setUsername(user.name);
         setProfileImage(tpro.profileimage);
@@ -83,61 +79,74 @@ export default function Chat({
   const listenerAttached = useRef(false);
 
   useEffect(() => {
-    if (!roomId) return;
-
-    if (!socket.connected) {
-      socket.connect();
-    }
+    if (!socket || !isConnected || !roomId) return;
+    console.log("Connecting to backend:", process.env.NEXT_PUBLIC_BACKEND_URL);
 
     socket.emit("joinRoom", roomId);
 
-    if (!listenerAttached.current) {
-      socket.on("chat message", (msg: ChatMessage) => {
-        if (msg.roomId !== roomId) return;
+    socket.on("chat message", (msg) => {
+      if (msg.roomId !== roomId) return;
 
-        setMessages((prev) => {
-          if (prev.some((m) => m.id === msg.id)) return prev;
-          return [...prev, msg];
-        });
+      const normalizedMsg = {
+        ...msg,
+        id: msg.id || msg._id, // fallback
+      };
+
+      setMessages((prev) => {
+        // If this is a response to an optimistic message (matches tempId), replace it
+        if (msg.tempId) {
+          const exists = prev.find((m) => m.id === msg.tempId);
+          if (exists) {
+            return prev.map((m) => (m.id === msg.tempId ? normalizedMsg : m));
+          }
+        }
+
+        // If already exists by ID, skip
+        if (prev.some((m) => m.id === normalizedMsg.id)) return prev;
+
+        // Otherwise, add normally
+        return [...prev, normalizedMsg];
       });
-
-      listenerAttached.current = true;
-    }
+    });
 
     return () => {
       socket.emit("leaveRoom", roomId);
       socket.off("chat message");
-      listenerAttached.current = false;
     };
-  }, [roomId]);
+  }, [socket, isConnected, roomId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-  const sendMessage = async (e: React.FormEvent) => {
+
+  const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+
+    if (!input.trim() || !socket || !isConnected) return;
+
+    const tempId = uuidv4();
 
     const messagePayload = {
-      id: uuidv4(),
+      id: tempId,
+      tempId,
       user: username,
       text: input,
-      profileImage,
+      profileimage,
       roomId,
       createdAt: new Date().toISOString(),
+      userId: user.id,
     };
 
-    try {
-      const res = await axiosInstance.post("/api/chat", messagePayload);
-      if (res.data.success) {
-        setMessages((prev) => [...prev, res.data.message]);
-        socket.emit("chat message", res.data.message);
-        setInput("");
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
+    // Optimistic message
+    setMessages((prev) => [...prev, messagePayload]);
+    console.log("Sending message payload:", messagePayload);
+
+    // Send to server
+    socket.emit("chat message", messagePayload);
+    setInput("");
   };
+
+  console.log("🔌 isConnected:", isConnected);
 
   useEffect(() => {
     const fetchChatHistory = async () => {
@@ -223,9 +232,9 @@ export default function Chat({
                     }`}>
                     {/* Profile Image */}
                     <div className="flex-shrink-0">
-                      {msg.profileImage ? (
+                      {msg.profileimage ? (
                         <img
-                          src={msg.profileImage}
+                          src={msg.profileimage}
                           alt="profile"
                           className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
                         />

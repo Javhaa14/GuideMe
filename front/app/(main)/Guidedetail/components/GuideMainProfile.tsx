@@ -21,7 +21,7 @@ type TourPost = {
   date: string;
 };
 
-type GuideProfile = {
+export type GuideProfile = {
   id: number;
   username: string;
   firstName: string;
@@ -42,6 +42,11 @@ type GuideProfile = {
 
 export default function GuideMainProfile() {
   const params = useParams();
+
+  let profileId = Array.isArray(params.id) ? params.id[0] : params.id;
+  if (!profileId) {
+    return <p>User ID not found in URL params.</p>;
+  }
   if (!params.id) return <p>Missing guide ID</p>;
 
   const guideId = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -90,7 +95,11 @@ export default function GuideMainProfile() {
               </div>
             </div>
             <div className="flex w-full">
-              <Chat onlineUsers={onlineUsers} user={user} />
+              <Chat
+                profileId={profileId}
+                onlineUsers={onlineUsers}
+                user={user}
+              />
             </div>
           </div>
         </div>

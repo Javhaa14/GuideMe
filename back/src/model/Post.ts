@@ -10,6 +10,7 @@ const postchema = new mongoose.Schema({
   country: String,
   city: String,
   images: [String],
+  activities: [String],
   people: Number,
   likedBy: [
     {

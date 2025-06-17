@@ -70,7 +70,7 @@ export const getTripPlansByGuideId = async (
     const tripPlans = await TripPlanModel.find({ guideId: userid });
 
     if (!tripPlans || tripPlans.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: "No trip plans found for this guide",
       });
