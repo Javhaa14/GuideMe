@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { Filter } from "./components/Filter";
+
 import Travelerspost from "../components/Travelerpost";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Filter } from "./components/Filter";
 
 export interface PostType {
   _id: string;
@@ -72,10 +73,7 @@ export default function Home() {
       <div className="flex flex-col border-gray-200 border-[3px] gap-4 w-fit h-fit rounded-md p-4">
         <div className="flex gap-3">
           <Button variant="ghost">Search Location</Button>
-          <LocationFilterCard
-            isFilter={false}
-            placeholder="Search Location ..."
-          />
+          <Filter isFilter={false} placeholder="Search Location ..." />
         </div>
 
         <div className="flex gap-3">
