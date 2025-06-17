@@ -12,124 +12,88 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { ChatList } from "./Chatlist";
-import { io, Socket } from "socket.io-client";
 import { axiosInstance } from "@/lib/utils";
-
-let socket: Socket | null = null;
+import { useSocket } from "@/app/context/SocketContext";
 
 export const MessengerButton = () => {
-  const [open, setOpen] = useState(false);
-  const [unreadTotal, setUnreadTotal] = useState(0);
-  const [conversations, setConversations] = useState<
-    {
-      roomId: string;
-      user: {
-        id: string;
-        name: string;
-        profileimage?: string;
-      };
-      lastMessage: {
-        text: string;
-        createdAt: string;
-        senderId?: string;
-      };
-      unreadCount: number;
-    }[]
-  >([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
-  // Fetch conversations & unread count
-  const fetchConversations = () => {
-    if (!userId) return;
-    setLoading(true);
+  const { socket, isConnected } = useSocket();
 
-    axiosInstance
-      .get(`/api/chat/conversations/${userId}`)
-      .then((res) => {
-        if (res.data.success) {
-          const convs = res.data.conversations;
-          setConversations(convs);
-          const totalUnread = convs.reduce(
-            (sum: any, conv: any) => sum + (conv.unreadCount || 0),
-            0
-          );
-          setUnreadTotal(totalUnread);
-          setError(null);
-        } else {
-          setError("Failed to load conversations");
-        }
-      })
-      .catch(() => setError("Failed to load conversations"))
-      .finally(() => setLoading(false));
+  const [open, setOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch notification count function
+  const fetchNotificationCount = async () => {
+    if (!userId) return;
+    try {
+      const res = await axiosInstance.get(`/notif/getall/${userId}`);
+      if (Array.isArray(res.data)) {
+        setNotificationCount(res.data.length);
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch notifications:", error);
+    }
   };
 
-  // Connect socket and listen
-  useEffect(() => {
+  const fetchConversations = async () => {
     if (!userId) return;
-
-    if (!socket) {
-      socket = io("https://guideme-8o9f.onrender.com", {
-        transports: ["websocket"],
-        withCredentials: true,
-      });
-
-      socket.on("connect", () => {
-        socket?.emit("identify", userId);
-        socket?.emit("joinNotificationRoom", userId);
-        console.log(`🟢 Socket connected as ${userId}`);
-      });
-
-      socket.on("notify", (data) => {
-        if (!open) {
-          fetchConversations(); // ✅ Keep this accurate
-          if (
-            "Notification" in window &&
-            Notification.permission === "granted"
-          ) {
-            new Notification(data.title, {
-              body: data.message,
-            });
-          }
-        }
-      });
+    setLoading(true);
+    try {
+      const res = await axiosInstance.get(`/api/chat/conversations/${userId}`);
+      if (res.data.success) {
+        setConversations(res.data.conversations);
+        setError(null);
+      } else {
+        setError("Failed to load conversations");
+      }
+    } catch {
+      setError("Failed to load conversations");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return () => {
-      socket?.off("notify");
-    };
-  }, [userId, open]);
-
-  // Ask for browser notification permission
-  useEffect(() => {
-    if ("Notification" in window && Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
-  }, []);
-
-  // Initial + whenever messenger opens
+  // Fetch notifications **once when page loads**
   useEffect(() => {
     if (userId) {
+      fetchNotificationCount();
       fetchConversations();
     }
-  }, [userId, open]);
+  }, [userId]);
 
-  // Mark messages as read when opening messenger
+  // Socket join notification room etc. if you want, but NOT for notification count updates
   useEffect(() => {
-    if (open && userId && conversations.length > 0) {
-      Promise.all(
-        conversations.map((conv) =>
-          axiosInstance.post("/api/chat/mark-read", {
-            roomId: conv.roomId,
-            userId,
-          })
-        )
-      ).then(() => fetchConversations());
-    }
-  }, [open]);
+    if (!socket || !isConnected) return;
+
+    // Join notification room for this user
+    socket.emit("joinNotificationRoom", userId);
+
+    // Listen for notification event to update count live
+    const handleNotify = (data: any) => {
+      console.log("🔔 Received notification via socket:", data);
+      setNotificationCount((prev) => prev + 1);
+    };
+
+    socket.on("notify", handleNotify);
+
+    return () => {
+      socket.off("notify", handleNotify);
+      socket.emit("leaveNotificationRoom", userId);
+    };
+  }, [socket, isConnected, userId]);
+  // Function to call after sending a message to update notifications count live
+  const onSendMessage = async () => {
+    // Your send message logic here
+    // ...
+
+    // Then fetch updated notification count immediately
+    await fetchNotificationCount();
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -137,12 +101,11 @@ export const MessengerButton = () => {
         <Button
           variant="ghost"
           className="relative rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-          aria-label="Open Messenger"
-        >
+          aria-label="Open Messenger">
           <MessageCircleMore className="h-5 w-5 text-gray-700 dark:text-gray-200" />
-          {unreadTotal > 0 && (
+          {notificationCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-              {unreadTotal}
+              {notificationCount}
             </span>
           )}
         </Button>
@@ -157,6 +120,15 @@ export const MessengerButton = () => {
           loading={loading}
           error={error}
         />
+        <Button onClick={onSendMessage}>Send Message (simulate)</Button>
+        <Button
+          onClick={() => {
+            console.log("Current socket:", socket);
+            console.log("Socket connected?", isConnected);
+            console.log("Socket ID:", socket?.id);
+          }}>
+          Debug Socket
+        </Button>
       </SheetContent>
     </Sheet>
   );

@@ -175,48 +175,63 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
   });
 
   // --- Chat room join ---
-  socket.on("joinRoom", async (roomId: string) => {
-    socket.join(roomId);
-    socket.data.currentRoom = roomId; // 👈 track active room
-    console.log(`Socket ${socket.id} joined room ${roomId}`);
-
-    try {
-      const recentMessages = await ChatMessageModel.find({ roomId })
-        .sort({ timestamp: -1 })
-        .limit(50)
-        .exec();
-      socket.emit("chat history", recentMessages.reverse());
-    } catch (error) {
-      console.error("Error fetching chat history:", error);
-    }
-  });
   socket.on("identify", (userId) => {
     socket.data.userId = userId;
-    console.log(`Socket ${socket.id} identified as user ${userId}`);
-
-    socket.join(userId);
+    socket.join(userId); // Optional: join a personal room by userId
+    console.log(`✅ Socket ${socket.id} identified as user ${userId}`);
   });
+
+  // Join notification room
+  socket.on("joinNotificationRoom", (userId: string) => {
+    socket.join(`notify_${userId}`);
+    console.log(`🔔 User ${userId} joined notify_${userId}`);
+
+    // Debug: List all socket rooms
+    setTimeout(() => {
+      console.log(`🧠 Socket ${socket.id} rooms:`, [...socket.rooms]);
+    }, 1000); // wait a sec to allow join
+  });
+
+  // Join chat room
+  socket.on("joinRoom", (roomId) => {
+    socket.join(roomId);
+    socket.data.currentRoom = roomId;
+    console.log(`👥 Socket ${socket.id} joined room ${roomId}`);
+  });
+
+  // Leave chat room
+  socket.on("leaveRoom", (roomId) => {
+    socket.leave(roomId);
+    console.log(`🚪 Socket ${socket.id} left room ${roomId}`);
+  });
+
+  // Handle incoming chat message
   socket.on("chat message", async (msg) => {
-    console.log("📩 Received message from client:", msg);
+    console.log("📩 Message received:", msg);
 
     try {
+      // Save message to DB (replace with your DB code)
       const savedMessage = await ChatMessageModel.create({
         user: msg.user,
         userId: msg.userId,
         text: msg.text,
         profileimage: msg.profileimage,
         roomId: msg.roomId,
-        timestamp: new Date(),
+        // timestamp will be added automatically
       });
 
-      // Emit to room (so both sender & recipient get the message)
+      if (!savedMessage) {
+        throw new Error("Failed to save message");
+      }
+
+      // Emit message to the chat room
       io.to(msg.roomId).emit("chat message", savedMessage);
 
-      // Determine the recipient
+      // Determine recipient userId
       const [userA, userB] = msg.roomId.split("-");
       const recipientId = msg.userId === userA ? userB : userA;
 
-      // Save the notification
+      // Save notification in DB (replace with your DB code)
       await Notification.create({
         sender: msg.userId,
         receiver: recipientId,
@@ -225,63 +240,38 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
         seen: false,
       });
 
-      // Find recipient socket
+      // Find recipient's socket to check current room
       const recipientSocket = [...io.sockets.sockets.values()].find(
         (s) => s.data?.userId === recipientId
       );
 
       const isViewingChat = recipientSocket?.data?.currentRoom === msg.roomId;
 
+      console.log(`Checking if should notify recipient ${recipientId}`);
+      console.log(`Is viewing chat: ${isViewingChat}`);
+      console.log(`Is sender: ${recipientId === msg.userId}`);
+
       if (!isViewingChat && recipientId !== msg.userId) {
-        // Send real-time notification
+        console.log(`📣 Emitting to notify_${recipientId}`);
         io.to(`notify_${recipientId}`).emit("notify", {
           title: "New Message",
           message: `${msg.user} sent you a message`,
           roomId: msg.roomId,
           senderId: msg.userId,
+          type: "message",
         });
       } else {
-        console.log(
-          `🔕 No notification — recipient is in room or is the sender`
-        );
+        console.log("🔕 No notification sent (user is in room or is sender)");
       }
     } catch (err) {
-      console.error("❌ Failed to save chat message or notification:", err);
+      console.error("❌ Failed to process chat message:", err);
     }
   });
 
-  socket.on("joinNotificationRoom", (userId: string) => {
-    socket.join(`notify_${userId}`);
-    console.log(`🔔 User ${userId} joined notify_${userId}`);
-  });
-
-  socket.on("approveReset", async (data: { token: string }) => {
-    try {
-      const payload = jwt.verify(
-        data.token,
-        process.env.JWT_SECRET!
-      ) as JwtPayload & { id: string };
-
-      io.to(`reset_${payload.id}`).emit("resetApproved", {
-        message: "Password reset approved!",
-        userId: payload.id,
-      });
-
-      socket.emit("approveResult", {
-        success: true,
-        message: "Reset approved.",
-      });
-    } catch (err) {
-      socket.emit("approveResult", {
-        success: false,
-        message: "Invalid or expired token.",
-      });
-    }
-  });
-
-  socket.on("leaveRoom", (roomId: string) => {
-    socket.leave(roomId);
-    console.log(`Socket ${socket.id} left room ${roomId}`);
+  // Handle disconnect cleanup if needed
+  socket.on("disconnect", () => {
+    console.log(`❌ Socket disconnected: ${socket.id}`);
+    // You can remove socket from any tracking str
   });
 });
 

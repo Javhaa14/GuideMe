@@ -11,7 +11,7 @@ export interface INotification extends Document {
 const notificationSchema = new Schema<INotification>({
   sender: { type: Schema.Types.ObjectId, ref: "User" },
   receiver: { type: Schema.Types.ObjectId, ref: "User" },
-  message: { type: String, required: true },
+  message: { type: String },
   seen: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
