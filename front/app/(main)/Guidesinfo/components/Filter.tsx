@@ -218,11 +218,14 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
   };
 
   return (
-    <div className="flex flex-col gap-3 w-[400px] ">
-      <LocationFilterCard />
+    <div className="flex flex-col gap-3 px-30">
+      <LocationFilterCard
+        isFilter={true}
+        placeholder="Search and select a city"
+      />
       <PriceFilterCard />
       <div className="flex flex-col justify-center items-start gap-5">
-        <div className="flex gap-5">
+        {/* <div className="flex gap-5">
           <h3 className="flex w-[150px] text-base font-medium text-gray-700">
             Review:
           </h3>
@@ -230,8 +233,9 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
             value={reviewNumber}
             onChange={handleReviewChanges}
           />
-        </div>
-        <div className="flex gap-5 justify-items-center">
+        </div> */}
+
+        <div className="flex flex-col gap-5 justify-items-center">
           <h3 className="flex w-[150px] text-base font-medium text-gray-700">
             Experience:
           </h3>
@@ -254,7 +258,7 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
             </div>
           ))}
         </div>
-        <div className="flex gap-5 justify-items-center">
+        <div className="flex flex-col gap-5 justify-items-center">
           <h3 className="flex w-[150px] text-base font-medium text-gray-700">
             Language:
           </h3>
