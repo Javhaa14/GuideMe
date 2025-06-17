@@ -3,7 +3,7 @@ import { GProfile } from "./components/Gprofile";
 
 const page = () => {
   return (
-    <div className="flex justify-center px-[200px] py-[50px]">
+    <div className="flex justify-center items-center p-[50px]">
       <GProfile />
     </div>
   );

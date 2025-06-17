@@ -51,47 +51,33 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col w-screen h-full items-center bg-white gap-10 pt-[40px] px-[20px]">
-      <Filters guides={guides} />
-
-      <div className="grid grid-cols-2 gap-5 w-full px-30 h-fit">
-        {/* {guides?.map((guide, i) => (
-          <GuideProfile
-            post={guide}
-            id={guide._id}
-            onclick={() => router.push(`/Guidedetail/${guide._id}`)}
-            key={guide._id || i}
-            status={guide.status}
-            profileimage={guide.profileimage || ""}
-            rating={guide.rating || 0}
-            price={guide.price || 0}
-            name={guide.username || ""}
-            location={guide.location || ""}
-            about={guide.about || ""}
-          />
-        ))} */}
+    <div className="flex w-screen h-screen items-start justify-center bg-white gap-10 py-[50px] px-[20px]">
+      <div className=" flex flex-wrap gap-5 px-30 h-fit">
         {filteredData.length !== 0 ? (
-          filteredData?.map((guide, index) => (
-            <div key={index}>
-              <GuideProfile
-                post={guide}
-                id={guide._id}
-                onclick={() => router.push(`/Guidedetail/${guide._id}`)}
-                key={guide._id || index}
-                status={guide.status}
-                profileimage={guide.profileimage || ""}
-                rating={guide.rating || 0}
-                price={guide.price || 0}
-                name={guide.username || ""}
-                location={guide.location || ""}
-                about={guide.about || ""}
-              />
-            </div>
-          ))
+          filteredData
+            ?.sort((a, b) => b.rating - a.rating)
+            .map((guide, index) => (
+              <div key={index}>
+                <GuideProfile
+                  post={guide}
+                  id={guide._id}
+                  onclick={() => router.push(`/Guidedetail/${guide._id}`)}
+                  key={guide._id || index}
+                  status={guide.status}
+                  profileimage={guide.profileimage || ""}
+                  rating={guide.rating || 0}
+                  price={guide.price || 0}
+                  name={guide.username || ""}
+                  location={guide.location || ""}
+                  about={guide.about || ""}
+                />
+              </div>
+            ))
         ) : (
           <p>No results found</p>
         )}
       </div>
+      <Filters guides={guides} />
     </div>
   );
 }
