@@ -35,8 +35,9 @@ import {
 import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
 import { fetchGProfile, fetchTProfile } from "@/app/utils/fetchProfile";
-import MessengerButton from "./Messenger";
-import type { TouristProfile } from "../Touristdetail/components/MainProfile";
+import { TouristProfile } from "../Touristdetail/components/MainProfile";
+import { GuideProfile } from "../Guidedetail/components/GuideMainProfile";
+import { MessengerButton } from "./Messenger";
 
 const translations = {
   en: {
@@ -151,13 +152,22 @@ export const Navigation = () => {
 
       {/* Nav Links */}
       <div className="hidden md:flex items-center gap-8 mx-auto">
-        <Link href="/Guidesinfo" className="nav-link">
+        <Link
+          href="/Guidesinfo"
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+        >
           {t.guides}
         </Link>
-        <Link href="/Travelersinfo" className="nav-link">
+        <Link
+          href="/Travelersinfo"
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+        >
           {t.tourists}
         </Link>
-        <Link href="/Tripsinfo" className="nav-link">
+        <Link
+          href="/Tripsinfo"
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+        >
           {t.trips}
         </Link>
       </div>
@@ -222,7 +232,7 @@ export const Navigation = () => {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-red-500"
+                  className="text-red-500 focus:text-red-500"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   {t.logout}
@@ -230,10 +240,10 @@ export const Navigation = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Buttons */}
             <Button
               variant="ghost"
               size="icon"
+              className="relative"
               onClick={() => router.push("/notification")}
             >
               <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -246,7 +256,7 @@ export const Navigation = () => {
               <Heart color="red" fill="red" />
             </div>
 
-            {/* Settings Dropdown */}
+            {/* Settings */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -342,3 +352,4 @@ export const Navigation = () => {
     </nav>
   );
 };
+

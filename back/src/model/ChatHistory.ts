@@ -4,18 +4,25 @@ import mongoose, { Schema, Document } from "mongoose";
 interface IChatMessage extends Document {
   user: string;
   text: string;
-  profileImage?: string;
+  profileimage?: string;
   timestamp: Date;
-  roomId?: string; // Optional if you support rooms/chats
+  roomId?: string;
 }
 
-const ChatMessageSchema = new Schema<IChatMessage>({
-  user: { type: String, required: true },
-  text: { type: String, required: true },
-  profileImage: String,
-  timestamp: { type: Date, default: Date.now },
-  roomId: String,
-});
+const ChatMessageSchema = new mongoose.Schema(
+  {
+    user: String,
+    userId: String,
+    text: String,
+    profileimage: String,
+    roomId: String,
+    readBy: {
+      type: [String],
+      default: [],
+    },
+  },
+  { timestamps: true }
+);
 
 export const ChatMessageModel =
   mongoose.models.ChatMessage ||
