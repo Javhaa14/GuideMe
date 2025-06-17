@@ -42,32 +42,54 @@ export const MessengerButton = () => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
-  // Fetch conversations & unread count
-  const fetchConversations = () => {
+  // Fetch conversations & unread count from backend
+  const fetchConversations = async () => {
     if (!userId) return;
     setLoading(true);
+    try {
+      const res = await axiosInstance.get(`/api/chat/conversations/${userId}`);
+      if (res.data.success) {
+        const convs = res.data.conversations;
+        setConversations(convs);
 
-    axiosInstance
-      .get(`/api/chat/conversations/${userId}`)
-      .then((res) => {
-        if (res.data.success) {
-          const convs = res.data.conversations;
-          setConversations(convs);
-          const totalUnread = convs.reduce(
-            (sum: any, conv: any) => sum + (conv.unreadCount || 0),
-            0
-          );
-          setUnreadTotal(totalUnread);
-          setError(null);
-        } else {
-          setError("Failed to load conversations");
-        }
-      })
-      .catch(() => setError("Failed to load conversations"))
-      .finally(() => setLoading(false));
+        // Calculate total unread count
+        const totalUnread = convs.reduce(
+          (sum: any, conv: any) => sum + (conv.unreadCount || 0),
+          0
+        );
+        setUnreadTotal(totalUnread);
+        setError(null);
+      } else {
+        setError("Failed to load conversations");
+      }
+    } catch {
+      setError("Failed to load conversations");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Connect socket and listen
+  // Mark messages as read when messenger opens (reset unreadCount on server)
+  const markAllRead = async () => {
+    if (!userId) return;
+    if (conversations.length === 0) return;
+
+    try {
+      await Promise.all(
+        conversations.map((conv) =>
+          axiosInstance.post("/api/chat/mark-read", {
+            roomId: conv.roomId,
+            userId,
+          })
+        )
+      );
+      await fetchConversations();
+    } catch {
+      // ignore errors for now
+    }
+  };
+
+  // Setup socket connection & listeners once per userId
   useEffect(() => {
     if (!userId) return;
 
@@ -76,58 +98,65 @@ export const MessengerButton = () => {
         transports: ["websocket"],
         withCredentials: true,
       });
-
-      socket.on("connect", () => {
-        socket?.emit("identify", userId);
-        socket?.emit("joinNotificationRoom", userId);
-        console.log(`🟢 Socket connected as ${userId}`);
-      });
-
-      socket.on("notify", (data) => {
-        if (!open) {
-          fetchConversations(); // ✅ Keep this accurate
-          if (
-            "Notification" in window &&
-            Notification.permission === "granted"
-          ) {
-            new Notification(data.title, {
-              body: data.message,
-            });
-          }
-        }
-      });
     }
 
+    const handleConnect = () => {
+      socket?.emit("identify", userId);
+      socket?.emit("joinNotificationRoom", userId);
+      console.log("Socket connected:", userId);
+    };
+
+    // Handle incoming notifications about new messages
+    const handleNotify = (data: {
+      title: string;
+      message: string;
+      senderId?: string;
+      roomId?: string;
+    }) => {
+      if (data.senderId === userId) {
+        // IGNORE messages sent by yourself for unread count update
+        // But you can optionally update last message if needed
+        return;
+      }
+
+      // Fetch new conversations immediately on any incoming message from others
+      fetchConversations();
+
+      // Show native notification only if messenger is closed
+      if (!open) {
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification(data.title, { body: data.message });
+        }
+      }
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("notify", handleNotify);
+
     return () => {
-      socket?.off("notify");
+      socket?.off("connect", handleConnect);
+      socket?.off("notify", handleNotify);
     };
   }, [userId, open]);
 
-  // Ask for browser notification permission
+  // Request notification permission once
   useEffect(() => {
     if ("Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission();
     }
   }, []);
 
-  // Initial + whenever messenger opens
+  // Fetch conversations on mount and whenever messenger opens
   useEffect(() => {
     if (userId) {
       fetchConversations();
     }
   }, [userId, open]);
 
-  // Mark messages as read when opening messenger
+  // Mark messages read when messenger opens
   useEffect(() => {
-    if (open && userId && conversations.length > 0) {
-      Promise.all(
-        conversations.map((conv) =>
-          axiosInstance.post("/api/chat/mark-read", {
-            roomId: conv.roomId,
-            userId,
-          })
-        )
-      ).then(() => fetchConversations());
+    if (open) {
+      markAllRead();
     }
   }, [open]);
 
@@ -137,8 +166,7 @@ export const MessengerButton = () => {
         <Button
           variant="ghost"
           className="relative rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-          aria-label="Open Messenger"
-        >
+          aria-label="Open Messenger">
           <MessageCircleMore className="h-5 w-5 text-gray-700 dark:text-gray-200" />
           {unreadTotal > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">

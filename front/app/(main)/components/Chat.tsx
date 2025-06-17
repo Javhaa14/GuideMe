@@ -37,13 +37,12 @@ export type UserPayload = {
 export default function Chat({
   user,
   onlineUsers,
+  profileId,
 }: {
   user: UserPayload;
   onlineUsers: OnlineUsers;
+  profileId: string;
 }) {
-  const params = useParams();
-  const profileId = Array.isArray(params.id) ? params.id[0] : params.id;
-
   if (!profileId) {
     return <p>User ID not found in URL params.</p>;
   }
@@ -128,8 +127,8 @@ export default function Chat({
     const tempId = uuidv4();
 
     const messagePayload = {
-      id: tempId, // temporary ID for frontend rendering
-      tempId, // used to match with server response
+      id: tempId,
+      tempId,
       user: username,
       text: input,
       profileimage,
@@ -140,6 +139,7 @@ export default function Chat({
 
     // Optimistic message
     setMessages((prev) => [...prev, messagePayload]);
+    console.log("Sending message payload:", messagePayload);
 
     // Send to server
     socket.emit("chat message", messagePayload);
@@ -221,18 +221,15 @@ export default function Chat({
               <div
                 className={`flex ${
                   isCurrentUser ? "justify-end" : "justify-start"
-                }`}
-              >
+                }`}>
                 <div
                   className="relative max-w-xs group"
                   onMouseEnter={() => setHoveredIndex(i)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                >
+                  onMouseLeave={() => setHoveredIndex(null)}>
                   <div
                     className={`flex items-end gap-2 ${
                       isCurrentUser ? "flex-row-reverse" : "flex-row"
-                    }`}
-                  >
+                    }`}>
                     {/* Profile Image */}
                     <div className="flex-shrink-0">
                       {msg.profileimage ? (
@@ -254,8 +251,7 @@ export default function Chat({
                         isCurrentUser
                           ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
                           : "bg-white text-gray-800 border border-gray-200"
-                      }`}
-                    >
+                      }`}>
                       <p className="text-sm leading-relaxed">{msg.text}</p>
                     </div>
                   </div>
@@ -265,14 +261,12 @@ export default function Chat({
                     <div
                       className={`absolute -top-8 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg z-50 whitespace-nowrap ${
                         isCurrentUser ? "right-0" : "left-0"
-                      }`}
-                    >
+                      }`}>
                       {msg.user}
                       <div
                         className={`absolute top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800 ${
                           isCurrentUser ? "right-2" : "left-2"
-                        }`}
-                      ></div>
+                        }`}></div>
                     </div>
                   )}
                 </div>
@@ -299,8 +293,7 @@ export default function Chat({
           <button
             type="submit"
             disabled={!input.trim()}
-            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg"
-          >
+            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg">
             <Send size={18} />
           </button>
         </form>
