@@ -3,13 +3,13 @@ import { UserModel } from "../model/User";
 import { Notification } from "../model/notification";
 
 export const sendNotification = async (req: Request, res: Response) => {
-  const { senderId, receiverId, message } = req.body;
+  const { senderId, receiverId, messageId } = req.body;
 
   try {
     const notification = await Notification.create({
       sender: senderId,
       receiver: receiverId,
-      message,
+      message: messageId,
     });
 
     await UserModel.findByIdAndUpdate(receiverId, {
