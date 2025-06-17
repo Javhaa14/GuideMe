@@ -86,7 +86,7 @@ export const getPosts = async (_: Request, res: Response): Promise<void> => {
           country: 1,
           city: 1,
           images: 1,
-          activites: 1,
+          activities: 1,
           people: 1,
           likes: 1,
           likedBy: 1,
