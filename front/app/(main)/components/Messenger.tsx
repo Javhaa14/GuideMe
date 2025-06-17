@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { MessageCircleMore } from "lucide-react";
 import {
   Sheet,
@@ -14,6 +14,8 @@ import { useSession } from "next-auth/react";
 import { ChatList } from "./Chatlist";
 import { io, Socket } from "socket.io-client";
 import { axiosInstance } from "@/lib/utils";
+
+let socket: Socket | null = null;
 
 export const MessengerButton = () => {
   const [open, setOpen] = useState(false);
@@ -40,37 +42,94 @@ export const MessengerButton = () => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
-  const socketRef = useRef<Socket | null>(null);
-
-  const fetchConversations = async () => {
+  // Fetch conversations & unread count
+  const fetchConversations = () => {
     if (!userId) return;
     setLoading(true);
-    try {
-      const res = await axiosInstance.get(`/api/chat/conversations/${userId}`);
-      if (res.data.success) {
-        const convs = res.data.conversations;
-        setConversations(convs);
-        setError(null);
-      } else {
-        setError("Failed to load conversations");
-      }
-    } catch {
-      setError("Failed to load conversations");
-    } finally {
-      setLoading(false);
-    }
+
+    axiosInstance
+      .get(`/api/chat/conversations/${userId}`)
+      .then((res) => {
+        if (res.data.success) {
+          const convs = res.data.conversations;
+          setConversations(convs);
+          const totalUnread = convs.reduce(
+            (sum: any, conv: any) => sum + (conv.unreadCount || 0),
+            0
+          );
+          setUnreadTotal(totalUnread);
+          setError(null);
+        } else {
+          setError("Failed to load conversations");
+        }
+      })
+      .catch(() => setError("Failed to load conversations"))
+      .finally(() => setLoading(false));
   };
 
-  // Mark messages as read when messenger opens (reset unreadCount on server)
-  // const markAllRead = async () => {
+  // Connect socket and listen
+  useEffect(() => {
+    if (!userId) return;
 
-  //   try {
+    if (!socket) {
+      socket = io("https://guideme-8o9f.onrender.com", {
+        transports: ["websocket"],
+        withCredentials: true,
+      });
 
-  //     await fetchConversations();
-  //   } catch {
-  //     // ignore errors for now
-  //   }
-  // };
+      socket.on("connect", () => {
+        socket?.emit("identify", userId);
+        socket?.emit("joinNotificationRoom", userId);
+        console.log(`🟢 Socket connected as ${userId}`);
+      });
+
+      socket.on("notify", (data) => {
+        if (!open) {
+          fetchConversations(); // ✅ Keep this accurate
+          if (
+            "Notification" in window &&
+            Notification.permission === "granted"
+          ) {
+            new Notification(data.title, {
+              body: data.message,
+            });
+          }
+        }
+      });
+    }
+
+    return () => {
+      socket?.off("notify");
+    };
+  }, [userId, open]);
+
+  // Ask for browser notification permission
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // Initial + whenever messenger opens
+  useEffect(() => {
+    if (userId) {
+      fetchConversations();
+    }
+  }, [userId, open]);
+
+  // Mark messages as read when opening messenger
+  useEffect(() => {
+    if (open && userId && conversations.length > 0) {
+      Promise.all(
+        conversations.map((conv) =>
+          axiosInstance.post("/api/chat/mark-read", {
+            roomId: conv.roomId,
+            userId,
+          })
+        )
+      ).then(() => fetchConversations());
+    }
+  }, [open]);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

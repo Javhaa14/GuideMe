@@ -8,8 +8,6 @@ import {
 
 export const Notifrouter = express.Router();
 
-Notifrouter.post("/send", sendNotification);
-Notifrouter.put("/seen/:notificationId", markAsSeen).get(
-  "/",
-  getNotificationsById
-);
+Notifrouter.post("/send", sendNotification)
+  .put("/seen/:notificationId", markAsSeen)
+  .get("/", getNotificationsById);
