@@ -26,7 +26,7 @@ const UserContext = createContext<UserContextType>({
 // ---- Socket Initialization ----
 let socket: Socket | null = null;
 if (typeof window !== "undefined" && !socket) {
-  socket = io(process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000");
+  socket = io(process.env.NEXT_PUBLIC_BACKEND_URL);
 }
 
 // ---- Provider ----

@@ -3,11 +3,9 @@
 import type React from "react";
 import { useEffect, useState, useRef } from "react";
 import { Send, User } from "lucide-react";
-import io from "socket.io-client";
 import { axiosInstance } from "@/lib/utils";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useParams } from "next/navigation";
 import { OnlineUsers } from "../Touristdetail/components/TouristMainProfile";
 import { v4 as uuidv4 } from "uuid";
 import calendar from "dayjs/plugin/calendar";
@@ -119,33 +117,6 @@ export default function Chat({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!input.trim() || !socket || !isConnected) return;
-
-    const tempId = uuidv4();
-
-    const messagePayload = {
-      id: tempId,
-      tempId,
-      user: username,
-      text: input,
-      profileimage,
-      roomId,
-      createdAt: new Date().toISOString(),
-      userId: user.id,
-    };
-
-    // Optimistic message
-    setMessages((prev) => [...prev, messagePayload]);
-    console.log("Sending message payload:", messagePayload);
-
-    // Send to server
-    socket.emit("chat message", messagePayload);
-    setInput("");
-  };
-
   console.log("🔌 isConnected:", isConnected);
 
   useEffect(() => {
@@ -168,6 +139,71 @@ export default function Chat({
 
     fetchChatHistory();
   }, [roomId]);
+
+  const fetchNoificaions = async (recieverId: string, messageId: string) => {
+    if (!user) return;
+    try {
+      const res = await axiosInstance.post(`/notif/send${user.id}`, {
+        sender: user.id,
+        receiver: recieverId,
+        message: messageId,
+      });
+      if (res.data.success) {
+        const convs = res.data.conversations;
+      } else {
+      }
+    } catch {}
+  };
+
+  const sendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!input.trim() || !socket || !isConnected) return;
+
+    const tempId = uuidv4();
+
+    const messagePayload = {
+      id: tempId,
+      tempId,
+      user: username,
+      text: input,
+      profileimage,
+      roomId,
+      createdAt: new Date().toISOString(),
+      userId: user.id,
+    };
+
+    // Call fetchNotifications with the receiver's ID and the message ID (tempId)
+    fetchNotifications(profileId, tempId);
+
+    // Optimistic message
+    setMessages((prev) => [...prev, messagePayload]);
+    console.log("Sending message payload:", messagePayload);
+
+    // Send to server
+    socket.emit("chat message", messagePayload);
+    setInput("");
+  };
+
+  const fetchNotifications = async (receiverId: string, messageId: string) => {
+    if (!user) return;
+
+    try {
+      const res = await axiosInstance.post(`/notif/send${user.id}`, {
+        sender: user.id,
+        receiver: receiverId, // Receiver is now the profileId (the user you're chatting with)
+        message: messageId, // Using messageId (tempId) for notification
+      });
+
+      if (res.data.success) {
+        console.log("Notification sent successfully");
+      } else {
+        console.error("Failed to send notification");
+      }
+    } catch (error) {
+      console.error("Error sending notification:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col w-full bg-white">
@@ -221,15 +257,18 @@ export default function Chat({
               <div
                 className={`flex ${
                   isCurrentUser ? "justify-end" : "justify-start"
-                }`}>
+                }`}
+              >
                 <div
                   className="relative max-w-xs group"
                   onMouseEnter={() => setHoveredIndex(i)}
-                  onMouseLeave={() => setHoveredIndex(null)}>
+                  onMouseLeave={() => setHoveredIndex(null)}
+                >
                   <div
                     className={`flex items-end gap-2 ${
                       isCurrentUser ? "flex-row-reverse" : "flex-row"
-                    }`}>
+                    }`}
+                  >
                     {/* Profile Image */}
                     <div className="flex-shrink-0">
                       {msg.profileimage ? (
@@ -251,7 +290,8 @@ export default function Chat({
                         isCurrentUser
                           ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
                           : "bg-white text-gray-800 border border-gray-200"
-                      }`}>
+                      }`}
+                    >
                       <p className="text-sm leading-relaxed">{msg.text}</p>
                     </div>
                   </div>
@@ -261,12 +301,14 @@ export default function Chat({
                     <div
                       className={`absolute -top-8 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg z-50 whitespace-nowrap ${
                         isCurrentUser ? "right-0" : "left-0"
-                      }`}>
+                      }`}
+                    >
                       {msg.user}
                       <div
                         className={`absolute top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800 ${
                           isCurrentUser ? "right-2" : "left-2"
-                        }`}></div>
+                        }`}
+                      ></div>
                     </div>
                   )}
                 </div>
@@ -293,7 +335,8 @@ export default function Chat({
           <button
             type="submit"
             disabled={!input.trim()}
-            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg">
+            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg"
+          >
             <Send size={18} />
           </button>
         </form>

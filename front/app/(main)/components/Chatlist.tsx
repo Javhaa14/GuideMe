@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useUser } from "@/app/context/Usercontext";
 import Chat from "./Chat";
 import { useOnlineStatus } from "@/app/context/Onlinestatus";
+import { axiosInstance } from "@/lib/utils";
 
 interface ChatListProps {
   userId?: string;
@@ -52,6 +53,31 @@ export const ChatList: React.FC<ChatListProps> = ({
     }
   }, [conversations, profileImages]);
 
+  const fetchNotifications = async (
+    receiver: string,
+    messageId: string,
+    roomId: string
+  ) => {
+    if (!user.id) return;
+
+    try {
+      const res = await axiosInstance.post("/notif/send", {
+        sender: user.id,
+        receiver: receiver,
+        messageId: messageId,
+        roomId: roomId,
+      });
+
+      if (res.data.success) {
+        console.log("Notification sent successfully");
+      } else {
+        console.error("Failed to send notification");
+      }
+    } catch (error) {
+      console.error("Error in sending notification:", error);
+    }
+  };
+
   if (loading) return <p>Loading chats...</p>;
   if (error) return <p>{error}</p>;
   if (!currentUser) return <p>Loading user info...</p>;
@@ -76,7 +102,8 @@ export const ChatList: React.FC<ChatListProps> = ({
           <div
             key={conv.roomId}
             className="cursor-pointer flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-            onClick={() => setSelectedChat(conv)}>
+            onClick={() => setSelectedChat(conv)}
+          >
             <div className="relative">
               <img
                 src={
@@ -122,7 +149,8 @@ export const ChatList: React.FC<ChatListProps> = ({
                 </h3>
                 <button
                   onClick={() => setSelectedChat(null)}
-                  className="text-white transition-colors hover:text-gray-200">
+                  className="text-white transition-colors hover:text-gray-200"
+                >
                   x
                 </button>
               </div>

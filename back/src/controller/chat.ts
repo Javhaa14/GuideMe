@@ -14,10 +14,6 @@ export const saveChatMessage = async (req: Request, res: Response) => {
       profileimage,
       roomId,
     });
-
-    // Optionally emit via Socket.IO here if you want server to broadcast
-    // io.emit("chat message", newMessage);
-
     res.status(201).json({ success: true, message: newMessage });
   } catch (err) {
     console.error("Failed to save chat message", err);
