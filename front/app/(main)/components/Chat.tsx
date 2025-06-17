@@ -3,9 +3,11 @@
 import type React from "react";
 import { useEffect, useState, useRef } from "react";
 import { Send, User } from "lucide-react";
+import io from "socket.io-client";
 import { axiosInstance } from "@/lib/utils";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useParams } from "next/navigation";
 import { OnlineUsers } from "../Touristdetail/components/TouristMainProfile";
 import { v4 as uuidv4 } from "uuid";
 import calendar from "dayjs/plugin/calendar";
@@ -116,6 +118,67 @@ export default function Chat({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+  const fetchNotifications = async ({
+    senderId,
+    receiverId,
+    message,
+  }: {
+    senderId: string;
+    receiverId: string;
+    message: string;
+  }) => {
+    try {
+      if (!senderId || !receiverId || !message) {
+        console.warn("Missing notification fields", {
+          senderId,
+          receiverId,
+          message,
+        });
+        return;
+      }
+
+      const res = await axiosInstance.post("/notif/send", {
+        sender: senderId,
+        receiver: receiverId,
+        message,
+      });
+
+      if (!res.data.success) {
+        console.warn("Notification sending failed:", res.data);
+      }
+    } catch (error) {
+      console.error("Error sending notification:", error);
+    }
+  };
+
+  const sendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!input.trim() || !socket || !isConnected) return;
+
+    const tempId = uuidv4();
+
+    const messagePayload = {
+      id: tempId,
+      tempId,
+      user: username,
+      text: input,
+      profileimage,
+      roomId,
+      createdAt: new Date().toISOString(),
+      userId: user.id,
+    };
+
+    console.log("Sending message payload:", messagePayload);
+    fetchNotifications({
+      senderId: user.id,
+      receiverId: profileId,
+      message: messagePayload.text,
+    });
+
+    socket.emit("chat message", messagePayload);
+    setInput("");
+  };
 
   console.log("🔌 isConnected:", isConnected);
 
@@ -139,71 +202,6 @@ export default function Chat({
 
     fetchChatHistory();
   }, [roomId]);
-
-  const fetchNoificaions = async (recieverId: string, messageId: string) => {
-    if (!user) return;
-    try {
-      const res = await axiosInstance.post(`/notif/send${user.id}`, {
-        sender: user.id,
-        receiver: recieverId,
-        message: messageId,
-      });
-      if (res.data.success) {
-        const convs = res.data.conversations;
-      } else {
-      }
-    } catch {}
-  };
-
-  const sendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!input.trim() || !socket || !isConnected) return;
-
-    const tempId = uuidv4();
-
-    const messagePayload = {
-      id: tempId,
-      tempId,
-      user: username,
-      text: input,
-      profileimage,
-      roomId,
-      createdAt: new Date().toISOString(),
-      userId: user.id,
-    };
-
-    // Call fetchNotifications with the receiver's ID and the message ID (tempId)
-    fetchNotifications(profileId, tempId);
-
-    // Optimistic message
-    setMessages((prev) => [...prev, messagePayload]);
-    console.log("Sending message payload:", messagePayload);
-
-    // Send to server
-    socket.emit("chat message", messagePayload);
-    setInput("");
-  };
-
-  const fetchNotifications = async (receiverId: string, messageId: string) => {
-    if (!user) return;
-
-    try {
-      const res = await axiosInstance.post(`/notif/send${user.id}`, {
-        sender: user.id,
-        receiver: receiverId, // Receiver is now the profileId (the user you're chatting with)
-        message: messageId, // Using messageId (tempId) for notification
-      });
-
-      if (res.data.success) {
-        console.log("Notification sent successfully");
-      } else {
-        console.error("Failed to send notification");
-      }
-    } catch (error) {
-      console.error("Error sending notification:", error);
-    }
-  };
 
   return (
     <div className="flex flex-col w-full bg-white">
