@@ -3,13 +3,14 @@ import { UserModel } from "../model/User";
 import { Notification } from "../model/notification";
 
 export const sendNotification = async (req: Request, res: Response) => {
-  const { senderId, receiverId, messageId } = req.body;
+  console.log(req.body); // Debugging step
+  const { senderId, receiverId, message } = req.body;
 
   try {
     const notification = await Notification.create({
       sender: senderId,
       receiver: receiverId,
-      message: messageId,
+      message,
     });
 
     await UserModel.findByIdAndUpdate(receiverId, {
@@ -21,6 +22,7 @@ export const sendNotification = async (req: Request, res: Response) => {
     res.status(500).json({ error: (err as Error).message });
   }
 };
+
 export const getNotificationsById = async (req: Request, res: Response) => {
   const { receiverId } = req.body;
 
