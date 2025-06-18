@@ -35,7 +35,7 @@ export default function UserGrid({
 }: UserGridProps) {
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter =
       filterStatus === "all" || user.status === filterStatus;
@@ -45,7 +45,8 @@ export default function UserGrid({
         : user.type === "Guide";
     return matchesSearch && matchesFilter && matchesType;
   });
-
+  console.log(filteredUsers);
+  console.log("users:", users);
   return (
     <div className="space-y-6">
       <Card>
@@ -84,8 +85,12 @@ export default function UserGrid({
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredUsers.map((user) => (
-          <UserCard key={user.id} user={user} getStatusColor={getStatusColor} />
+        {users.map((user) => (
+          <UserCard
+            key={user._id}
+            user={user}
+            getStatusColor={getStatusColor}
+          />
         ))}
       </div>
     </div>

@@ -11,7 +11,19 @@ export const createUser = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { username, email, password, role } = req.body;
+  const {
+    username,
+    email,
+    password,
+    role,
+    status,
+    isOnline,
+    bookings,
+    rating,
+    location,
+    lastActive,
+    provider,
+  } = req.body;
 
   try {
     const oldUser = await UserModel.findOne({ email });
@@ -30,6 +42,13 @@ export const createUser = async (
       email,
       password: hashedPassword,
       role,
+      status,
+      isOnline,
+      bookings,
+      rating,
+      location,
+      lastActive,
+      provider,
     });
 
     res.status(201).json({
@@ -39,6 +58,13 @@ export const createUser = async (
         username: user.username,
         email: user.email,
         role: user.role,
+        status: user.status,
+        isOnline: user.isOnline,
+        bookings: user.bookings,
+        rating: user.rating,
+        location: user.location,
+        lastActive: user.lastActive,
+        provider: user.provider,
       },
     });
   } catch (error: unknown) {

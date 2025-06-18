@@ -24,11 +24,23 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["Tourist", "Admin", "Guide"],
-      default: "Tourist",
+      enum: ["tourist", "guide"],
+      default: "tourist",
     },
-    isOnline: { type: Boolean, default: false },
-    lastSeen: { type: Date, default: null },
+    status: {
+      type: String,
+      enum: ["active", "inactive", "banned", "pending"],
+      default: "pending",
+    },
+    isOnline: {
+      type: String,
+      enum: ["online", "offline", "busy"],
+    },
+    joinDate: { type: Date, default: Date.now },
+    bookings: { type: Number, default: 0 },
+    rating: { type: Number, default: 0 },
+    location: { type: String },
+    lastActive: { type: Date },
     provider: {
       type: String,
       enum: ["google", "github", "facebook", null],

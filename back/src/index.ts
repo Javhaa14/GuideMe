@@ -30,6 +30,9 @@ declare module "socket.io" {
     userId?: string;
   }
 }
+import { adminRouter } from "./routes/admin";
+import { statsRouter } from "./routes/stats";
+
 dotenv.config();
 
 const app = express();
@@ -59,6 +62,9 @@ app.use("/user", userRouter);
 app.use("/tripPlan", tripPlanRouter);
 app.use("/comment", commentRouter);
 app.use("/gprofile", guideRouter);
+app.use("/admin", adminRouter);
+app.use("/stats", statsRouter);
+// app.use('/GuideProfile', GuideProfileRouter);
 app.use("/tprofile", touristRouter);
 app.use("/api", Onlinerouter);
 app.use("/notif", Notifrouter);
