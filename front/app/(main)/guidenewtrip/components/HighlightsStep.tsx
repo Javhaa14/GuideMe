@@ -66,7 +66,8 @@ export default function HighlightsStep({
       className="space-y-10"
       variants={container}
       initial="hidden"
-      animate="show">
+      animate="show"
+    >
       <motion.div variants={item} className="space-y-6">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
@@ -89,7 +90,8 @@ export default function HighlightsStep({
               className="flex items-center gap-2"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}>
+              transition={{ delay: index * 0.05 }}
+            >
               <div className="flex-1">
                 <div className="relative">
                   <Input
@@ -109,7 +111,8 @@ export default function HighlightsStep({
                 size="icon"
                 onClick={() => removeHighlight(index)}
                 disabled={formData.highlights.length === 1}
-                className="w-8 h-8 text-red-500 hover:text-red-600 hover:bg-red-50">
+                className="w-8 h-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+              >
                 <Trash2 className="w-4 h-4" />
               </Button>
             </motion.div>
@@ -119,7 +122,8 @@ export default function HighlightsStep({
             type="button"
             variant="outline"
             className="w-full border-dashed border-amber-300 text-amber-600 hover:bg-amber-50 hover:text-amber-700 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-900/50"
-            onClick={addHighlight}>
+            onClick={addHighlight}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Highlight
           </Button>
@@ -148,7 +152,8 @@ export default function HighlightsStep({
               className="flex items-center gap-2"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 + index * 0.05 }}>
+              transition={{ delay: 0.3 + index * 0.05 }}
+            >
               <div className="flex-1">
                 <div className="relative">
                   <Input
@@ -168,7 +173,8 @@ export default function HighlightsStep({
                 size="icon"
                 onClick={() => removeTip(index)}
                 disabled={formData.tips.length === 1}
-                className="w-8 h-8 text-red-500 hover:text-red-600 hover:bg-red-50">
+                className="w-8 h-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+              >
                 <Trash2 className="w-4 h-4" />
               </Button>
             </motion.div>
@@ -178,7 +184,8 @@ export default function HighlightsStep({
             type="button"
             variant="outline"
             className="w-full text-blue-600 border-blue-300 border-dashed hover:bg-blue-50 hover:text-blue-700 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/50"
-            onClick={addTip}>
+            onClick={addTip}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Tip
           </Button>

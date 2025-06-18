@@ -48,7 +48,8 @@ const iconComponents = {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="lucide lucide-utensils">
+      className="lucide lucide-utensils"
+    >
       <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
       <path d="M7 2v20" />
       <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
@@ -65,7 +66,8 @@ const iconComponents = {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="lucide lucide-tent">
+      className="lucide lucide-tent"
+    >
       <path d="M19 20 10 4" />
       <path d="m5 20 9-16" />
       <path d="M3 20h18" />
@@ -84,7 +86,8 @@ const iconComponents = {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="lucide lucide-hotel">
+      className="lucide lucide-hotel"
+    >
       <path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Z" />
       <path d="m9 16 .348-.24c1.465-1.013 3.84-1.013 5.304 0L15 16" />
       <path d="M8 7h.01" />
@@ -107,7 +110,8 @@ const iconComponents = {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="lucide lucide-bus">
+      className="lucide lucide-bus"
+    >
       <path d="M8 6v6" />
       <path d="M15 6v6" />
       <path d="M2 12h19.6" />
@@ -125,7 +129,8 @@ export default function ReviewStep({ formData }: ReviewStepProps) {
       className="space-y-8"
       variants={container}
       initial="hidden"
-      animate="show">
+      animate="show"
+    >
       <div className="space-y-2">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
           Review Trip Plan
@@ -255,7 +260,8 @@ export default function ReviewStep({ formData }: ReviewStepProps) {
                           <div
                             className={`w-full ${
                               location.image ? "md:w-2/3" : ""
-                            }`}>
+                            }`}
+                          >
                             <div className="flex items-center gap-2">
                               <div className="p-1.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
                                 <IconComponent className="w-4 h-4" />
