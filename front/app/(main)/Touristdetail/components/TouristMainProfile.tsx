@@ -85,14 +85,19 @@ export default function TravelerProfile() {
                 </h3>
                 <button
                   onClick={() => setChat(false)}
-                  className="text-white hover:text-gray-200 transition-colors"
-                >
+                  className="text-white hover:text-gray-200 transition-colors">
                   x
                 </button>
               </div>
             </div>
             <div className="flex w-full">
-              <Chat onlineUsers={onlineUsers} user={user!} />
+              <Chat
+                profileId={
+                  params.id && typeof params.id === "string" ? params.id : ""
+                }
+                onlineUsers={onlineUsers}
+                user={user!}
+              />
             </div>
           </div>
         </div>
