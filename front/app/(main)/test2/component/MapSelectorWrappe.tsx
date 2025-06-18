@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import MapSelector from "../../test2/component/MapSelector";
+import MapSelector from "./MapSelector"; // MapSelector замыг зөв зааж өгнө үү
 
-const TripMapWrapper = () => {
+const MapSelectorWrapper = () => {
   const [tempCoordinate, setTempCoordinate] = useState<{
     lat: number;
     lng: number;
@@ -26,4 +26,4 @@ const TripMapWrapper = () => {
   );
 };
 
-export default TripMapWrapper;
+export default MapSelectorWrapper;

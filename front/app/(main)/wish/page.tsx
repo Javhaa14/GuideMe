@@ -7,15 +7,15 @@ export default function Home() {
     <div className="px-10 py-10">
       <WishlistCard
         id="1"
-        name="Gobi Desert Adventure"
-        location="Gobi, Mongolia"
+        name="Northern Lights Photography Tour"
+        location="Iceland"
         image="/lake.png"
-        startDate="2025-07-15"
-        groupSize="small"
-        price={1200}
-        currency="USD"
-        isFavorite={true}
-        onRemove={() => alert("Removed from wishlist")}
+        startDate="2024-11-20"
+        groupSize="Up to 8 travelers"
+        price={1750}
+        rating={4.8}
+        difficulty="Easy"
+        onRemove={() => alert("Removed!")}
       />
     </div>
   );

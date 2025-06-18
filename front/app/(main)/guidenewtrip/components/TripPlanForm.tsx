@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, ArrowRight, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import BasicInfoStep from "./BasicInfoStep";
-import RouteStep from "./RouteStep";
+import RouteStep from "./RouteStep"; // ← ✅ RouteStep нэмэгдсэн
 import HighlightsStep from "./HighlightsStep";
 import ReviewStep from "./ReviewStep";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
 import { useRouter } from "next/navigation";
+
 const steps = [
   { id: "basic-info", title: "Basic Info" },
   { id: "route", title: "Route" },
@@ -68,7 +69,7 @@ export default function TripPlanForm() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       toast("Error", {
-        description: "Failed to create trip plan. Please try again.",
+        description: "Please fill all required fields.",
         className: "bg-red-100 text-red-800 border border-red-300",
       });
     }
@@ -81,12 +82,13 @@ export default function TripPlanForm() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
+
   const router = useRouter();
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     setIsSubmitting(true);
-    console.log(formData, "lol");
 
     try {
       if (user.id == null) return;
@@ -94,8 +96,6 @@ export default function TripPlanForm() {
         guideId: user.id,
         ...formData,
       });
-
-      console.log("Form submitted:", res.data);
 
       toast("Success", {
         description: "Trip plan created successfully!",
@@ -112,6 +112,7 @@ export default function TripPlanForm() {
       setIsSubmitting(false);
     }
   };
+
   return (
     <div className="space-y-8">
       <Toaster />
@@ -164,6 +165,7 @@ export default function TripPlanForm() {
           })}
         </div>
       </div>
+
       <Card className="overflow-hidden border-none shadow-xl bg-white/90 backdrop-blur-sm dark:bg-gray-800/90">
         <CardContent className="p-0">
           <form className="space-y-8" onSubmit={handleSubmit}>

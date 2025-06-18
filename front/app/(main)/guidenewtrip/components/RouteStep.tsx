@@ -25,7 +25,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import MapSearch from "./Map-search";
+import MapSelector from "../../test2/component/MapSelector";
+
+// 📌 Газрын зураг импортлох
 
 interface RouteItem {
   title: string;
@@ -68,12 +70,25 @@ export default function RouteStep({
 }: RouteStepProps) {
   const [uploading, setUploading] = useState(false);
 
-  const handleLocationSelect = (location: any) => {
+  // 🌍 Газрын зураг дээр сонгогдсон байршлыг route-д нэмэх
+  const handleMapSelect = ({
+    lat,
+    lng,
+    name,
+    title,
+    about,
+  }: {
+    lat: number;
+    lng: number;
+    name: string;
+    title: string;
+    about: string;
+  }) => {
     const newRoute = [
       ...formData.route,
       {
-        title: location.place_name || "New Location",
-        about: "",
+        title: title || name || "Unnamed location",
+        about,
         iconType: "location",
         image: "",
       },
@@ -123,26 +138,20 @@ export default function RouteStep({
     if (!files || files.length === 0) return;
 
     setUploading(true);
-
     const data = new FormData();
     data.append("file", files[0]);
     data.append("upload_preset", "guideme");
 
     try {
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-      if (!cloudName) {
-        throw new Error("Cloudinary cloud name is not set.");
-      }
+      if (!cloudName) throw new Error("Cloudinary cloud name is not set.");
 
       const res = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-          method: "POST",
-          body: data,
-        }
+        { method: "POST", body: data }
       );
-
       const result = await res.json();
+
       if (result.secure_url) {
         updateRouteItem(index, "image", result.secure_url);
       } else {
@@ -165,14 +174,11 @@ export default function RouteStep({
       <div className="space-y-2">
         <h2 className="text-2xl font-bold">Trip Route</h2>
         <p className="text-gray-500 dark:text-gray-400">
-          Add locations to your trip route. Search for locations or enter them
-          manually.
+          Add locations to your trip route. Click on the map to pick a location.
         </p>
       </div>
 
-      <motion.div variants={item} className="flex flex-col gap-1.5">
-        <MapSearch onLocationSelect={handleLocationSelect} />
-      </motion.div>
+      <MapSelector onSelect={handleMapSelect} />
 
       <div className="space-y-6">
         {formData.route.map((route, index) => {
