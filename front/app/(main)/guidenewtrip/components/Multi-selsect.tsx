@@ -109,7 +109,6 @@ export function MultiSelect({
         </div>
       )}
 
-      {/* Invisible overlay to handle closing the dropdown when clicking outside */}
       {open && (
         <div className="fixed inset-0 z-5" onClick={() => setOpen(false)} />
       )}

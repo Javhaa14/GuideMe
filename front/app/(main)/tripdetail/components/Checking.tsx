@@ -158,7 +158,7 @@ export const Checking: React.FC<CheckingProps> = ({ data }) => {
 
         <div className="flex flex-col gap-4 pt-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-2xl font-bold text-gray-900">${totalPrice}.00</p>
+            <p className="text-2xl font-bold text-gray-900">${totalPrice}</p>
             <p className="text-sm text-gray-500">Includes all taxes and fees</p>
           </div>
           <Button className="px-8 py-6 text-lg font-semibold bg-[#453C67] hover:bg-[#5a4f8a] transition">
