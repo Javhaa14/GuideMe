@@ -1,5 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { MapPin, Calendar, Users, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,9 +12,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Calendar, Heart, MapPin, Users } from "lucide-react";
-import Image from "next/image";
-import { useState } from "react";
 
 interface WishlistCardProps {
   id: string;
@@ -27,68 +27,73 @@ interface WishlistCardProps {
 }
 
 export default function WishlistCard({
-  id = "trip-123",
-  name = "Tropical Paradise Getaway",
-  location = "Bali, Indonesia",
-  image = "/placeholder.svg?height=400&width=600",
-  startDate = "June 15, 2025",
-  groupSize = "small",
-  price = 1299,
+  id,
+  name,
+  location,
+  image,
+  startDate,
+  groupSize,
+  price,
   currency = "USD",
-  isFavorite = false,
-  onRemove = () => console.log(`Removing trip ${id} from wishlist`),
+  isFavorite = true,
+  onRemove,
 }: WishlistCardProps) {
-  const [favorite, setFavorite] = useState(isFavorite);
+  const router = useRouter();
+
+  const handleViewTrip = () => {
+    router.push(`/tripdetail/${id}`);
+  };
 
   return (
     <TooltipProvider>
-      <Card className="w-full max-w-5xl overflow-hidden transition-all hover:shadow-lg">
+      <Card className="w-full max-w-5xl overflow-hidden transition-transform duration-300 hover:scale-[1.01] hover:shadow-xl rounded-2xl">
         <div className="flex flex-col md:flex-row">
           <div className="relative md:w-2/5">
             <Image
-              src={image || "/placeholder.svg"}
+              src={image || "/lake.png"}
               alt={name}
               width={600}
               height={400}
-              className="object-cover w-full h-60 md:h-full"
+              className="object-cover w-full h-60 md:h-full transition-all duration-300"
+              placeholder="blur"
+              blurDataURL="/blur-placeholder.png"
             />
-            <div className="absolute flex gap-2 right-2 top-2">
+            <div className="absolute flex gap-2 right-3 top-3 z-10">
               <Button
                 variant="ghost"
                 size="icon"
-                className="bg-white/80 backdrop-blur-sm hover:bg-white/90 text-rose-500"
-                onClick={() => setFavorite(!favorite)}>
-                <Heart fill="red" />
-                <span className="sr-only">Toggle favorite</span>
+                className="bg-white/80 text-rose-500 hover:bg-white"
+              >
+                <Heart fill={isFavorite ? "red" : "none"} />
               </Button>
             </div>
-            <Badge className="absolute left-2 top-2 bg-gradient-to-r from-violet-500 to-purple-700 hover:from-violet-600 hover:to-purple-800">
+            <Badge className="absolute left-3 top-3 z-10 rounded-full px-3 py-1 text-xs bg-gradient-to-r from-fuchsia-500 to-pink-500 shadow-md">
               Featured
             </Badge>
           </div>
 
-          <div className="flex flex-col justify-between md:w-3/5">
-            <div className="p-5">
+          <div className="flex flex-col justify-between md:w-3/5 p-6">
+            <div>
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-xl font-bold line-clamp-1">{name}</h3>
-                  <div className="flex items-center mt-1 text-sm text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5 mr-1" />
-                    <span>{location}</span>
+                  <h3 className="text-2xl font-semibold line-clamp-1">
+                    {name}
+                  </h3>
+                  <div className="flex items-center mt-2 text-sm text-gray-500">
+                    <MapPin className="w-4 h-4 mr-1 text-rose-400" />
+                    <span>{location || "Mongolia"}</span>
                   </div>
                 </div>
-                <Badge
-                  variant={groupSize === "small" ? "outline" : "secondary"}
-                  className="ml-2 whitespace-nowrap">
-                  {groupSize === "small" ? "Small Group" : "Large Group"}
-                </Badge>
               </div>
 
-              <div className="grid gap-3 mb-4">
+              <div className="space-y-3 mb-6">
                 <div className="flex items-center text-sm">
                   <Calendar className="w-4 h-4 mr-2 text-teal-500" />
                   <span>
-                    Starting: <span className="font-medium">{startDate}</span>
+                    Starting:{" "}
+                    <span className="font-medium">
+                      {new Date(startDate).toLocaleDateString()}
+                    </span>
                   </span>
                 </div>
                 <div className="flex items-center text-sm">
@@ -97,7 +102,7 @@ export default function WishlistCard({
                     <TooltipTrigger asChild>
                       <span>
                         {groupSize === "small"
-                          ? "4-10 travelers"
+                          ? "4–10 travelers"
                           : "11+ travelers"}
                       </span>
                     </TooltipTrigger>
@@ -111,29 +116,34 @@ export default function WishlistCard({
                   </Tooltip>
                 </div>
               </div>
+            </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-dashed">
-                <div>
-                  <p className="text-2xl font-bold text-teal-700">
-                    {currency === "USD" ? "$" : "€"}
-                    {price}
-                  </p>
-                  <p className="text-xs text-muted-foreground">per person</p>
-                </div>
-                <div className="flex items-center gap-2">
+            <div className="flex items-end justify-between border-t border-gray-200 pt-4">
+              <div>
+                <p className="text-2xl font-bold text-teal-700">
+                  {currency === "USD" ? "$" : "€"}
+                  {price}
+                </p>
+                <p className="text-xs text-muted-foreground">per person</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {onRemove && (
                   <Button
                     variant="outline"
                     size="sm"
                     className="text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
-                    onClick={onRemove}>
+                    onClick={onRemove}
+                  >
                     Remove
                   </Button>
-                  <Button
-                    size="sm"
-                    className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600">
-                    View Trip
-                  </Button>
-                </div>
+                )}
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600"
+                  onClick={handleViewTrip}
+                >
+                  View Trip
+                </Button>
               </div>
             </div>
           </div>
