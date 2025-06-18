@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { CalendarDays, Globe, TimerReset, Users } from "lucide-react";
+import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
-import { toast } from "sonner";
+import { toast } from "sonner"; // ✨ Заавал импорт хийх
 
 interface TripItem {
   _id: string;
@@ -35,14 +36,13 @@ const ActivityItem = ({
   </div>
 );
 
-export const Activity = ({ tripId }: { tripId: string }) => {
+export const Activity = () => {
   const [trip, setTrip] = useState<TripItem | null>(null);
+  const params = useParams();
 
   const fetchTrip = async () => {
-    if (!tripId) {
-      console.warn("⛔ tripId байхгүй байна");
-      return;
-    }
+    const tripId = typeof params.id === "string" ? params.id : params.id?.[0];
+    if (!tripId) return console.warn("⛔ params.id байхгүй байна");
 
     try {
       const res = await axiosInstance.get(`/tripPlan/tripPlan/${tripId}`);
@@ -57,16 +57,17 @@ export const Activity = ({ tripId }: { tripId: string }) => {
       console.log("➡️ tripData:", tripData);
       setTrip(tripData);
     } catch (error: any) {
-      const message =
-        error?.response?.data?.message || error?.message || "Unknown error";
-      console.error("❌ API fetch error:", message);
-      toast.error("Алдаа гарлаа: " + message);
+      console.error(
+        "❌ API fetch error:",
+        error?.response?.data || error.message
+      );
+      toast.error("Алдаа гарлаа: " + error?.message);
     }
   };
 
   useEffect(() => {
     fetchTrip();
-  }, [tripId]);
+  }, []);
 
   if (!trip) {
     return (

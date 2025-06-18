@@ -7,6 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -17,10 +18,9 @@ interface TripItem {
 
 interface BookingProps {
   onCheck: (data: any) => void;
-  tripId: string;
 }
 
-export const Booking: React.FC<BookingProps> = ({ onCheck, tripId }) => {
+export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
   const [participants, setParticipants] = useState({
     adult: 1,
     youth: 0,
@@ -29,12 +29,11 @@ export const Booking: React.FC<BookingProps> = ({ onCheck, tripId }) => {
 
   const [language, setLanguage] = useState("English");
   const [trip, setTrip] = useState<TripItem | null>(null);
+  const params = useParams();
 
   const fetchTrip = async () => {
-    if (!tripId) {
-      console.warn("⛔ tripId байхгүй байна");
-      return;
-    }
+    const tripId = typeof params.id === "string" ? params.id : params.id?.[0];
+    if (!tripId) return console.warn("⛔ params.id байхгүй байна");
 
     try {
       const res = await axiosInstance.get(`/tripPlan/tripPlan/${tripId}`);
@@ -49,16 +48,17 @@ export const Booking: React.FC<BookingProps> = ({ onCheck, tripId }) => {
       console.log("➡️ tripData:", tripData);
       setTrip(tripData);
     } catch (error: any) {
-      const message =
-        error?.response?.data?.message || error?.message || "Unknown error";
-      console.error("❌ API fetch error:", message);
-      toast.error("Алдаа гарлаа: " + message);
+      console.error(
+        "❌ API fetch error:",
+        error?.response?.data || error.message
+      );
+      toast.error("Алдаа гарлаа: " + error?.message);
     }
   };
 
   useEffect(() => {
     fetchTrip();
-  }, [tripId]);
+  }, []);
 
   const adjustParticipant = (
     type: keyof typeof participants,
@@ -72,6 +72,7 @@ export const Booking: React.FC<BookingProps> = ({ onCheck, tripId }) => {
 
   const totalParticipants =
     participants.adult + participants.youth + participants.child;
+
   const totalPrice = trip ? trip.price * totalParticipants : 0;
 
   const handleCheckClick = () => {

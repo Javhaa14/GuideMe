@@ -76,7 +76,8 @@ export default function TourMapClient() {
       center={[49.5, 104.0]}
       zoom={6}
       scrollWheelZoom={false}
-      className="relative z-0 h-[500px] rounded-xl">
+      className="relative z-0 h-[500px] rounded-xl"
+    >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
