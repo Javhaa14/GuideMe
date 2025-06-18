@@ -181,11 +181,15 @@ export default function RouteStep({
             MapPin;
 
           return (
+<<<<<<< HEAD
             <motion.div
               key={index}
               variants={item}
               className="flex flex-col gap-1.5"
             >
+=======
+            <motion.div key={index} variants={item}>
+>>>>>>> b9f6e45 (..)
               <Card className="overflow-hidden border-l-4 border-l-primary">
                 <CardContent className="p-6">
                   <div className="grid gap-6">
@@ -232,7 +236,11 @@ export default function RouteStep({
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-6">
+<<<<<<< HEAD
                       <div className="flex flex-col gap-1.5">
+=======
+                      <div>
+>>>>>>> b9f6e45 (..)
                         <Label>Location Name</Label>
                         <Input
                           value={route.title}
@@ -243,7 +251,11 @@ export default function RouteStep({
                         />
                       </div>
 
+<<<<<<< HEAD
                       <div className="flex flex-col gap-1.5">
+=======
+                      <div>
+>>>>>>> b9f6e45 (..)
                         <Label>Location Type</Label>
                         <Select
                           value={route.iconType}
@@ -280,7 +292,11 @@ export default function RouteStep({
                       </div>
                     </div>
 
+<<<<<<< HEAD
                     <div className="flex flex-col gap-1.5">
+=======
+                    <div>
+>>>>>>> b9f6e45 (..)
                       <Label>Description</Label>
                       <Textarea
                         value={route.about}
@@ -291,7 +307,11 @@ export default function RouteStep({
                       />
                     </div>
 
+<<<<<<< HEAD
                     <div className="flex flex-col gap-1.5">
+=======
+                    <div>
+>>>>>>> b9f6e45 (..)
                       <Label>Trip Image</Label>
                       <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border">
                         <div className="flex justify-between items-center mb-4">

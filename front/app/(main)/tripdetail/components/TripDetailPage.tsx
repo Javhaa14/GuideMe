@@ -11,7 +11,11 @@ import RoadRoute from "./RoadRoute";
 import { Activity } from "./Activity";
 
 interface TripItem {
+<<<<<<< HEAD
   _id: string;
+=======
+  id: number;
+>>>>>>> b9f6e45 (..)
   title: string;
   about: string;
   images: string[] | string;
@@ -44,6 +48,7 @@ export const TripDetailPage = () => {
   };
 
   const fetchTrip = async () => {
+<<<<<<< HEAD
     const tripId = params?.id as string;
     if (!tripId) return console.warn("⛔ params.id байхгүй байна");
 
@@ -70,12 +75,39 @@ export const TripDetailPage = () => {
         error?.response?.data || error.message
       );
       toast.error("Алдаа гарлаа: " + error?.message);
+=======
+    try {
+      const res = await axiosInstance.get(`/tripPlan/${params.id}`);
+      const fetchedTrip = res.data.tripPlans?.[0];
+
+      if (fetchedTrip) {
+        setTrip(fetchedTrip);
+
+        const imgData = fetchedTrip.images;
+        if (Array.isArray(imgData)) {
+          setImages(imgData);
+        } else if (typeof imgData === "string" && imgData.trim() !== "") {
+          setImages([imgData]);
+        } else {
+          setImages([]);
+        }
+      }
+    } catch (err) {
+      console.error("❌ Trip fetch failed:", err);
+>>>>>>> b9f6e45 (..)
     }
   };
 
   useEffect(() => {
+<<<<<<< HEAD
     fetchTrip();
   }, []);
+=======
+    if (params?.id) {
+      fetchTrip();
+    }
+  }, [params?.id]);
+>>>>>>> b9f6e45 (..)
 
   return (
     <div className="max-w-5xl p-4 mx-auto font-sans">
@@ -132,12 +164,22 @@ export const TripDetailPage = () => {
         {trip?.about || "No trip description available."}
       </p>
 
+<<<<<<< HEAD
       {/* Dialog for full-screen preview */}
+=======
+      {/* Dialog Preview */}
+>>>>>>> b9f6e45 (..)
       <dialog
         ref={dialogRef}
         aria-modal="true"
         role="dialog"
+<<<<<<< HEAD
         className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]"
+=======
+        aria-label="Image preview"
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+        backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]"
+>>>>>>> b9f6e45 (..)
       >
         <div className="relative flex items-center justify-center w-full h-full px-12">
           <button
@@ -153,6 +195,10 @@ export const TripDetailPage = () => {
           >
             ‹
           </button>
+<<<<<<< HEAD
+=======
+
+>>>>>>> b9f6e45 (..)
           {images.length > 0 && (
             <img
               src={images[currentIndex]}
@@ -160,6 +206,10 @@ export const TripDetailPage = () => {
               className="object-contain max-w-full max-h-full rounded-lg shadow-lg"
             />
           )}
+<<<<<<< HEAD
+=======
+
+>>>>>>> b9f6e45 (..)
           <button
             onClick={nextImage}
             className="absolute right-0 z-30 px-3 py-2 text-3xl text-white transition duration-200 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur"
