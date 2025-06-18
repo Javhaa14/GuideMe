@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { MapPin, Camera, Utensils, Mountain, Trees, Waves } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
@@ -21,6 +21,8 @@ export default function RoadRoute() {
 
   const fetchTrip = async () => {
     const tripId = typeof params.id === "string" ? params.id : params.id?.[0];
+    console.log("📦 tripId:", tripId);
+
     if (!tripId) {
       console.warn("⛔ params.id байхгүй байна");
       return;
@@ -28,6 +30,7 @@ export default function RoadRoute() {
 
     try {
       const res = await axiosInstance.get(`/tripPlan/tripPlan/${tripId}`);
+      console.log("✅ trip data:", res.data);
 
       if (!res.data.success || !res.data.tripPlan) {
         console.warn("⛔ Аялал олдсонгүй:", res.data.message);
@@ -35,14 +38,16 @@ export default function RoadRoute() {
         return;
       }
 
-      const tripData = res.data.tripPlan;
-      setTrip(tripData);
+      setTrip(res.data.tripPlan);
     } catch (error: any) {
-      console.error(
-        "❌ API fetch error:",
-        error?.response?.data || error.message
-      );
-      toast.error("Алдаа гарлаа: " + error?.message);
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        error?.message ||
+        "Unknown error";
+
+      console.error("❌ API fetch error:", error);
+      toast.error("Алдаа гарлаа: " + errorMsg);
     }
   };
 
@@ -75,13 +80,13 @@ export default function RoadRoute() {
               <div className="flex flex-col md:flex-row">
                 <img
                   src={trip.image || "/lake.png"}
-                  alt={stop.name}
+                  alt={trip.title}
                   className="object-cover w-full h-32 rounded-t-lg md:w-48 md:rounded-l-lg md:rounded-t-none"
                 />
                 <div className="flex-1 p-6">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="text-xl font-semibold text-gray-900">
-                      {stop.name}
+                      {trip.title}
                     </h3>
                   </div>
                   <p className="mb-3 text-gray-600">{trip.about}</p>
