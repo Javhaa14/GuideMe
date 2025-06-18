@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Globe, MapPin, Users, Calendar, X } from "lucide-react";
+import { Globe, MapPin, Users, Calendar, X, Edit2 } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import {
   Dialog,
@@ -19,7 +19,6 @@ interface CheckingProps {
   data: {
     participants: {
       adult: number;
-      youth: number;
       child: number;
     };
     totalParticipants: number;
@@ -27,17 +26,33 @@ interface CheckingProps {
     totalPrice: number;
   };
   trip: any;
+  onBookingConfirmed: () => void;
+  onCancel: () => void;
+  onEdit: () => void;
+  bookingStatus: string;
+  setBookingStatus: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
+export const Checking: React.FC<CheckingProps> = ({
+  data,
+  trip,
+  onBookingConfirmed,
+  onCancel,
+  onEdit,
+  bookingStatus,
+  setBookingStatus,
+}) => {
   const { participants, totalParticipants, language, totalPrice } = data;
   const { user } = useUser();
   const [qr, setQr] = useState<string>("");
   const [paymentId, setPaymentId] = useState<string | null>(null);
-  const [status, setStatus] = useState<string>("");
   const [socket, setSocket] = useState<Socket | null>(null);
   const [loadingQr, setLoadingQr] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editParticipants, setEditParticipants] = useState(totalParticipants);
+  const [editLanguage, setEditLanguage] = useState(language);
+  const [bookingId, setBookingId] = useState<string | null>(null);
 
   // Fetch QR code when dialog opens
   const fetchQr = async () => {
@@ -47,7 +62,6 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
       const data = await res.json();
       setQr(data.qr);
       setPaymentId(data.id);
-      setStatus("");
     } catch (error) {
       console.error("Failed to fetch QR:", error);
     }
@@ -59,6 +73,15 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
     const newSocket = io("https://guideme-8o9f.onrender.com", {
       transports: ["websocket"],
     });
+
+    newSocket.on("connect", () => {
+      console.log("Socket connected with id:", newSocket.id);
+    });
+
+    newSocket.on("connect_error", (err) => {
+      console.error("Socket connect error:", err);
+    });
+
     setSocket(newSocket);
 
     return () => {
@@ -74,11 +97,10 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
 
     socket.on("paymentStatus", async (message: { status: boolean }) => {
       if (message.status === true) {
-        setStatus("payment success");
+        setBookingStatus("payment success");
 
-        // Create or update booking in backend
         try {
-          // Step 1: Check if booking exists by tripPlanId and paymentId
+          // Check for existing booking or create one
           const checkRes = await axiosInstance.get("/bookings", {
             params: {
               tripPlanId: trip._id,
@@ -91,41 +113,105 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
             checkRes.data.bookings &&
             checkRes.data.bookings.length > 0
           ) {
-            // Booking exists - update the first one found
             const existingBooking = checkRes.data.bookings[0];
             await axiosInstance.put(`/bookings/${existingBooking._id}`, {
               numberOfPeople: totalParticipants,
-              touristIds: [user.id],
+              touristId: user.id,
               selectedDate: trip.date,
               paymentId,
+              paymentStatus: "paid",
             });
           } else {
             await axiosInstance.post("/bookings", {
               tripPlanId: trip._id,
-              touristId: [user.id],
+              touristId: user.id,
               numberOfPeople: totalParticipants,
               selectedDate: trip.date,
               paymentId,
+              paymentStatus: "paid",
             });
           }
+
+          onBookingConfirmed(); // Notify parent about successful booking
         } catch (err) {
           console.error("Booking creation/updation failed:", err);
         }
 
-        // Auto-close dialog after 5 seconds
         setTimeout(() => {
           setIsDialogOpen(false);
           setQr("");
           setPaymentId(null);
-          setStatus("");
-        }, 5000);
+        }, 3000);
       }
     });
 
     return () => {
       socket.off("paymentStatus");
     };
-  }, [socket, paymentId]);
+  }, [
+    socket,
+    paymentId,
+    trip,
+    totalParticipants,
+    user,
+    setBookingStatus,
+    onBookingConfirmed,
+  ]);
+
+  // On mount check existing booking payment status
+
+  const checkExistingBooking = async () => {
+    if (!user?.id) {
+      console.warn("Cannot check bookings: user ID missing");
+      setBookingStatus("no booking");
+      setBookingId(null);
+      return;
+    }
+    try {
+      const res = await axiosInstance.get(`/bookings/tourist/${user.id}`);
+      const bookings = res.data?.bookings || [];
+      const paidBooking = bookings.find((b: any) => b.paymentStatus === "paid");
+
+      if (paidBooking) {
+        setBookingStatus("payment success");
+        setBookingId(paidBooking._id);
+      } else {
+        setBookingStatus("no booking");
+        setBookingId(null);
+      }
+    } catch (err) {
+      console.error("Failed to check booking status:", err);
+      setBookingStatus("no booking");
+      setBookingId(null);
+    }
+  };
+
+  // useEffect calls the above on mount or when user/trip changes
+  useEffect(() => {
+    if (!user?.id) {
+      setBookingStatus("no booking");
+      setBookingId(null);
+      return;
+    }
+    if (trip) {
+      checkExistingBooking();
+    }
+  }, [user, trip, setBookingStatus]);
+  // Cancel Booking Handler
+  const handleCancelBooking = async (bookingId: string) => {
+    try {
+      await axiosInstance.put(`/bookings/${bookingId}`, {
+        cancelTouristId: user.id,
+      });
+
+      alert("Your booking has been cancelled successfully.");
+
+      // refetch or update local booking info here
+      await checkExistingBooking(); // your function to get fresh booking state
+    } catch (error: any) {
+      // error handling
+    }
+  };
 
   if (!trip) {
     return (
@@ -140,7 +226,7 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
   return (
     <>
       <Card className="max-w-5xl p-8 mt-6 space-y-8 border shadow-lg md:p-10 rounded-2xl">
-        {/* Trip info here */}
+        {/* Trip info */}
         <div className="space-y-4">
           <h2 className="text-3xl font-bold text-gray-900">{trip.title}</h2>
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
@@ -204,8 +290,7 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
               return (
                 <div
                   key={type}
-                  className="flex items-center justify-between py-2 border-b border-gray-100"
-                >
+                  className="flex items-center justify-between py-2 border-b border-gray-100">
                   <div>
                     <p className="font-medium text-gray-800">
                       {type.charAt(0).toUpperCase() + type.slice(1)} × {count}
@@ -231,20 +316,31 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
                 Includes all taxes and fees
               </p>
             </div>
-            {status !== "payment success" && (
+
+            {bookingStatus === "payment success" ? (
+              <div className="flex gap-4">
+                <Button
+                  variant="destructive"
+                  className="px-6 py-3 font-medium"
+                  onClick={() => {
+                    if (bookingId) {
+                      handleCancelBooking(bookingId);
+                    } else {
+                      alert("Booking ID not found.");
+                    }
+                  }}>
+                  Cancel Booking
+                </Button>
+              </div>
+            ) : (
               <Button
                 onClick={() => {
                   setIsDialogOpen(true);
                   fetchQr();
                 }}
                 className="px-8 py-6 text-lg font-semibold bg-[#453C67] hover:bg-[#5a4f8a] transition"
-                disabled={loadingQr || status === "payment success"}
-              >
-                {loadingQr
-                  ? "Loading QR..."
-                  : status === "payment success"
-                  ? "Payment Complete"
-                  : "Pay Now"}
+                disabled={loadingQr}>
+                {loadingQr ? "Loading QR..." : "Pay Now"}
               </Button>
             )}
           </div>
@@ -258,19 +354,7 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
             <DialogTitle className="text-xl font-bold">
               {trip.title} - Payment
             </DialogTitle>
-            <DialogClose>
-              <button
-                aria-label="Close"
-                className="text-gray-400 hover:text-gray-600"
-                onClick={() => {
-                  setQr("");
-                  setPaymentId(null);
-                  setStatus("");
-                }}
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </DialogClose>
+            <DialogClose></DialogClose>
           </DialogHeader>
 
           <div className="flex flex-col items-center gap-6 mt-4">
@@ -278,21 +362,10 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
               <img
                 src={qr}
                 alt="Payment QR Code"
-                className="w-48 h-48 rounded-lg shadow-lg"
+                className="w-64 h-64 object-contain"
               />
             ) : (
               <p>Loading QR code...</p>
-            )}
-            {status === "payment success" && (
-              <p className="text-green-600 font-semibold text-lg">
-                ✅ Payment Successful! Your booking is confirmed.
-              </p>
-            )}
-            {status !== "payment success" && (
-              <p className="text-center text-gray-700">
-                Please scan the QR code above with your payment app to complete
-                the booking.
-              </p>
             )}
           </div>
         </DialogContent>

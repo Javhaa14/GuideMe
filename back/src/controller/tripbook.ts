@@ -16,12 +16,44 @@ export const createBooking = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Trip plan not found" });
     }
 
-    const totalPrice = tripPlan.price * numberOfPeople;
     const touristIdsArray = Array.isArray(touristId) ? touristId : [touristId];
 
-    const booking = await TripBookingModel.create({
+    // 🔍 Check for existing booking with same tripPlanId and selectedDate
+    const existingBooking = await TripBookingModel.findOne({
       tripPlanId,
-      touristIds: touristIdsArray, // ✅ corrected field name
+      selectedDate,
+    });
+
+    if (existingBooking) {
+      // ✅ Update the existing booking
+      const updatedBooking = await TripBookingModel.findByIdAndUpdate(
+        existingBooking._id,
+        {
+          $addToSet: { touristIds: { $each: touristIdsArray } }, // avoid duplicates
+          $inc: { numberOfPeople: numberOfPeople },
+          $set: {
+            paymentId,
+            paymentStatus: "paid",
+            totalPrice:
+              (existingBooking.totalPrice || 0) +
+              tripPlan.price * numberOfPeople,
+          },
+        },
+        { new: true }
+      );
+
+      return res.status(200).json({
+        message: "Existing booking updated successfully",
+        booking: updatedBooking,
+      });
+    }
+
+    // ❌ No booking found — create a new one
+    const totalPrice = tripPlan.price * numberOfPeople;
+
+    const newBooking = await TripBookingModel.create({
+      tripPlanId,
+      touristIds: touristIdsArray,
       guideId: tripPlan.guideId,
       numberOfPeople,
       selectedDate,
@@ -32,10 +64,10 @@ export const createBooking = async (req: Request, res: Response) => {
 
     res.status(201).json({
       message: "Booking created successfully",
-      booking,
+      booking: newBooking,
     });
   } catch (error) {
-    console.error("Error creating booking:", error);
+    console.error("Error creating or updating booking:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -49,11 +81,11 @@ export const getAllBookings = async (req: Request, res: Response) => {
 
     const bookings = await TripBookingModel.find(filter)
       .populate("tripPlanId")
-      .populate("touristIds") // <-- updated here (plural)
+      .populate("touristIds")
       .populate("guideId")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(bookings);
+    res.status(200).json({ bookings });
   } catch (error) {
     console.error("Error fetching bookings:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -98,25 +130,57 @@ export const updateBooking = async (req: Request, res: Response) => {
   try {
     const { bookingId } = req.params;
     const updateData = { ...req.body };
+    console.log("Booking update request body:", req.body);
 
-    // Extract touristId if present and remove it from updateData
-    const { touristId } = updateData;
+    const { touristId, cancelTouristId } = updateData;
     delete updateData.touristId;
+    delete updateData.cancelTouristId;
+    console.log("Computed updateData:", updateData);
 
     let updatedBooking;
 
-    if (touristId) {
-      // Push touristId into array using $addToSet to avoid duplicates
+    if (cancelTouristId) {
+      const { numberOfPeople: numPeopleToRemove } = req.body;
+      if (!numPeopleToRemove) {
+        return res
+          .status(400)
+          .json({ error: "Number of people to remove required" });
+      }
+
+      const booking = await TripBookingModel.findById(bookingId).populate(
+        "tripPlanId"
+      );
+      if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+      if (!booking.touristIds.includes(cancelTouristId)) {
+        return res.status(400).json({ error: "Tourist not found in booking" });
+      }
+
+      const newNumberOfPeople = booking.numberOfPeople - numPeopleToRemove;
+      const pricePerPerson = booking.tripPlanId.price || 0;
+      const newTotalPrice =
+        booking.totalPrice - pricePerPerson * numPeopleToRemove;
+
       updatedBooking = await TripBookingModel.findByIdAndUpdate(
         bookingId,
         {
-          $addToSet: { touristId: touristId }, // Push touristId into array
-          $set: updateData, // update other fields normally
+          $pull: { touristIds: cancelTouristId },
+          $set: {
+            numberOfPeople: newNumberOfPeople,
+            totalPrice: newTotalPrice,
+            ...updateData,
+          },
         },
         { new: true }
       );
+
+      // mark cancelled if needed
+      if (newNumberOfPeople <= 0) {
+        updatedBooking.status = "cancelled";
+        await updatedBooking.save();
+      }
     } else {
-      // No touristId to push, just update normally
+      // Normal update
       updatedBooking = await TripBookingModel.findByIdAndUpdate(
         bookingId,
         updateData,
@@ -129,7 +193,9 @@ export const updateBooking = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({
-      message: "Booking updated successfully",
+      message: cancelTouristId
+        ? "Booking cancelled for tourist successfully"
+        : "Booking updated successfully",
       booking: updatedBooking,
     });
   } catch (error) {
