@@ -53,7 +53,7 @@ export const getAllBookings = async (req: Request, res: Response) => {
 
     const bookings = await TripBookingModel.find(filter)
       .populate("tripPlanId")
-      .populate("touristId")
+      .populate("touristIds") // <-- updated here (plural)
       .populate("guideId")
       .sort({ createdAt: -1 });
 
@@ -70,7 +70,7 @@ export const getBookingsByGuideId = async (req: Request, res: Response) => {
 
     const bookings = await TripBookingModel.find({ guideId })
       .populate("tripPlanId")
-      .populate("touristId")
+      .populate("touristIds")
       .sort({ createdAt: -1 });
 
     res.status(200).json({ bookings });
@@ -84,10 +84,11 @@ export const getBookingsByTouristId = async (req: Request, res: Response) => {
     const { touristId } = req.params;
 
     const bookings = await TripBookingModel.find({
-      touristId: touristId,
+      touristIds: touristId,
     })
       .populate("tripPlanId")
       .populate("guideId")
+      .populate("touristIds")
       .sort({ createdAt: -1 });
 
     res.status(200).json({ bookings });
@@ -96,6 +97,7 @@ export const getBookingsByTouristId = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 export const updateBooking = async (req: Request, res: Response) => {
   try {
     const { bookingId } = req.params;
