@@ -4,14 +4,34 @@ import React, { useEffect, useState } from "react";
 import { CalendarDays, Globe, TimerReset, Users } from "lucide-react";
 import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
-import { toast } from "sonner"; // ✨ Заавал импорт хийх
+import { toast } from "sonner";
 
 interface TripItem {
   _id: string;
   date: string;
   groupSize: number;
   duration: string;
-  languages: string;
+  languages: string | string[];
+}
+
+function formatLanguages(languages: string | string[]): string {
+  if (Array.isArray(languages)) {
+    return languages
+      .map((lang) => lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase())
+      .join(", ");
+  }
+
+  if (typeof languages === "string") {
+    return languages
+      .replace(/([a-z])([A-Z])/g, "$1,$2")
+      .split(/,|(?=[A-Z])/)
+      .map((lang) => lang.trim().toLowerCase())
+      .filter(Boolean)
+      .map((lang) => lang.charAt(0).toUpperCase() + lang.slice(1))
+      .join(", ");
+  }
+
+  return "";
 }
 
 const ActivityItem = ({
@@ -91,7 +111,7 @@ export const Activity = () => {
           <ActivityItem
             icon={Users}
             title="Group size"
-            value={`${trip.groupSize} people`}
+            value={`${trip.groupSize}`}
             iconColor="text-emerald-500"
           />
         </div>
@@ -105,7 +125,7 @@ export const Activity = () => {
           <ActivityItem
             icon={Globe}
             title="Live tour guide"
-            value={trip.languages}
+            value={formatLanguages(trip.languages)}
             iconColor="text-blue-500"
           />
         </div>

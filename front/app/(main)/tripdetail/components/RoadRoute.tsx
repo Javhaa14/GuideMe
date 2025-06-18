@@ -105,7 +105,14 @@ export default function RoadRoute() {
         <CardContent className="p-6">
           <h3 className="mb-3 text-lg font-semibold">Highlights</h3>
           <ul className="space-y-2 text-sm text-gray-600">
-            <li>• {trip.highlights}</li>
+            {Array.isArray(trip.highlights)
+              ? trip.highlights.map((item, index) => (
+                  <li key={index}>• {item}</li>
+                ))
+              : trip.highlights
+                  .split("\n")
+                  .filter(Boolean)
+                  .map((item, index) => <li key={index}>• {item.trim()}</li>)}
           </ul>
         </CardContent>
       </Card>
@@ -114,7 +121,12 @@ export default function RoadRoute() {
         <CardContent className="p-6">
           <h3 className="mb-3 text-lg font-semibold">Route Tips</h3>
           <ul className="space-y-2 text-sm text-gray-600">
-            <li>• {trip.tips}</li>
+            {Array.isArray(trip.tips)
+              ? trip.tips.map((item, index) => <li key={index}>• {item}</li>)
+              : trip.tips
+                  .split("\n")
+                  .filter(Boolean)
+                  .map((item, index) => <li key={index}>• {item.trim()}</li>)}
           </ul>
         </CardContent>
       </Card>
