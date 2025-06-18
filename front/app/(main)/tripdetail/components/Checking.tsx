@@ -231,16 +231,22 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
                 Includes all taxes and fees
               </p>
             </div>
-            <Button
-              onClick={() => {
-                setIsDialogOpen(true);
-                fetchQr();
-              }}
-              className="px-8 py-6 text-lg font-semibold bg-[#453C67] hover:bg-[#5a4f8a] transition"
-              disabled={loadingQr}
-            >
-              {loadingQr ? "Loading QR..." : "Pay Now"}
-            </Button>
+            {status !== "payment success" && (
+              <Button
+                onClick={() => {
+                  setIsDialogOpen(true);
+                  fetchQr();
+                }}
+                className="px-8 py-6 text-lg font-semibold bg-[#453C67] hover:bg-[#5a4f8a] transition"
+                disabled={loadingQr || status === "payment success"}
+              >
+                {loadingQr
+                  ? "Loading QR..."
+                  : status === "payment success"
+                  ? "Payment Complete"
+                  : "Pay Now"}
+              </Button>
+            )}
           </div>
         </div>
       </Card>
