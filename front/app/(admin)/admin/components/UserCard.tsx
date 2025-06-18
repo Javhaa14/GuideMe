@@ -52,7 +52,7 @@ export default function UserCard({ user, getStatusColor }: UserCardProps) {
             <Avatar className="w-12 h-12">
               <AvatarImage src={user.avatar || "/placeholder.svg"} />
               <AvatarFallback>
-                {user.name
+                {user.username
                   .split(" ")
                   .map((n) => n[0])
                   .join("")}

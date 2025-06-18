@@ -34,7 +34,7 @@ export default function StatsCard({
           <div
             className={`p-3 rounded-full bg-gray-100 dark:bg-gray-800 ${color}`}
           >
-            <Icon className="w-6 h-6" />
+            {/* <Icon className="w-6 h-6" /> */}
           </div>
         </div>
       </CardContent>
