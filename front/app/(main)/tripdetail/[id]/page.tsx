@@ -1,4 +1,4 @@
-import { TripDetailPage } from "./components/TripDetailPage";
+import { TripDetailPage } from "../components/TripDetailPage";
 
 export default function TripDetail() {
   return (

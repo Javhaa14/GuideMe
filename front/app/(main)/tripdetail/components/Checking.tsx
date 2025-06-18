@@ -1,9 +1,20 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react"; // ✅ useEffect нэмэгдлээ
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Globe, MapPin, Users, Calendar } from "lucide-react";
+import { useParams } from "next/navigation";
+import { axiosInstance } from "@/lib/utils";
+import { toast } from "sonner";
+
+// ✅ TripItem интерфэйс тодорхойлсон
+interface TripItem {
+  _id: string;
+  title: string;
+  price: number;
+  date: Date;
+}
 
 interface CheckingProps {
   data: {
@@ -21,12 +32,52 @@ interface CheckingProps {
 export const Checking: React.FC<CheckingProps> = ({ data }) => {
   const { participants, totalParticipants, language, totalPrice } = data;
 
+  const [trip, setTrip] = useState<TripItem | null>(null);
+  const params = useParams();
+
+  const fetchTrip = async () => {
+    const tripId = typeof params.id === "string" ? params.id : params.id?.[0];
+    if (!tripId) return console.warn("⛔ params.id байхгүй байна");
+
+    try {
+      const res = await axiosInstance.get(`/tripPlan/tripPlan/${tripId}`);
+
+      if (!res.data.success || !res.data.tripPlan) {
+        console.warn("⛔ Аялал олдсонгүй:", res.data.message);
+        toast.error("Аялал олдсонгүй: " + res.data.message);
+        return;
+      }
+
+      const tripData = res.data.tripPlan;
+      console.log("➡️ tripData:", tripData);
+      setTrip(tripData);
+    } catch (error: any) {
+      console.error(
+        "❌ API fetch error:",
+        error?.response?.data || error.message
+      );
+      toast.error("Алдаа гарлаа: " + error?.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrip();
+  }, []);
+
+  if (!trip) {
+    return (
+      <Card className="max-w-5xl p-8 mt-6 text-center border shadow-lg md:p-10 rounded-2xl">
+        <p className="text-gray-500">Loading trip data...</p>
+      </Card>
+    );
+  }
+
+  const unitPrice = trip.price || 100;
+
   return (
     <Card className="max-w-5xl p-8 mt-6 space-y-8 border shadow-lg md:p-10 rounded-2xl">
       <div className="space-y-4">
-        <h2 className="text-3xl font-bold text-gray-900">
-          From Ulaanbaatar: Khuvsgul Lake Tour
-        </h2>
+        <h2 className="text-3xl font-bold text-gray-900">{trip.title}</h2>
 
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
           <div className="flex items-center gap-2">
@@ -52,7 +103,7 @@ export const Checking: React.FC<CheckingProps> = ({ data }) => {
               </p>
               <div className="flex flex-wrap gap-2 mt-1">
                 <span className="px-3 py-1 text-sm font-medium rounded-full bg-[#EFF6FF] text-[#453C67]">
-                  2025/07/25 8:00 AM
+                  {new Date(trip.date).toLocaleDateString()}
                 </span>
               </div>
             </div>
@@ -78,41 +129,31 @@ export const Checking: React.FC<CheckingProps> = ({ data }) => {
         <h3 className="text-xl font-semibold text-gray-900">Price breakdown</h3>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between py-2 border-b border-gray-100">
-            <div>
-              <p className="font-medium text-gray-800">
-                Adult × {participants.adult}
-              </p>
-              <p className="text-sm text-gray-500">Age 18–99</p>
-            </div>
-            <span className="font-medium text-gray-800">
-              ${participants.adult * 100}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between py-2 border-b border-gray-100">
-            <div>
-              <p className="font-medium text-gray-800">
-                Youth × {participants.youth}
-              </p>
-              <p className="text-sm text-gray-500">Age 13–17</p>
-            </div>
-            <span className="font-medium text-gray-800">
-              ${participants.youth * 100}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between py-2 border-b border-gray-100">
-            <div>
-              <p className="font-medium text-gray-800">
-                Child × {participants.child}
-              </p>
-              <p className="text-sm text-gray-500">Age 0–12</p>
-            </div>
-            <span className="font-medium text-gray-800">
-              ${participants.child * 100}
-            </span>
-          </div>
+          {["adult", "youth", "child"].map((type) => {
+            const count = participants[type as keyof typeof participants];
+            return (
+              <div
+                key={type}
+                className="flex items-center justify-between py-2 border-b border-gray-100"
+              >
+                <div>
+                  <p className="font-medium text-gray-800">
+                    {type.charAt(0).toUpperCase() + type.slice(1)} × {count}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {type === "adult"
+                      ? "Age 18–99"
+                      : type === "youth"
+                      ? "Age 13–17"
+                      : "Age 0–12"}
+                  </p>
+                </div>
+                <span className="font-medium text-gray-800">
+                  ${count * unitPrice}
+                </span>
+              </div>
+            );
+          })}
         </div>
 
         <div className="flex flex-col gap-4 pt-6 md:flex-row md:items-center md:justify-between">
