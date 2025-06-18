@@ -149,7 +149,7 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
 
   const priceRangeFilter = (filteredResult: Guide[], priceRange: number[]) => {
     let newData: Guide[] = [];
-    if (priceRange[0] !== 0) {
+    if (priceRange.length !== 0) {
       filteredResult.map((el) => {
         if (
           Number(el.price) >= priceRange[0] &&
@@ -222,6 +222,7 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
       <LocationFilterCard
         isFilter={true}
         placeholder="Search and select a city"
+        className=""
       />
       <PriceFilterCard />
       <div className="flex flex-col justify-center items-start gap-5">
