@@ -43,37 +43,41 @@ export const sendNotification = async (req: Request, res: Response) => {
 export const getNotificationsById = async (req: Request, res: Response) => {
   const { currentUser } = req.params;
   try {
-    const Allnotifications = await Notification.find({ receiver: currentUser });
+    const Allnotifications = await Notification.find({
+      receiver: currentUser,
+      message: { $exists: true, $ne: "" },
+    });
 
     res.status(200).json(Allnotifications);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
 };
-export const getOneusersNotificationsById = async (
-  req: Request,
-  res: Response
-) => {
-  const { receiverId } = req.params;
+
+export const getUnseenNotifications = async (req: Request, res: Response) => {
+  const { userId } = req.params;
 
   try {
-    const notifications = await Notification.find({ receiver: receiverId });
+    const notifications = await Notification.find({
+      receiver: userId,
+      seen: false, // 👈 Only get unseen
+    }).lean();
 
     res.status(200).json(notifications);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
 };
-export const markAsSeen = async (req: Request, res: Response) => {
-  const { notificationId } = req.params;
+// routes/notification.ts
+export const markAllFromSenderAsSeen = async (req: Request, res: Response) => {
+  const { senderId, receiverId } = req.body;
 
   try {
-    const updated = await Notification.findByIdAndUpdate(
-      notificationId,
-      { seen: true },
-      { new: true }
+    const result = await Notification.updateMany(
+      { sender: senderId, receiver: receiverId, seen: false },
+      { $set: { seen: true } }
     );
-    res.status(200).json(updated);
+    res.status(200).json({ success: true, modified: result.modifiedCount });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }

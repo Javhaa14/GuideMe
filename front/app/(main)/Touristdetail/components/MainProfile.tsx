@@ -106,12 +106,12 @@ export const MainProfile = ({
               <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
                 <Users className="w-6 h-6 text-green-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-green-900">{2}</div>
-                <div className="text-sm text-green-700">Followers</div>
+                <div className="text-sm text-green-700">Liked by</div>
               </div>
               <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
                 <Users className="w-6 h-6 text-purple-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-purple-900">{1}</div>
-                <div className="text-sm text-purple-700">Following</div>
+                <div className="text-sm text-purple-700">Liked</div>
               </div>
             </div>
 
@@ -174,11 +174,6 @@ export const MainProfile = ({
               >
                 <MessageCircle className="w-6 h-6" />
                 Start Conversation
-              </button>
-
-              <button className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-green-600 text-green-600 rounded-2xl hover:bg-green-50 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl">
-                <Users className="w-6 h-6" />
-                Follow
               </button>
             </div>
           </div>
