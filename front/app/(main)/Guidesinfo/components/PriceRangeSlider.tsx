@@ -34,7 +34,7 @@ export default function PriceFilterCard() {
 
       <div className="w-full max-w-sm px-2 py-1 gap-2">
         {/* Display current range */}
-        <div className="flex items-start text-center text-gray-600 gap-2">
+        <div className="flex items-center justify-center text-center text-gray-600 gap-2">
           Selected range:{" "}
           <span className="font-semibold">
             ${priceRange[0]} - ${priceRange[1]} per hour

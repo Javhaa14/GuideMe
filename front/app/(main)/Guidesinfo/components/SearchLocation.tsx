@@ -61,15 +61,18 @@ export const LocationFilterCard = ({
   return (
     <div>
       {isFilter ? (
-        <div className="w-[400px] max-w-md">
-          <div className="flex gap-1 justify-center items-center border-1 p-3 w-full h-[50px]">
-            <BiSearchAlt className="size-[20px]" />
+        <div className="w-full max-w-md">
+          <div className="flex gap-1 justify-center items-center rounded-2xl border-1 p-3 w-[400px] h-[40px]">
+            <BiSearchAlt className="size-[20px] text-gray-500" />
             <input
               type="search"
               placeholder={placeholder}
               value={inputValue}
               onChange={handleValueChange}
-              className="w-full px-3 py-2 rounded border-none outline-none hover:outline-none hover:border:none"
+              className={
+                `w-full px-3 py-2 rounded-2xl border-none outline-none hover:outline-none hover:border:none` +
+                className
+              }
             />
           </div>
 
@@ -113,16 +116,3 @@ export const LocationFilterCard = ({
     </div>
   );
 };
-
-// option: (base) => ({
-//   ...base,
-//   padding: "10px 15px", // Custom padding for options
-//   backgroundColor: "white", // Default background for options
-//   color: "black", // Default text color
-//   cursor: "pointer", // Pointer cursor
-//   "&:hover": {
-//     backgroundColor: "black", // Light blue background on hover
-//     color: "white", // Text color on hover
-//     borderColor: "#4C9AFF", // Border color on hover (though border doesn't show in options)
-//   },
-// }),

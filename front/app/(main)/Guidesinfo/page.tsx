@@ -1,11 +1,14 @@
 "use client";
-import { GuideProfile } from "./components/GuideProfile";
+
 import { ListFilter, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
 import { Filters } from "./components/Filter";
 import { useFilteredData } from "@/app/context/FilteredDataContext";
+import { GuideProfile } from "./components/GuideProfile";
+import { Filters2 } from "./components/test1";
+
 export interface Guide {
   _id: string;
   location: string;
@@ -15,7 +18,7 @@ export interface Guide {
   gender: string;
   price: string;
   languages: string[];
-  status: "available" | "inavailable" | "busy";
+  status: "available" | "unavailable" | "busy";
   rating: number;
   comments: string[];
   experience: string;
@@ -66,6 +69,7 @@ export default function Home() {
                   status={guide.status}
                   profileimage={guide.profileimage || ""}
                   rating={guide.rating || 0}
+                  languages={guide.languages.join(", ")}
                   price={guide.price || 0}
                   name={guide.username || ""}
                   location={guide.location || ""}
@@ -77,7 +81,8 @@ export default function Home() {
           <p>No results found</p>
         )}
       </div>
-      <Filters guides={guides} />
+      {/* <Filters guides={guides} /> */}
+      <Filters2 guides={guides} />
     </div>
   );
 }
