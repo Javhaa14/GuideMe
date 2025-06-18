@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createPost,
+  getLikedUsers,
   getPostById,
   getPosts,
   getPostsByUserId,
@@ -14,4 +15,5 @@ postRouter
   .get("/", getPosts)
   .get("/:userId", getPostsByUserId)
   .put("/", updatePost)
-  .get("/postid/:id", getPostById);
+  .get("/postid/:id", getPostById)
+  .get("/liked/:currentUserId", getLikedUsers);
