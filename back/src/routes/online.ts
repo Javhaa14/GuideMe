@@ -4,13 +4,11 @@ import mongoose from "mongoose";
 import {
   getChatHistory,
   getConversations,
-  markMessagesAsRead,
   saveChatMessage,
 } from "../controller/chat";
 
 export const Onlinerouter = express.Router();
 Onlinerouter.post("/chat", saveChatMessage)
-  .put("/chat/read", markMessagesAsRead)
   .get("/chat/:roomId", getChatHistory)
   .get("/chat/conversations/:userId", getConversations);
 
