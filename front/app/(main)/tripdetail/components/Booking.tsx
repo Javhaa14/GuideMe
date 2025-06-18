@@ -8,8 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useParams } from "next/navigation";
-import { axiosInstance } from "@/lib/utils";
-import { toast } from "sonner";
+
 import { GuideProfile } from "../../Guidedetail/components/GuideMainProfile";
 interface RouteItem {
   image?: string;
@@ -48,8 +47,6 @@ export const Booking: React.FC<BookingProps> = ({ onCheck, trip }) => {
   });
 
   const [language, setLanguage] = useState("English");
-  const params = useParams();
-
   const adjustParticipant = (
     type: keyof typeof participants,
     delta: number

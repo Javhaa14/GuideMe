@@ -91,7 +91,7 @@ app.get("/scanqr", (req, res: any) => {
     watchers.forEach((socketId) => {
       const socket = io.sockets.sockets.get(socketId);
       if (socket) {
-        socket.emit("paymentScanned", { paymentId: id, status: true });
+        socket.emit("paymentStatus", { paymentId: id, status: true });
       }
     });
   }

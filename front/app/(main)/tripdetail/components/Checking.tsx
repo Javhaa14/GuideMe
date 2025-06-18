@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Globe, MapPin, Users, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { TripItem } from "./Booking";
-import { PaymentDialog } from "../../components/PaymentDialog";
 
 interface CheckingProps {
   data: {
@@ -129,14 +128,14 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
         </div>
       </div>
 
-      <PaymentDialog
+      {/* <PaymentDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         amount={totalPrice}
         tripId={trip._id}
         totalParticipants={totalParticipants}
         selectedDate={trip.date}
-      />
+      /> */}
     </Card>
   );
 };
