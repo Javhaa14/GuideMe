@@ -175,7 +175,6 @@ export default function Chat({
       receiverId: profileId, // THE RECEIVER
       message: messagePayload.text,
     });
-    window.location.reload(); // <-- This will reload the page immediately
 
     setInput("");
   };
