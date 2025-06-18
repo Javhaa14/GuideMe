@@ -69,14 +69,6 @@ export const getConversations = async (req: Request, res: Response) => {
           if (guideProfile?.profileimage)
             profileimage = guideProfile.profileimage;
         }
-
-        // Count unread messages
-        const unreadCount = await ChatMessageModel.countDocuments({
-          roomId: msg.roomId,
-          userId: { $ne: userId }, // Sent by the partner
-          readBy: { $ne: userId }, // Not read yet
-        });
-
         conversationsMap.set(partnerId, {
           roomId: msg.roomId,
           user: {
@@ -89,8 +81,6 @@ export const getConversations = async (req: Request, res: Response) => {
             createdAt: msg.createdAt,
             userId: msg.user,
           },
-
-          unreadCount,
         });
       }
     }
