@@ -1,20 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react"; // ✅ useEffect нэмэгдлээ
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Globe, MapPin, Users, Calendar } from "lucide-react";
-import { useParams } from "next/navigation";
-import { axiosInstance } from "@/lib/utils";
 import { toast } from "sonner";
-
-// ✅ TripItem интерфэйс тодорхойлсон
-interface TripItem {
-  _id: string;
-  title: string;
-  price: number;
-  date: Date;
-}
+import { TripItem } from "./Booking";
+import { PaymentDialog } from "../../components/PaymentDialog";
 
 interface CheckingProps {
   data: {
@@ -27,42 +19,13 @@ interface CheckingProps {
     language: string;
     totalPrice: number;
   };
+  trip: TripItem;
 }
 
-export const Checking: React.FC<CheckingProps> = ({ data }) => {
+export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
   const { participants, totalParticipants, language, totalPrice } = data;
 
-  const [trip, setTrip] = useState<TripItem | null>(null);
-  const params = useParams();
-
-  const fetchTrip = async () => {
-    const tripId = typeof params.id === "string" ? params.id : params.id?.[0];
-    if (!tripId) return console.warn("⛔ params.id байхгүй байна");
-
-    try {
-      const res = await axiosInstance.get(`/tripPlan/tripPlan/${tripId}`);
-
-      if (!res.data.success || !res.data.tripPlan) {
-        console.warn("⛔ Аялал олдсонгүй:", res.data.message);
-        toast.error("Аялал олдсонгүй: " + res.data.message);
-        return;
-      }
-
-      const tripData = res.data.tripPlan;
-      console.log("➡️ tripData:", tripData);
-      setTrip(tripData);
-    } catch (error: any) {
-      console.error(
-        "❌ API fetch error:",
-        error?.response?.data || error.message
-      );
-      toast.error("Алдаа гарлаа: " + error?.message);
-    }
-  };
-
-  useEffect(() => {
-    fetchTrip();
-  }, []);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   if (!trip) {
     return (
@@ -129,7 +92,7 @@ export const Checking: React.FC<CheckingProps> = ({ data }) => {
         <h3 className="text-xl font-semibold text-gray-900">Price breakdown</h3>
 
         <div className="space-y-3">
-          {["adult", "youth", "child"].map((type) => {
+          {["adult", "child"].map((type) => {
             const count = participants[type as keyof typeof participants];
             return (
               <div
@@ -141,11 +104,7 @@ export const Checking: React.FC<CheckingProps> = ({ data }) => {
                     {type.charAt(0).toUpperCase() + type.slice(1)} × {count}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {type === "adult"
-                      ? "Age 18–99"
-                      : type === "youth"
-                      ? "Age 13–17"
-                      : "Age 0–12"}
+                    {type === "adult" ? "Age 18–99" : "Age 0–12"}
                   </p>
                 </div>
                 <span className="font-medium text-gray-800">
@@ -161,11 +120,23 @@ export const Checking: React.FC<CheckingProps> = ({ data }) => {
             <p className="text-2xl font-bold text-gray-900">${totalPrice}.00</p>
             <p className="text-sm text-gray-500">Includes all taxes and fees</p>
           </div>
-          <Button className="px-8 py-6 text-lg font-semibold bg-[#453C67] hover:bg-[#5a4f8a] transition">
+          <Button
+            onClick={() => setIsDialogOpen(true)}
+            className="px-8 py-6 text-lg font-semibold bg-[#453C67] hover:bg-[#5a4f8a] transition"
+          >
             Book Now
           </Button>
         </div>
       </div>
+
+      <PaymentDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        amount={totalPrice}
+        tripId={trip._id}
+        totalParticipants={totalParticipants}
+        selectedDate={trip.date}
+      />
     </Card>
   );
 };

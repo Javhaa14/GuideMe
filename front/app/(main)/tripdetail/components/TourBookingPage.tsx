@@ -18,7 +18,9 @@ export default function TourBookingPage({ trip }: TourBookingPageProps) {
   return (
     <div>
       <Booking onCheck={handleCheck} trip={trip} />
-      {showChecking && bookingData && <Checking data={bookingData} />}
+      {showChecking && bookingData && (
+        <Checking trip={trip} data={bookingData} />
+      )}
     </div>
   );
 }
