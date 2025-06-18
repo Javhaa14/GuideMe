@@ -37,6 +37,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setUser(session?.user || null);
   }, [session]);
+  console.log(user);
 
   return (
     <UserContext.Provider value={{ user, status, setUser }}>

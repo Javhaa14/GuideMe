@@ -14,8 +14,8 @@ const postchema = new mongoose.Schema({
   people: Number,
   likedBy: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      likedAt: { type: Date, default: Date.now },
     },
   ],
   startDate: Date,
