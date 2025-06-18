@@ -103,7 +103,11 @@ export default function BasicInfoStep({
         </p>
       </div>
 
+<<<<<<< HEAD
       <motion.div variants={item} className="flex flex-col gap-1.5">
+=======
+      <motion.div variants={item}>
+>>>>>>> b9f6e45 (..)
         <Label>Trip Title</Label>
         <Input
           value={formData.title}
@@ -113,7 +117,11 @@ export default function BasicInfoStep({
       </motion.div>
 
       <div className="grid gap-6 md:grid-cols-2">
+<<<<<<< HEAD
         <motion.div variants={item} className="flex flex-col gap-1.5">
+=======
+        <motion.div variants={item}>
+>>>>>>> b9f6e45 (..)
           <Label className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-primary" />
             Date
@@ -121,11 +129,19 @@ export default function BasicInfoStep({
           <Input
             value={formData.date}
             onChange={(e) => updateFormData({ date: e.target.value })}
+<<<<<<< HEAD
             placeholder="e.g., 2025-06-16"
           />
         </motion.div>
 
         <motion.div variants={item} className="flex flex-col gap-1.5">
+=======
+            placeholder="e.g., 2024-06-15"
+          />
+        </motion.div>
+
+        <motion.div variants={item}>
+>>>>>>> b9f6e45 (..)
           <Label className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-primary" />
             Duration
@@ -137,7 +153,11 @@ export default function BasicInfoStep({
           />
         </motion.div>
 
+<<<<<<< HEAD
         <motion.div variants={item} className="flex flex-col gap-1.5">
+=======
+        <motion.div variants={item}>
+>>>>>>> b9f6e45 (..)
           <Label className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" />
             Group Size
@@ -149,7 +169,11 @@ export default function BasicInfoStep({
           />
         </motion.div>
 
+<<<<<<< HEAD
         <motion.div variants={item} className="flex flex-col gap-1.5">
+=======
+        <motion.div variants={item}>
+>>>>>>> b9f6e45 (..)
           <Label className="flex items-center gap-2">
             <DollarSign className="w-4 h-4 text-primary" />
             Price
@@ -169,7 +193,11 @@ export default function BasicInfoStep({
         </motion.div>
       </div>
 
+<<<<<<< HEAD
       <motion.div variants={item} className="flex flex-col gap-1.5">
+=======
+      <motion.div variants={item}>
+>>>>>>> b9f6e45 (..)
         <Label className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-primary" />
           Languages
@@ -182,7 +210,11 @@ export default function BasicInfoStep({
         />
       </motion.div>
 
+<<<<<<< HEAD
       <motion.div variants={item} className="flex flex-col gap-1.5">
+=======
+      <motion.div variants={item}>
+>>>>>>> b9f6e45 (..)
         <Label className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-primary" />
           About This Trip
@@ -195,6 +227,7 @@ export default function BasicInfoStep({
         />
       </motion.div>
 
+<<<<<<< HEAD
       <motion.div variants={item} className="flex flex-col gap-1.5">
         <Label>Trip Images</Label>
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border">
@@ -202,6 +235,13 @@ export default function BasicInfoStep({
             <span className="font-semibold text-gray-700">
               Photos (You need 4 images)
             </span>
+=======
+      <motion.div variants={item}>
+        <Label>Trip Images</Label>
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border">
+          <div className="flex justify-between mb-4">
+            <span className="font-semibold text-gray-700">Photos</span>
+>>>>>>> b9f6e45 (..)
             <label className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl cursor-pointer hover:scale-105 transition">
               <Camera size={18} />
               Add Photo

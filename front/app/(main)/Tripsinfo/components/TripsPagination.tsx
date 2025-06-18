@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+<<<<<<< HEAD
 import { useRouter } from "next/navigation";
+=======
+>>>>>>> b9f6e45 (..)
 import { Calendar, MapPin, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,11 +26,15 @@ export default function TripsPagination() {
   const [trips, setTrips] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+<<<<<<< HEAD
   const router = useRouter();
+=======
+>>>>>>> b9f6e45 (..)
 
   useEffect(() => {
     const fetchTrips = async () => {
       try {
+<<<<<<< HEAD
         const res = await axiosInstance.get(`/tripPlan`);
         if (res.data && Array.isArray(res.data.tripPlans)) {
           setTrips(res.data.tripPlans);
@@ -36,6 +43,19 @@ export default function TripsPagination() {
         }
       } catch (err) {
         console.error("❌ Error fetching trip plans:", err);
+=======
+        const res = await axiosInstance.get("/tripPlan");
+        // ✅ res.data.data эсвэл res.data-г шалга
+        const data = Array.isArray(res.data) ? res.data : res.data.data;
+        if (Array.isArray(data)) {
+          setTrips(data);
+        } else {
+          console.error("❌ Data is not an array:", data);
+          setTrips([]);
+        }
+      } catch (err) {
+        console.error("❌ Trip fetch failed:", err);
+>>>>>>> b9f6e45 (..)
         setTrips([]);
       } finally {
         setLoading(false);
@@ -45,6 +65,10 @@ export default function TripsPagination() {
     fetchTrips();
   }, []);
 
+<<<<<<< HEAD
+=======
+  // ✨ Хоосон байхад урьдчилан шалгах
+>>>>>>> b9f6e45 (..)
   if (loading) {
     return (
       <div className="text-center text-muted-foreground py-12">
@@ -53,7 +77,11 @@ export default function TripsPagination() {
     );
   }
 
+<<<<<<< HEAD
   if (trips.length === 0) {
+=======
+  if (!Array.isArray(trips) || trips.length === 0) {
+>>>>>>> b9f6e45 (..)
     return (
       <div className="text-center text-muted-foreground py-12">
         No trips found.
@@ -73,9 +101,15 @@ export default function TripsPagination() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+<<<<<<< HEAD
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">Adventure Trips</h1>
         <p className="text-muted-foreground">
+=======
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-center mb-2">Adventure Trips</h1>
+        <p className="text-muted-foreground text-center">
+>>>>>>> b9f6e45 (..)
           Discover amazing destinations with our guided tours
         </p>
       </div>
@@ -83,6 +117,7 @@ export default function TripsPagination() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {currentTrips.map((trip) => (
           <Card
+<<<<<<< HEAD
             key={trip._id}
             className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
             onClick={() => router.push(`/tripdetail/${trip._id}`)}
@@ -94,6 +129,14 @@ export default function TripsPagination() {
                     ? trip.images
                     : trip.images[0] || "/placeholder.jpg"
                 }
+=======
+            key={trip._id || trip.id}
+            className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
+          >
+            <div className="relative overflow-hidden">
+              <Image
+                src={trip.images || "/lake.png"}
+>>>>>>> b9f6e45 (..)
                 alt={trip.title}
                 width={400}
                 height={300}
@@ -106,6 +149,13 @@ export default function TripsPagination() {
               </div>
             </div>
             <CardContent className="p-4">
+<<<<<<< HEAD
+=======
+              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                <MapPin className="w-4 h-4" />
+                <span>{trip.location}</span>
+              </div>
+>>>>>>> b9f6e45 (..)
               <h3 className="font-semibold text-lg mb-3 line-clamp-2 group-hover:text-primary transition-colors">
                 {trip.title}
               </h3>
@@ -116,7 +166,11 @@ export default function TripsPagination() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
+<<<<<<< HEAD
                   <span>{new Date(trip.date).toLocaleDateString()}</span>
+=======
+                  <span>{trip.date}</span>
+>>>>>>> b9f6e45 (..)
                 </div>
               </div>
             </CardContent>
