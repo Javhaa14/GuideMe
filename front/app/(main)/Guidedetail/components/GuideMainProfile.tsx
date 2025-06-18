@@ -86,7 +86,7 @@ export default function GuideMainProfile() {
           <div className="flex flex-col w-full h-full">
             <div className="p-4 pb-0 text-white bg-gradient-to-r from-green-500 to-emerald-600">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold">Chat with</h3>
+                <h3 className="font-semibold">Chat with {user.username}</h3>
                 <button
                   onClick={() => setChat(false)}
                   className="text-white transition-colors hover:text-gray-200">
@@ -121,17 +121,24 @@ export default function GuideMainProfile() {
           </div>
 
           <div className="relative px-10 pb-12 bg-white">
-            <div className="absolute w-40 h-40 overflow-hidden border-4 border-white rounded-full shadow-xl -top-24 left-10">
-              {guide?.profileimage && (
+            <div className="absolute -top-16 md:-top-20 left-6 md:left-12">
+              <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full border-6 border-white shadow-2xl overflow-hidden bg-white">
                 <Image
-                  src={guide.profileimage}
+                  src={guide?.profileimage || "/placeholder.svg"}
                   alt="Profile"
                   fill
                   className="object-cover"
                 />
+              </div>
+              {/* Online Status */}
+
+              {onlineUsers[profileId]?.isOnline ? (
+                <div className="absolute bottom-2 right-2 w-6 h-6 animate-pulse bg-green-500 border-3 border-white rounded-full"></div>
+              ) : (
+                <div className="absolute bottom-2 right-2 w-6 h-6 bg-gray-500 border-3 border-white rounded-full"></div>
               )}
-              {guide?.firstName} {guide?.lastName}
             </div>
+
             <div className="ml-60">
               <div>
                 <h1 className="text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
