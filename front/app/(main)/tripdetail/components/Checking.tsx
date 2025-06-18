@@ -95,23 +95,16 @@ export const Checking: React.FC<CheckingProps> = ({ data, trip }) => {
             const existingBooking = checkRes.data.bookings[0];
             await axiosInstance.put(`/bookings/${existingBooking._id}`, {
               numberOfPeople: totalParticipants,
+              touristIds: [user.id],
               selectedDate: trip.date,
-              participants,
-              language,
-              totalPrice,
               paymentId,
             });
           } else {
-            const touristId = user.id;
-
             await axiosInstance.post("/bookings", {
               tripPlanId: trip._id,
-              touristId,
+              touristId: [user.id],
               numberOfPeople: totalParticipants,
               selectedDate: trip.date,
-              participants,
-              language,
-              totalPrice,
               paymentId,
             });
           }
