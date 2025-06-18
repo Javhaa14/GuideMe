@@ -74,7 +74,8 @@ export default function ImageUpload({
                 variant="destructive"
                 size="icon"
                 className="absolute w-6 h-6 rounded-full top-2 right-2"
-                onClick={() => handleRemove(index)}>
+                onClick={() => handleRemove(index)}
+              >
                 <X className="w-4 h-4" />
               </Button>
             </div>
@@ -86,7 +87,8 @@ export default function ImageUpload({
             <CardContent className="flex flex-col items-center justify-center h-full p-4">
               <label
                 htmlFor="image-upload"
-                className="flex flex-col items-center justify-center w-full h-full transition-colors border-2 border-dashed rounded-md cursor-pointer border-muted-foreground/25 hover:border-muted-foreground/50">
+                className="flex flex-col items-center justify-center w-full h-full transition-colors border-2 border-dashed rounded-md cursor-pointer border-muted-foreground/25 hover:border-muted-foreground/50"
+              >
                 <div className="flex flex-col items-center justify-center py-4">
                   <ImageIcon className="w-8 h-8 mb-2 text-muted-foreground" />
                   <p className="text-sm font-medium text-center">
