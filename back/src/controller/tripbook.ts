@@ -4,38 +4,34 @@ import { TripPlanModel } from "../model/TripPlan";
 
 export const createBooking = async (req: Request, res: Response) => {
   try {
-    const {
-      tripPlanId,
-      touristId,
-      numberOfPeople,
-      selectedDate,
-      paymentMethod,
-    } = req.body;
+    const { tripPlanId, touristId, numberOfPeople, selectedDate } = req.body;
+
+    // Check required fields
+    if (!tripPlanId || !touristId || !numberOfPeople || !selectedDate) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
     // Check if TripPlan exists
     const tripPlan = await TripPlanModel.findById(tripPlanId);
     if (!tripPlan) {
       return res.status(404).json({ error: "Trip plan not found" });
     }
-    if (!tripPlanId || !touristId || !numberOfPeople || !selectedDate) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
 
     // Calculate total price
     const totalPrice = tripPlan.price * numberOfPeople;
 
-    // Create booking
+    // Ensure touristId is an array (wrap if it's a single ID)
+    const touristIdsArray = Array.isArray(touristId) ? touristId : [touristId];
+
+    // Create booking with touristId as array
     const booking = await TripBookingModel.create({
       tripPlanId,
-      touristId,
+      touristId: touristIdsArray,
       guideId: tripPlan.guideId,
       numberOfPeople,
       selectedDate,
       totalPrice,
-      paymentStatus: "unpaid",
-      paymentDetails: {
-        paymentMethod,
-      },
+      paymentStatus: "paid",
     });
 
     res.status(201).json({
@@ -47,15 +43,21 @@ export const createBooking = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 export const getAllBookings = async (req: Request, res: Response) => {
   try {
-    const bookings = await TripBookingModel.find()
-      .populate("tripPlanId") // Get trip plan details
-      .populate("touristId") // Get tourist info
-      .populate("guideId") // Get guide info
-      .sort({ createdAt: -1 }); // Latest bookings first
+    const { tripId, paymentId } = req.query;
+    const filter: any = {};
+    if (tripId) filter.tripPlanId = tripId;
+    if (paymentId) filter["paymentDetails.paymentId"] = paymentId;
 
-    res.status(200).json({ bookings });
+    const bookings = await TripBookingModel.find(filter)
+      .populate("tripPlanId")
+      .populate("touristId")
+      .populate("guideId")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(bookings);
   } catch (error) {
     console.error("Error fetching bookings:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -97,13 +99,32 @@ export const getBookingsByTouristId = async (req: Request, res: Response) => {
 export const updateBooking = async (req: Request, res: Response) => {
   try {
     const { bookingId } = req.params;
-    const updateData = req.body;
+    const updateData = { ...req.body };
 
-    const updatedBooking = await TripBookingModel.findByIdAndUpdate(
-      bookingId,
-      updateData,
-      { new: true }
-    );
+    // Extract touristId if present and remove it from updateData
+    const { touristId } = updateData;
+    delete updateData.touristId;
+
+    let updatedBooking;
+
+    if (touristId) {
+      // Push touristId into array using $addToSet to avoid duplicates
+      updatedBooking = await TripBookingModel.findByIdAndUpdate(
+        bookingId,
+        {
+          $addToSet: { touristId: touristId }, // Push touristId into array
+          $set: updateData, // update other fields normally
+        },
+        { new: true }
+      );
+    } else {
+      // No touristId to push, just update normally
+      updatedBooking = await TripBookingModel.findByIdAndUpdate(
+        bookingId,
+        updateData,
+        { new: true }
+      );
+    }
 
     if (!updatedBooking) {
       return res.status(404).json({ error: "Booking not found" });
@@ -118,6 +139,7 @@ export const updateBooking = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 export const deleteBooking = async (req: Request, res: Response) => {
   try {
     const { bookingId } = req.params;
