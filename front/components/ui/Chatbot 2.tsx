@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import ReactMarkdown from "react-markdown";
+import { useUser } from "@/app/context/Usercontext";
 
 const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL);
 
@@ -11,12 +12,17 @@ type Message = {
 };
 
 function ChatBot() {
+  const { user } = useUser();
   const [message, setMessage] = useState("");
   const [responses, setResponses] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Socket connected, emitting identify with userId", user.id);
+      socket.emit("identify", user.id);
+    });
     socket.on("ai chatbot", (response: string) => {
       setResponses((prev) => [...prev, { sender: "ai", text: response }]);
       setLoading(false);
@@ -24,6 +30,7 @@ function ChatBot() {
 
     return () => {
       socket.off("ai chatbot");
+      socket.off("connect");
     };
   }, []);
 

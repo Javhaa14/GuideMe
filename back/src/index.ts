@@ -20,7 +20,13 @@ import { guideRouter } from "./routes/guideProfile";
 import { Onlinerouter } from "./routes/online";
 import { ChatMessageModel } from "./model/ChatHistory";
 import tripPlanRouter from "./routes/tripPlan";
-
+import { Notifrouter } from "./routes/notificationSMS";
+import { Notification } from "./model/notification";
+declare module "socket.io" {
+  interface Socket {
+    userId?: string;
+  }
+}
 dotenv.config();
 
 const app = express();
@@ -52,6 +58,7 @@ app.use("/comment", commentRouter);
 app.use("/gprofile", guideRouter);
 app.use("/tprofile", touristRouter);
 app.use("/api", Onlinerouter);
+app.use("/notif", Notifrouter);
 
 ////////////////////////////////////////////////////////////////
 // QR Payment system using Socket.IO
@@ -70,7 +77,7 @@ app.get("/", async (_req: Request, res: Response) => {
 });
 
 // Endpoint called when QR code is scanned
-app.get("/scanqr", (req, res:any) => {
+app.get("/scanqr", (req, res: any) => {
   const { id } = req.query;
   if (typeof id !== "string") {
     return res.status(400).send("Missing or invalid id");
@@ -126,7 +133,9 @@ io.on("connection", (socket) => {
     for (const [paymentId, watchers] of Object.entries(paymentWatchers)) {
       if (watchers.has(socket.id)) {
         watchers.delete(socket.id);
-        console.log(`Socket ${socket.id} removed from watching payment ${paymentId}`);
+        console.log(
+          `Socket ${socket.id} removed from watching payment ${paymentId}`
+        );
         if (watchers.size === 0) {
           delete paymentWatchers[paymentId];
         }
@@ -166,111 +175,103 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
   });
 
   // --- Chat room join ---
- socket.on("joinRoom", async (roomId: string) => {
-  socket.join(roomId);
-  socket.data.currentRoom = roomId; // 👈 track active room
-  console.log(`Socket ${socket.id} joined room ${roomId}`);
+  socket.on("identify", (userId) => {
+    socket.data.userId = userId;
+    socket.join(userId); // Optional: join a personal room by userId
+    console.log(`✅ Socket ${socket.id} identified as user ${userId}`);
+  });
 
-  try {
-    const recentMessages = await ChatMessageModel.find({ roomId })
-      .sort({ timestamp: -1 })
-      .limit(50)
-      .exec();
-    socket.emit("chat history", recentMessages.reverse());
-  } catch (error) {
-    console.error("Error fetching chat history:", error);
-  }
-});
-
-socket.on("leaveRoom", (roomId: string) => {
-  socket.leave(roomId);
-  if (socket.data.currentRoom === roomId) {
-    socket.data.currentRoom = null;
-  }
-  console.log(`Socket ${socket.id} left room ${roomId}`);
-});
-
-  // --- User-to-user chat messages ---
-  socket.on("identify", (userId: string) => {
-  socket.data.userId = userId;
-  console.log(`📛 Socket ${socket.id} identified as user ${userId}`);
-});
-
- socket.on("chat message", async (msg) => {
-  try {
-    const newMessage = await ChatMessageModel.create({
-      user: msg.user,
-      text: msg.text,
-      profileimage: msg.profileimage,
-      roomId: msg.roomId,
-      timestamp: new Date(),
-    });
-
-    io.to(msg.roomId).emit("chat message", {
-      ...newMessage.toObject(),
-      tempId: msg.tempId,
-    });
-
-    console.log(`Message saved and emitted to room ${msg.roomId}`);
-
-    // Determine recipient
-    const [userA, userB] = msg.roomId.split("-");
-    const recipientId = msg.userId === userA ? userB : userA;
-
-    // Check if recipient is already viewing the chat
-    const recipientSocket = [...io.sockets.sockets.values()].find(
-      (s) => s.data?.userId === recipientId
-    );
-
-    const isViewingChat = recipientSocket?.data?.currentRoom === msg.roomId;
-
-    if (!isViewingChat) {
-      io.to(`notify_${recipientId}`).emit("notify", {
-        title: "New Message",
-        message: `${msg.user} sent you a message`,
-        roomId: msg.roomId,
-      });
-    } else {
-      console.log(`🔕 No notification sent — user ${recipientId} is already viewing chat`);
-    }
-  } catch (err) {
-    console.error("Failed to save chat message:", err);
-  }
-});
-
-
+  // Join notification room
   socket.on("joinNotificationRoom", (userId: string) => {
     socket.join(`notify_${userId}`);
     console.log(`🔔 User ${userId} joined notify_${userId}`);
+
+    // Debug: List all socket rooms
+    setTimeout(() => {
+      console.log(`🧠 Socket ${socket.id} rooms:`, [...socket.rooms]);
+    }, 1000); // wait a sec to allow join
   });
 
-  socket.on("approveReset", async (data: { token: string }) => {
+  // Join chat room
+  socket.on("joinRoom", (roomId) => {
+    socket.join(roomId);
+    socket.data.currentRoom = roomId;
+    console.log(`👥 Socket ${socket.id} joined room ${roomId}`);
+  });
+
+  // Leave chat room
+  socket.on("leaveRoom", (roomId) => {
+    socket.leave(roomId);
+    console.log(`🚪 Socket ${socket.id} left room ${roomId}`);
+  });
+
+  // Handle incoming chat message
+  socket.on("chat message", async (msg) => {
+    console.log("📩 Message received:", msg);
+
     try {
-      const payload = jwt.verify(
-        data.token,
-        process.env.JWT_SECRET!
-      ) as JwtPayload & { id: string };
-
-      io.to(`reset_${payload.id}`).emit("resetApproved", {
-        message: "Password reset approved!",
-        userId: payload.id,
+      // Save message to DB (replace with your DB code)
+      const savedMessage = await ChatMessageModel.create({
+        user: msg.user,
+        userId: msg.userId,
+        text: msg.text,
+        profileimage: msg.profileimage,
+        roomId: msg.roomId,
+        // timestamp will be added automatically
       });
 
-      socket.emit("approveResult", {
-        success: true,
-        message: "Reset approved.",
+      if (!savedMessage) {
+        throw new Error("Failed to save message");
+      }
+
+      // Emit message to the chat room
+      io.to(msg.roomId).emit("chat message", savedMessage);
+
+      // Determine recipient userId
+      const [userA, userB] = msg.roomId.split("-");
+      const recipientId = msg.userId === userA ? userB : userA;
+
+      // Save notification in DB (replace with your DB code)
+      await Notification.create({
+        sender: msg.userId,
+        receiver: recipientId,
+        messageId: savedMessage._id,
+        roomId: msg.roomId,
+        seen: false,
       });
+
+      // Find recipient's socket to check current room
+      const recipientSocket = [...io.sockets.sockets.values()].find(
+        (s) => s.data?.userId === recipientId
+      );
+
+      const isViewingChat = recipientSocket?.data?.currentRoom === msg.roomId;
+
+      console.log(`Checking if should notify recipient ${recipientId}`);
+      console.log(`Is viewing chat: ${isViewingChat}`);
+      console.log(`Is sender: ${recipientId === msg.userId}`);
+
+      if (!isViewingChat && recipientId !== msg.userId) {
+        console.log(`📣 Emitting to notify_${recipientId}`);
+        io.to(`notify_${recipientId}`).emit("notify", {
+          title: "New Message",
+          message: `${msg.user} sent you a message`,
+          roomId: msg.roomId,
+          senderId: msg.userId,
+          type: "message",
+        });
+      } else {
+        console.log("🔕 No notification sent (user is in room or is sender)");
+      }
     } catch (err) {
-      socket.emit("approveResult", {
-        success: false,
-        message: "Invalid or expired token.",
-      });
+      console.error("❌ Failed to process chat message:", err);
     }
   });
 
-  socket.on("leaveRoom", (roomId: string) => {
-    socket.leave(roomId);
-    console.log(`Socket ${socket.id} left room ${roomId}`);
+  // Handle disconnect cleanup if needed
+  socket.on("disconnect", () => {
+    console.log(`❌ Socket disconnected: ${socket.id}`);
+    // You can remove socket from any tracking str
   });
 });
 

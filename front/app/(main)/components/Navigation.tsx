@@ -39,42 +39,40 @@ import { TouristProfile } from "../Touristdetail/components/MainProfile";
 import { GuideProfile } from "../Guidedetail/components/GuideMainProfile";
 import { MessengerButton } from "./Messenger";
 
-const translations = [
-  {
-    en: {
-      guides: "Guides",
-      tourists: "Tourists",
-      settings: "Settings",
-      logout: "Log out",
-      welcome: "Welcome",
-      darkMode: "Dark Mode",
-      notifications: "Notifications",
-      role: "Switch Role",
-      language: "Language",
-      admin: "Admin",
-      guide: "Guide",
-      tourist: "Tourist",
-      login: "Log In",
-    },
+const translations = {
+  en: {
+    guides: "Guides",
+    tourists: "Tourists",
+    trips: "Trips",
+    settings: "Settings",
+    logout: "Log out",
+    welcome: "Welcome",
+    darkMode: "Dark Mode",
+    notifications: "Notifications",
+    role: "Switch Role",
+    language: "Language",
+    admin: "Admin",
+    guide: "Guide",
+    tourist: "Tourist",
+    login: "Log In",
   },
-  {
-    mn: {
-      guides: "Гайдууд",
-      tourists: "Аялагчид",
-      settings: "Тохиргоо",
-      logout: "Гарах",
-      welcome: "Тавтай морил",
-      darkMode: "Харанхуй горим",
-      notifications: "Мэдэгдлүүд",
-      role: "Үүрэг солих",
-      language: "Хэл",
-      admin: "Админ",
-      guide: "Гайд",
-      tourist: "Аялагч",
-      login: "Нэвтрэх",
-    },
+  mn: {
+    guides: "Гайдууд",
+    tourists: "Аялагчид",
+    trips: "Аялалууд",
+    settings: "Тохиргоо",
+    logout: "Гарах",
+    welcome: "Тавтай морил",
+    darkMode: "Харанхуй горим",
+    notifications: "Мэдэгдлүүд",
+    role: "Үүрэг солих",
+    language: "Хэл",
+    admin: "Админ",
+    guide: "Гайд",
+    tourist: "Аялагч",
+    login: "Нэвтрэх",
   },
-];
+};
 
 const LANGUAGES = [
   { code: "en", label: "English" },
@@ -95,71 +93,63 @@ function getInitialLangFromCookie(): string {
 export const Navigation = () => {
   const router = useRouter();
   const { user, setUser } = useUser();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [language, setLanguage] = useState<string>("en");
   const { theme, setTheme } = useTheme();
   const [tprofile, setTprofile] = useState<TouristProfile>();
   const [gprofile, setGprofile] = useState<GuideProfile>();
-  const t = translations[0].en;
+  const t =
+    translations[language as keyof typeof translations] || translations.en;
 
-  useEffect(() => {
-    setLanguage(getInitialLangFromCookie());
-    // if (!window.google || !window.google.translate) {
-    //   const addScript = () => {
-    //     const existingScript = document.getElementById(
-    //       "google-translate-script"
-    //     );
-    //     if (!existingScript) {
-    //       const script = document.createElement("script");
-    //       script.id = "google-translate-script";
-    //       script.src =
-    //         "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-    //       script.async = true;
-    //       document.body.appendChild(script);
-    //     }
-    //   };
+  // useEffect(() => {
+  //   const initGoogleTranslate = () => {
+  //     if (window.google && window.google.translate) return;
 
-    //   addScript();
-    // }
+  //     const scriptId = "google-translate-script";
+  //     if (document.getElementById(scriptId)) return;
 
-    // if (!document.getElementById("google-translate-script")) {
-    //   const script = document.createElement("script");
-    //   script.id = "google-translate-script";
-    //   script.src =
-    //     "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-    //   script.async = true;
-    //   document.body.appendChild(script);
+  //     const script = document.createElement("script");
+  //     script.id = scriptId;
+  //     script.src =
+  //       "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+  //     script.async = true;
+  //     document.body.appendChild(script);
+  //   };
 
-    //   return () => {
-    //     const scriptToRemove = document.getElementById(
-    //       "google-translate-script"
-    //     );
-    //     if (scriptToRemove && scriptToRemove.parentNode) {
-    //       scriptToRemove.parentNode.removeChild(scriptToRemove);
-    //     }
-    //   };
-    // }
+  //   (window as any).googleTranslateElementInit = () => {
+  //     new (window as any).google.translate.TranslateElement(
+  //       {
+  //         pageLanguage: "en",
+  //         includedLanguages: "en,mn,ru,ja,ko,zh-CN",
+  //         layout: (window as any).google.translate.TranslateElement.InlineLayout
+  //           .SIMPLE,
+  //       },
+  //       "google_translate_element"
+  //     );
+  //   };
 
-    // (window as any).googleTranslateElementInit = () => {
-    //   new (window as any).google.translate.TranslateElement(
-    //     {
-    //       pageLanguage: "en",
-    //       includedLanguages: "en,mn,ru,ja,ko,zh-CN",
-    //       layout: (window as any).google.translate.TranslateElement.InlineLayout
-    //         .SIMPLE,
-    //     },
-    //     "google_translate_element"
-    //   );
-    // };
-  }, []);
+  //   initGoogleTranslate();
+
+  //   return () => {
+  //     const script = document.getElementById("google-translate-script");
+  //     if (script) document.body.removeChild(script);
+  //     delete (window as any).googleTranslateElementInit;
+  //   };
+  // }, []);
 
   useEffect(() => {
     const loadProfile = async () => {
-      if (user?.id) {
-        const tpro = await fetchTProfile(user.id);
-        const gpro = await fetchGProfile(user.id);
-        setTprofile(tpro);
-        setGprofile(gpro);
+      if (!user?.id) return;
+
+      try {
+        const [tpro, gpro] = await Promise.all([
+          fetchTProfile(user.id).catch(() => null),
+          fetchGProfile(user.id).catch(() => null),
+        ]);
+        setTprofile(tpro || undefined);
+        setGprofile(gpro || undefined);
+      } catch (error) {
+        console.error("Failed to load profiles:", error);
       }
     };
     loadProfile();
@@ -167,13 +157,11 @@ export const Navigation = () => {
 
   const getInitials = (name: string) =>
     name
-      .split(" ")
-      .map((part) => part[0])
+      ?.split(" ")
+      .map((n) => n[0])
       .join("")
       .toUpperCase()
-      .substring(0, 2);
-
-  if (status === "loading") return null;
+      .slice(0, 2) || "U";
 
   const handleLogout = async () => {
     try {
@@ -184,12 +172,13 @@ export const Navigation = () => {
         });
       }
       await signOut({ callbackUrl: "/log-in" });
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch (err) {
+      console.error("Logout error:", err);
     }
   };
 
   const handleGoToProfile = () => {
+    if (!user?.role) return;
     if (user.role === "Guide") {
       router.push(gprofile ? `/Guidedetail/${user.id}` : "/guideProfile");
     } else if (user.role === "Tourist") {
@@ -210,6 +199,7 @@ export const Navigation = () => {
 
   return (
     <nav className="flex items-center justify-between px-4 md:px-8 py-3 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+      {/* Logo */}
       <div
         className="flex items-center gap-2 cursor-pointer"
         onClick={() => router.push("/")}
@@ -220,6 +210,7 @@ export const Navigation = () => {
         </span>
       </div>
 
+      {/* Nav Links */}
       <div className="hidden md:flex items-center gap-8 mx-auto">
         <Link
           href="/Guidesinfo"
@@ -235,20 +226,21 @@ export const Navigation = () => {
         </Link>
       </div>
 
+      {/* Right Side */}
       <div className="flex items-center gap-3">
         {session?.user ? (
           <>
-            {/* Profile Dropdown */}
+            {/* Profile Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2">
                   <Avatar className="h-7 w-7">
                     <AvatarImage
-                      src={tprofile?.profileimage}
-                      alt={session.user.name || ""}
+                      src={tprofile?.profileimage ?? ""}
+                      alt={session.user.name ?? "U"}
                     />
                     <AvatarFallback>
-                      {session.user.name ? getInitials(session.user.name) : "U"}
+                      {getInitials(session.user.name || "")}
                     </AvatarFallback>
                   </Avatar>
                   <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
@@ -265,24 +257,14 @@ export const Navigation = () => {
                     <Select
                       value={user.role}
                       onValueChange={async (value) => {
-                        if (!user.id) {
-                          console.error("No user ID available for update");
-                          return;
-                        }
-
+                        if (!user.id) return;
                         try {
                           const res = await axiosInstance.put(
                             `/user/${user.id}`,
-                            {
-                              role: value,
-                            }
+                            { role: value }
                           );
-                          setUser({
-                            id: res.data.user._id,
-                            username: res.data.user.username,
-                            role: res.data.user.role,
-                            email: res.data.user.email,
-                          });
+                          const { _id, username, role, email } = res.data.user;
+                          setUser({ id: _id, username, role, email });
                         } catch (err) {
                           console.error("Failed to update role:", err);
                         }
@@ -299,12 +281,12 @@ export const Navigation = () => {
                     </Select>
                   )}
                 </div>
+
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleGoToProfile}>
                   <User className="mr-2 h-4 w-4" />
                   <span>My Profile</span>
                 </DropdownMenuItem>
-
                 <DropdownMenuItem
                   onClick={handleLogout}
                   className="text-red-500 focus:text-red-500"
@@ -314,6 +296,7 @@ export const Navigation = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
             <Button
               variant="ghost"
               size="icon"
@@ -329,7 +312,8 @@ export const Navigation = () => {
             >
               <Heart color="red" fill="red" />
             </div>
-            {/* Settings Dropdown */}
+
+            {/* Settings */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -337,7 +321,6 @@ export const Navigation = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60">
-                {/* Dark Mode */}
                 <DropdownMenuItem asChild>
                   <div className="flex items-center justify-between w-full px-2 py-1.5">
                     <div className="flex items-center space-x-2">
@@ -393,7 +376,6 @@ export const Navigation = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60">
-                {/* Dark Mode */}
                 <DropdownMenuItem asChild>
                   <div className="flex items-center justify-between w-full px-2 py-1.5">
                     <div className="flex items-center space-x-2">

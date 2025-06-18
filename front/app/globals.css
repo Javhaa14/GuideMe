@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -218,6 +218,7 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+
 /* global.css or styles/globals.css */
 .sheet-overlay {
   background: transparent !important;

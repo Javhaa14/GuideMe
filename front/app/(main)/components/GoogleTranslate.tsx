@@ -3,22 +3,6 @@ import Script from "next/script";
 import { useEffect } from "react";
 
 export default function GoogleTranslate() {
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.googleTranslateElementInit = function () {
-        new window.google.translate.TranslateElement(
-          {
-            pageLanguage: "en",
-            includedLanguages: "en,mn,ru,ja,ko,zh-CN",
-            layout:
-              window.google.translate.TranslateElement.InlineLayout.SIMPLE,
-          },
-          "google_translate_element"
-        );
-      };
-    }
-  }, []);
-
   return (
     <>
       <Script

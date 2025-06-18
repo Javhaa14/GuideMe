@@ -170,7 +170,8 @@ export const MainProfile = ({
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
               <button
                 onClick={() => setChat(!chat)}
-                className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
+                className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
                 <MessageCircle className="w-6 h-6" />
                 Start Conversation
               </button>

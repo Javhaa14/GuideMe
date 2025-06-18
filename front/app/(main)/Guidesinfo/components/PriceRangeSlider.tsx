@@ -29,10 +29,8 @@ export default function PriceFilterCard() {
   };
 
   return (
-    <div className="flex w-[400px] items-start gap-2">
-      <h2 className="flex w-[150px] text-base font-medium text-gray-700">
-        Price Range:
-      </h2>
+    <div className="flex flex-col w-[400px] items-start gap-2">
+      <h2 className="flex text-base font-medium text-gray-700">Price Range:</h2>
 
       <div className="w-full max-w-sm px-2 py-1 gap-2">
         {/* Display current range */}
@@ -76,15 +74,15 @@ export default function PriceFilterCard() {
             step={1}
             minStepsBetweenThumbs={1}
           >
-            <Slider.Track className="bg-amber-400 relative grow rounded-full h-2 transition-all duration-200">
-              <Slider.Range className="absolute bg-amber-400 rounded-full h-full transition-all duration-300" />
+            <Slider.Track className="bg-amber-700 relative grow rounded-full h-2 transition-all duration-200">
+              <Slider.Range className="absolute bg-amber-700 rounded-full h-full transition-all duration-300" />
             </Slider.Track>
             <Slider.Thumb
-              className="block w-5 h-5 bg-white rounded-full border-3 border-amber-400 shadow-lg hover:shadow-xl focus:outline-none focus:ring-3 focus:ring-amber-400 focus:ring-offset-2 transition-all duration-200 hover:scale-110 cursor-grab active:cursor-grabbing"
+              className="block w-5 h-5 bg-white rounded-full border-3 border-amber-700 shadow-lg hover:shadow-xl focus:outline-none focus:ring-3 focus:ring-amber-700 focus:ring-offset-2 transition-all duration-200 hover:scale-110 cursor-grab active:cursor-grabbing"
               aria-label="Minimum price"
             />
             <Slider.Thumb
-              className="block w-5 h-5 bg-white rounded-full border-3 border-amber-400 shadow-lg hover:shadow-xl focus:outline-none focus:ring-3 focus:ring-amber-400 focus:ring-offset-2 transition-all duration-200 hover:scale-110 cursor-grab active:cursor-grabbing"
+              className="block w-5 h-5 bg-white rounded-full border-3 border-amber-700 shadow-lg hover:shadow-xl focus:outline-none focus:ring-3 focus:ring-amber-700 focus:ring-offset-2 transition-all duration-200 hover:scale-110 cursor-grab active:cursor-grabbing"
               aria-label="Maximum price"
             />
           </Slider.Root>

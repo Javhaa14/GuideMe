@@ -35,6 +35,7 @@ import {
 } from "../../guideProfile/components/Selectwrapper";
 import { LocationFilterCard } from "../../Guidesinfo/components/SearchLocation";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
+import { Separator } from "@/components/ui/separator";
 
 export type CountryType = {
   name: {
@@ -85,7 +86,7 @@ export const TouristProfile = () => {
       social: "",
       gender: "",
       location: "",
-      languages: [], // <-- must be array
+      languages: [],
       profileimage: "",
     },
   });
@@ -211,7 +212,7 @@ export const TouristProfile = () => {
       _id: user?.id,
       socialAddress: values.social,
       gender: values.gender,
-      location: values.location,
+      location: searchedValue,
       languages: searchedValue,
       about: values.about,
       profileimage: values.profileimage,
@@ -234,199 +235,255 @@ export const TouristProfile = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <p className="text-[24px] font-bold">Complete your profile page</p>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col w-full h-full gap-5 p-5 justify-center items-start space-y-8">
+        <p className="text-[20px] font-bold">Complete your profile page</p>
 
-        <FormField
-          control={form.control}
-          name="profileimage"
-          render={({ field }) => (
-            <FormItem className="relative">
-              <FormLabel></FormLabel>
-              <FormControl>
-                <div className="size-[160px] border-[1px] border-dashed rounded-full flex justify-center items-center relative">
-                  <Camera />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    name={field.name}
-                    ref={field.ref}
-                    onChange={(event) => {
-                      field.onChange(event);
-                      handlePreview(event);
-                    }}
-                    className="size-[160px] rounded-full flex justify-center items-center opacity-0 absolute z-1"
-                  />
-                  {previewUrl && (
-                    <img
-                      src={previewUrl}
-                      alt="Preview"
-                      className="size-[160px] rounded-full absolute"
+        <div className="flex w-full h-full gap-5 ">
+          <div className="gap-3">
+            <FormField
+              control={form.control}
+              name="profileimage"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  <FormLabel>Add photo</FormLabel>
+                  <FormControl>
+                    <div className="size-[160px] border-[1px] border-dashed rounded-full flex justify-center items-center relative">
+                      <Camera />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        name={field.name}
+                        ref={field.ref}
+                        onChange={(event) => {
+                          field.onChange(event);
+                          handlePreview(event);
+                        }}
+                        className="size-[160px] rounded-full flex justify-center items-center opacity-0 absolute z-1"
+                      />
+                      {previewUrl && (
+                        <img
+                          src={previewUrl}
+                          alt="Preview"
+                          className="size-[160px] rounded-full absolute"
+                        />
+                      )}
+                    </div>
+                  </FormControl>
+                  <FormMessage className="absolute top-47" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="w-[400px] h-[40px]"
+                      placeholder="Enter your name here"
+                      {...field}
                     />
-                  )}
-                </div>
-              </FormControl>
-              <FormMessage className="absolute top-47" />
-            </FormItem>
-          )}
-        />
+                  </FormControl>
+                  <FormMessage className="absolute top-17" />
+                </FormItem>
+              )}
+            />
+          </div>
 
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem className="relative">
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  className="w-[510px] h-[40px]"
-                  placeholder="Enter your name here"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage className="absolute top-17" />
-            </FormItem>
-          )}
-        />
+          <div>
+            <Separator orientation="vertical" />
+          </div>
 
-        <div className="flex gap-4 w-full">
-          <FormField
-            control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <FormItem {...field} className="w-full relative">
-                <FormLabel>Gender</FormLabel>
-                <FormControl>
-                  <Select
-                    {...field}
-                    onValueChange={field.onChange}
-                    value={field.value || ""}
-                  >
-                    <SelectTrigger className="w-full h-[40px]">
-                      <SelectValue placeholder="Select your gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Gender</SelectLabel>
-                        <SelectItem value={"Male"}>Male</SelectItem>
-                        <SelectItem value={"Female"}>Female</SelectItem>
-                        <SelectItem value={"Other"}>Other</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage className="absolute top-17" />
-              </FormItem>
-            )}
-          />
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-4 w-full">
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem {...field} className="w-full relative">
+                    <FormLabel>Gender</FormLabel>
+                    <FormControl>
+                      <Select
+                        {...field}
+                        onValueChange={field.onChange}
+                        value={field.value || ""}>
+                        <SelectTrigger className="w-[200px] h-[40px]">
+                          <SelectValue placeholder="Select your gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Gender</SelectLabel>
+                            <SelectItem value={"Male"}>Male</SelectItem>
+                            <SelectItem value={"Female"}>Female</SelectItem>
+                            <SelectItem value={"Other"}>Other</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage className="absolute top-17" />
+                  </FormItem>
+                )}
+              />
 
-          <LocationFilterCard />
-
-          {/* <FormField
-            control={form.control}
-            name="location"
-            render={({ field: { onChange, value } }) => (
-              <FormItem className="w-full relative">
-                <FormLabel>Country</FormLabel>
-                <FormControl>
-                  <MultiSelect
-                    isMulti={false}
-                    options={countryOptions}
-                    value={
-                      countryOptions.find((option) => option.value === value) ||
-                      null
-                    }
-                    onChange={(newValue) => {
-                      onChange((newValue as OptionType | null)?.value || "");
-                    }}
-                    placeholder="Select a country"
-                    isClearable
-                  />
-                </FormControl>
-                <FormMessage className="absolute top-17" />
-              </FormItem>
-            )}
-          /> */}
-        </div>
-
-        <div className="flex gap-4 w-full">
-          <FormField
-            control={form.control}
-            name="languages"
-            render={({ field }) => (
-              <FormItem className="w-full relative">
-                <FormLabel>Languages</FormLabel>
-                <FormControl>
-                  <Controller
-                    control={form.control}
-                    name="languages"
-                    render={({ field: { onChange, value, ref } }) => (
-                      <ReactSelect
-                        ref={ref}
+              <FormField
+                control={form.control}
+                name="languages"
+                render={({ field: { onChange, value } }) => (
+                  <FormItem>
+                    <FormLabel>Languages</FormLabel>
+                    <FormControl className="flex w-[300px]">
+                      {/* <Controller
+                        control={form.control}
+                        name="languages"
+                        render={({ field: { onChange, value, ref } }) => (
+                          <ReactSelect
+                            ref={ref}
+                            isMulti
+                            options={languageOptions}
+                            value={languageOptions.filter((c) =>
+                              value?.includes(c.value)
+                            )}
+                            onChange={(selected) => {
+                              onChange(
+                                selected
+                                  ? selected.map((option) => option.value)
+                                  : []
+                              );
+                            }}
+                            placeholder="Select languages"
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                            instanceId="tourist-profile-languages"
+                          />
+                        )}
+                      /> */}
+                      <MultiSelect
+                        styles={{
+                          valueContainer: (base) => ({
+                            ...base,
+                          }),
+                          control: (base) => ({
+                            ...base,
+                            fontSize: "14px",
+                            backgroundColor: "#f0f0f0", // Custom background color
+                            borderRadius: "8px", // Custom border radius
+                            borderColor: "white", // Custom border color
+                            padding: "", // Custom padding
+                            boxShadow: "none", // Remove default box shadow
+                            "&:hover": {
+                              borderColor: "gray-500", // Change border color on hover
+                            },
+                          }),
+                          option: (base) => ({
+                            ...base,
+                            padding: "10px 15px", // Custom padding for options
+                            fontSize: "14px",
+                            backgroundColor: "white", // Default background for options
+                            color: "black", // Default text color
+                            cursor: "pointer", // Pointer cursor
+                            "&:hover": {
+                              backgroundColor: "black", // Light blue background on hover
+                              color: "white", // Text color on hover
+                              borderColor: "#4C9AFF", // Border color on hover (though border doesn't show in options)
+                            },
+                          }),
+                          multiValue: (base) => ({
+                            ...base,
+                            minWidth: 65,
+                            backgroundColor: "black", // Custom background color for multi-select tags
+                            borderRadius: "4px", // Rounded corners for multi-value tags
+                          }),
+                          multiValueLabel: (base) => ({
+                            ...base,
+                            color: "white", // White text color for selected options
+                          }),
+                          multiValueRemove: (base) => ({
+                            ...base,
+                            color: "white", // White color for the "remove" button
+                            cursor: "pointer", // Pointer cursor for "remove" button
+                            "&:hover": {
+                              backgroundColor: "black", // Light background on hover for "remove" button
+                            },
+                          }),
+                        }}
                         isMulti
                         options={languageOptions}
-                        value={languageOptions.filter((c) =>
-                          value?.includes(c.value)
+                        value={languageOptions.filter((opt) =>
+                          (value as string[]).includes(opt.value)
                         )}
-                        onChange={(selected) => {
+                        onChange={(newVal) => {
                           onChange(
-                            selected
-                              ? selected.map((option) => option.value)
+                            Array.isArray(newVal)
+                              ? newVal.map((item) => item.value)
                               : []
                           );
                         }}
                         placeholder="Select languages"
-                        className="basic-multi-select"
-                        classNamePrefix="select"
-                        instanceId="tourist-profile-languages"
                       />
-                    )}
-                  />
-                </FormControl>
-                <FormMessage className="absolute top-17" />
-              </FormItem>
-            )}
-          />
-        </div>
+                    </FormControl>
+                    <FormMessage className="absolute top-17" />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-        <FormField
-          control={form.control}
-          name="social"
-          render={({ field }) => (
-            <FormItem className="relative">
-              <FormLabel>Social media URL</FormLabel>
-              <FormControl>
-                <Input
-                  className="w-[510px] h-[40px]"
-                  placeholder="Write about yourself here"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage className="absolute top-17" />
-            </FormItem>
-          )}
-        />
+            <FormLabel>Country and City</FormLabel>
+            <LocationFilterCard
+              isFilter={false}
+              placeholder="Search and select a city"
+              className="w-[500px] h-[40px]"
+            />
 
-        <FormField
-          control={form.control}
-          name="about"
-          render={({ field }) => (
-            <FormItem className="relative">
-              <FormLabel>About</FormLabel>
-              <FormControl>
-                <Input
-                  className="w-[510px] h-[40px]"
-                  placeholder="https://"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage className="absolute top-17" />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="social"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  <FormLabel>About</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="w-[500px] h-[40px]"
+                      placeholder="Write about yourself here"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className="absolute top-17" />
+                </FormItem>
+              )}
+            />
 
-        <div className="flex justify-end">
-          <Button type="submit">Continue</Button>
+            <FormField
+              control={form.control}
+              name="about"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  <FormLabel>Social media URL</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="w-[500px] h-[40px]"
+                      placeholder="https://"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className="absolute top-17" />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-end items-end">
+              <Button
+                variant="outline"
+                type="submit"
+                className="w-[200px] mt-8 bg-zinc-200 hover:bg-white">
+                Save Profile
+              </Button>
+            </div>
+          </div>
         </div>
       </form>
     </Form>
