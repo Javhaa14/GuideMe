@@ -218,7 +218,6 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
-
 /* global.css or styles/globals.css */
 .sheet-overlay {
   background: transparent !important;
@@ -236,43 +235,4 @@
   body {
     @apply bg-background text-foreground;
   }
-}
-/* Hide Google Translate's floating toolbar */
-.goog-te-banner-frame.skiptranslate,
-body > .goog-te-spinner-pos,
-.goog-te-gadget-icon,
-.goog-te-menu-frame.skiptranslate,
-.goog-te-balloon-frame {
-  display: none !important;
-}
-
-/* Remove the white bar Google adds at top */
-body {
-  top: 0px !important;
-}
-
-/* Prevent shifting layout caused by Google Translate */
-.goog-te-banner-frame {
-  height: 0 !important;
-  display: none !important;
-  visibility: hidden !important;
-}
-
-/* Hide iframe completely */
-iframe.goog-te-banner-frame,
-iframe.goog-te-menu-frame,
-#goog-gt-tt {
-  display: none !important;
-  visibility: hidden !important;
-}
-
-/* Prevent overlay shade or residual elements */
-#goog-gt-tt,
-.goog-tooltip,
-.goog-tooltip:hover {
-  display: none !important;
-}
-
-body .skiptranslate {
-  display: none !important;
 }

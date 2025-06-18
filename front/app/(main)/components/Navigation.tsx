@@ -38,6 +38,7 @@ import { fetchGProfile, fetchTProfile } from "@/app/utils/fetchProfile";
 import { TouristProfile } from "../Touristdetail/components/MainProfile";
 import { GuideProfile } from "../Guidedetail/components/GuideMainProfile";
 import { MessengerButton } from "./Messenger";
+import { GoogleTranslate } from "./GoogleTranslate";
 
 const translations = {
   en: {
@@ -101,41 +102,39 @@ export const Navigation = () => {
   const t =
     translations[language as keyof typeof translations] || translations.en;
 
-  // useEffect(() => {
-  //   const initGoogleTranslate = () => {
-  //     if (window.google && window.google.translate) return;
+  useEffect(() => {
+    const scriptId = "google-translate-script";
 
-  //     const scriptId = "google-translate-script";
-  //     if (document.getElementById(scriptId)) return;
+    if (document.getElementById(scriptId)) return;
 
-  //     const script = document.createElement("script");
-  //     script.id = scriptId;
-  //     script.src =
-  //       "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-  //     script.async = true;
-  //     document.body.appendChild(script);
-  //   };
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src =
+      "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+    script.async = true;
 
-  //   (window as any).googleTranslateElementInit = () => {
-  //     new (window as any).google.translate.TranslateElement(
-  //       {
-  //         pageLanguage: "en",
-  //         includedLanguages: "en,mn,ru,ja,ko,zh-CN",
-  //         layout: (window as any).google.translate.TranslateElement.InlineLayout
-  //           .SIMPLE,
-  //       },
-  //       "google_translate_element"
-  //     );
-  //   };
+    (window as any).googleTranslateElementInit = () => {
+      new (window as any).google.translate.TranslateElement(
+        {
+          pageLanguage: "en",
+          includedLanguages: "en,mn,ru,ja,ko,zh-CN",
+          layout: (window as any).google.translate.TranslateElement.InlineLayout
+            .SIMPLE,
+        },
+        "google_translate_element"
+      );
+    };
 
-  //   initGoogleTranslate();
+    document.body.appendChild(script);
 
-  //   return () => {
-  //     const script = document.getElementById("google-translate-script");
-  //     if (script) document.body.removeChild(script);
-  //     delete (window as any).googleTranslateElementInit;
-  //   };
-  // }, []);
+    return () => {
+      const scriptElement = document.getElementById(scriptId);
+      if (scriptElement?.parentNode) {
+        document.body.removeChild(scriptElement);
+      }
+      delete (window as any).googleTranslateElementInit;
+    };
+  }, []);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -200,6 +199,7 @@ export const Navigation = () => {
   return (
     <nav className="flex items-center justify-between px-4 md:px-8 py-3 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
       {/* Logo */}
+      <GoogleTranslate />
       <div
         className="flex items-center gap-2 cursor-pointer"
         onClick={() => router.push("/")}

@@ -1,8 +1,7 @@
 import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
-import Script from "next/script";
-import GoogleTranslate from "./(main)/components/GoogleTranslate";
+import { GoogleTranslateProvider } from "./(main)/components/GoogleTranslateProvider";
 
 export const metadata = {
   title: "GuideMe",
@@ -26,31 +25,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <Script
-          src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-          strategy="beforeInteractive"
-        />
-        <Script id="google-translate-init" strategy="beforeInteractive">
-          {`
-              window.googleTranslateElementInit = function () {
-              new google.translate.TranslateElement(
-                {
-                  pageLanguage: 'en',
-                  includedLanguages: 'en,mn,ru,ja,ko,zh-CN',
-                  layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                },
-                  'google_translate_element'
-              );
-            };
-        `}
-        </Script>
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white w-screen h-screen`}
         style={{ cursor: "auto" }}
       >
-        {/* <GoogleTranslate /> */}
+        {/* Hidden element for Google Translate */}
+        <div id="google_translate_element" style={{ display: "none" }}></div>
+        <GoogleTranslateProvider />
         <Providers>{children}</Providers>
       </body>
     </html>

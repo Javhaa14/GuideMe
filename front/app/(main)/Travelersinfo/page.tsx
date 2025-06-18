@@ -16,6 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Filter } from "./components/Filter";
+import { useSearchLocation } from "@/app/context/SearchLocationContext";
 
 export interface PostType {
   _id: string;

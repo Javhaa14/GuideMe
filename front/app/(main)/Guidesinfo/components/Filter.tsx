@@ -221,6 +221,7 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
     <div className="flex flex-col gap-3 px-30">
       <LocationFilterCard
         isFilter={true}
+        className=""
         placeholder="Search and select a city"
       />
       <PriceFilterCard />
