@@ -138,12 +138,11 @@ export const Navigation = () => {
   if (status === "loading") return null;
 
   return (
-    <nav className="flex items-center justify-between px-4 md:px-8 py-3 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+    <nav className="flex fixed top-0 left-0 w-full z-50 items-center justify-between px-4 md:px-8 py-3 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow">
       {/* Logo */}
       <div
         className="flex items-center gap-2 cursor-pointer"
-        onClick={() => router.push("/")}
-      >
+        onClick={() => router.push("/")}>
         <TentTree className="text-gray-900 dark:text-white" size={24} />
         <span className="text-lg font-bold text-gray-900 dark:text-white">
           GuideMe
@@ -154,20 +153,17 @@ export const Navigation = () => {
       <div className="hidden md:flex items-center gap-8 mx-auto">
         <Link
           href="/Guidesinfo"
-          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
-        >
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors">
           {t.guides}
         </Link>
         <Link
           href="/Travelersinfo"
-          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
-        >
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors">
           {t.tourists}
         </Link>
         <Link
           href="/Tripsinfo"
-          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
-        >
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors">
           {t.trips}
         </Link>
       </div>
@@ -212,8 +208,7 @@ export const Navigation = () => {
                         } catch (err) {
                           console.error("Failed to update role:", err);
                         }
-                      }}
-                    >
+                      }}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
@@ -232,8 +227,7 @@ export const Navigation = () => {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-red-500 focus:text-red-500"
-                >
+                  className="text-red-500 focus:text-red-500">
                   <LogOut className="mr-2 h-4 w-4" />
                   {t.logout}
                 </DropdownMenuItem>
@@ -244,15 +238,13 @@ export const Navigation = () => {
               variant="ghost"
               size="icon"
               className="relative"
-              onClick={() => router.push("/notification")}
-            >
+              onClick={() => router.push("/notification")}>
               <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
             </Button>
             <MessengerButton />
             <div
               onClick={() => router.push("/wish")}
-              className="p-2 rounded-full cursor-pointer hover:bg-gray-100"
-            >
+              className="p-2 rounded-full cursor-pointer hover:bg-gray-100">
               <Heart color="red" fill="red" />
             </div>
 
@@ -283,8 +275,9 @@ export const Navigation = () => {
                 <div className="p-2">
                   <Select
                     value={language}
-                    onValueChange={(value) => setLanguage(value as "en" | "mn")}
-                  >
+                    onValueChange={(value) =>
+                      setLanguage(value as "en" | "mn")
+                    }>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
@@ -303,8 +296,7 @@ export const Navigation = () => {
               variant="default"
               size="sm"
               onClick={() => router.push("/log-in")}
-              className="bg-gray-900 hover:bg-gray-800 text-white"
-            >
+              className="bg-gray-900 hover:bg-gray-800 text-white">
               {t.login}
             </Button>
             <DropdownMenu>
@@ -333,8 +325,9 @@ export const Navigation = () => {
                 <div className="p-2">
                   <Select
                     value={language}
-                    onValueChange={(value) => setLanguage(value as "en" | "mn")}
-                  >
+                    onValueChange={(value) =>
+                      setLanguage(value as "en" | "mn")
+                    }>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
@@ -352,4 +345,3 @@ export const Navigation = () => {
     </nav>
   );
 };
-

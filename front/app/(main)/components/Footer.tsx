@@ -215,8 +215,7 @@ export default function Footer() {
                 className={cn(
                   "w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center text-slate-300 transition",
                   s.color
-                )}
-              >
+                )}>
                 {s.icon}
               </a>
             ))}
@@ -234,8 +233,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="flex items-center gap-2 text-slate-300 hover:text-white"
-                  >
+                    className="flex items-center gap-2 text-slate-300 hover:text-white">
                     {link.icon && <span>{link.icon}</span>}
                     {link.name}
                   </a>

@@ -21,9 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <div
-      className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white w-screen h-auto`}
-    >
+      className={`${geistSans.variable} ${geistMono.variable} antialiased w-screen h-auto`}>
       <Navigation />
+      <div className="invicible h-[50px]"></div>
       {children}
       <Footer />
     </div>
