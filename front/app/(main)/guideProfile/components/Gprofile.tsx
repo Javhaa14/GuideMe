@@ -95,7 +95,7 @@ export function GProfile() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: user?.name || "",
+      username: user?.name,
       firstName: "",
       lastName: "",
       gender: "",
