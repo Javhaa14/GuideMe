@@ -4,33 +4,29 @@ import { TripPlanModel } from "../model/TripPlan";
 
 export const createBooking = async (req: Request, res: Response) => {
   try {
-    const { tripPlanId, touristId, numberOfPeople, selectedDate } = req.body;
+    const { tripPlanId, touristId, numberOfPeople, selectedDate, paymentId } =
+      req.body;
 
-    // Check required fields
     if (!tripPlanId || !touristId || !numberOfPeople || !selectedDate) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Check if TripPlan exists
     const tripPlan = await TripPlanModel.findById(tripPlanId);
     if (!tripPlan) {
       return res.status(404).json({ error: "Trip plan not found" });
     }
 
-    // Calculate total price
     const totalPrice = tripPlan.price * numberOfPeople;
-
-    // Ensure touristId is an array (wrap if it's a single ID)
     const touristIdsArray = Array.isArray(touristId) ? touristId : [touristId];
 
-    // Create booking with touristId as array
     const booking = await TripBookingModel.create({
       tripPlanId,
-      touristId: touristIdsArray,
+      touristIds: touristIdsArray, // ✅ corrected field name
       guideId: tripPlan.guideId,
       numberOfPeople,
       selectedDate,
       totalPrice,
+      paymentId,
       paymentStatus: "paid",
     });
 

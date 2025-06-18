@@ -46,6 +46,9 @@ const tripBookingSchema = new mongoose.Schema(
       enum: ["unpaid", "paid", "refunded"],
       default: "unpaid",
     },
+    paymentId: {
+      type: String,
+    },
   },
   {
     timestamps: true,
