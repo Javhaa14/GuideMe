@@ -1,5 +1,5 @@
 "use client";
- 
+
 import { Camera } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ReactSelect from "react-select";
- 
+
 import axios from "axios";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
@@ -36,19 +36,19 @@ import {
 import { LocationFilterCard } from "../../Guidesinfo/components/SearchLocation";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
 import { Separator } from "@/components/ui/separator";
- 
+
 export type CountryType = {
   name: {
     common: string;
   };
 };
- 
+
 export type LanguageOption = {
   value: string;
   label: string;
 };
 export const dynamic = "force-dynamic";
- 
+
 const formSchema = z.object({
   username: z.string().min(2, {
     message: "Username must be at least 2 characters. Please enter name",
@@ -56,7 +56,7 @@ const formSchema = z.object({
   languages: z
     .array(z.string())
     .min(1, { message: "Please select at least one language" }),
- 
+
   about: z.string().min(2, {
     message: "Please enter info about yourself",
   }),
@@ -71,13 +71,13 @@ const formSchema = z.object({
     required_error: "Select country to continue",
   }),
 });
- 
+
 export const TouristProfile = () => {
   const { user } = useUser();
   if (!user) {
     return <p>Loading user...</p>; // or a spinner
   }
- 
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -86,21 +86,21 @@ export const TouristProfile = () => {
       social: "",
       gender: "",
       location: "",
-      languages: [], // <-- must be array
+      languages: [],
       profileimage: "",
     },
   });
- 
+
   const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
   const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { searchedValue, setSearchedValue } = useSearchLocation();
- 
+
   // Fetch countries for country select
   // Fetch unique languages for language select
   useEffect(() => {
     if (!user || !user.id) return;
- 
+
     const fetchCountries = async () => {
       try {
         const res = await axios.get(
@@ -124,7 +124,7 @@ export const TouristProfile = () => {
         const res = await axios.get(
           "https://restcountries.com/v3.1/all?fields=languages"
         );
- 
+
         const langsSet = new Set<string>();
         res.data.forEach((country: any) => {
           if (country.languages) {
@@ -133,12 +133,12 @@ export const TouristProfile = () => {
             );
           }
         });
- 
+
         const options = Array.from(langsSet).map((lang) => ({
           label: lang,
           value: lang,
         }));
- 
+
         setLanguageOptions(options);
       } catch (error) {
         console.error("Failed to fetch languages", error);
@@ -158,18 +158,18 @@ export const TouristProfile = () => {
     fetchCountries();
     fetchLanguages();
   }, [user]);
- 
+
   const handlePreview = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
- 
+
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
- 
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "guideme");
- 
+
     try {
       const res = await fetch(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
@@ -179,7 +179,7 @@ export const TouristProfile = () => {
         }
       );
       const data = await res.json();
- 
+
       if (data.secure_url) {
         form.setValue("profileimage", data.secure_url, {
           shouldValidate: true,
@@ -192,17 +192,17 @@ export const TouristProfile = () => {
       console.error("Error uploading image:", error);
     }
   };
- 
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values, "Form submit values");
     if (!user || !user.id) return;
- 
+
     if (values.username !== user.name) {
       try {
         const res = await axiosInstance.put(`/user/${user.id}`, {
           username: values.username,
         });
- 
+
         console.log("✅ Username updated:", res.data);
       } catch (error) {
         console.error("❌ Username update failed:", error);
@@ -219,28 +219,27 @@ export const TouristProfile = () => {
       backgroundimage: "",
     };
     console.log("sending", tpro);
- 
+
     try {
       const res = await axiosInstance.post(`/tprofile`, tpro);
- 
+
       console.log("Successfully created tourist profile", res.data);
     } catch (error) {
       console.log("error", error);
     }
   }
- 
+
   useEffect(() => {
     console.log("Validation errors:", form.formState.errors);
   }, [form.formState.errors]);
- 
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full h-full gap-5 p-5 justify-center items-start space-y-8"
-      >
+        className="flex flex-col w-full h-full gap-5 p-5 justify-center items-start space-y-8">
         <p className="text-[20px] font-bold">Complete your profile page</p>
- 
+
         <div className="flex w-full h-full gap-5 ">
           <div className="gap-3">
             <FormField
@@ -276,7 +275,7 @@ export const TouristProfile = () => {
                 </FormItem>
               )}
             />
- 
+
             <FormField
               control={form.control}
               name="username"
@@ -295,11 +294,11 @@ export const TouristProfile = () => {
               )}
             />
           </div>
- 
+
           <div>
             <Separator orientation="vertical" />
           </div>
- 
+
           <div className="flex flex-col gap-3">
             <div className="flex gap-4 w-full">
               <FormField
@@ -312,8 +311,7 @@ export const TouristProfile = () => {
                       <Select
                         {...field}
                         onValueChange={field.onChange}
-                        value={field.value || ""}
-                      >
+                        value={field.value || ""}>
                         <SelectTrigger className="w-[200px] h-[40px]">
                           <SelectValue placeholder="Select your gender" />
                         </SelectTrigger>
@@ -331,7 +329,7 @@ export const TouristProfile = () => {
                   </FormItem>
                 )}
               />
- 
+
               <FormField
                 control={form.control}
                 name="languages"
@@ -433,14 +431,14 @@ export const TouristProfile = () => {
                 )}
               />
             </div>
- 
+
             <FormLabel>Country and City</FormLabel>
             <LocationFilterCard
               isFilter={false}
               placeholder="Search and select a city"
               className="w-[500px] h-[40px]"
             />
- 
+
             <FormField
               control={form.control}
               name="social"
@@ -458,7 +456,7 @@ export const TouristProfile = () => {
                 </FormItem>
               )}
             />
- 
+
             <FormField
               control={form.control}
               name="about"
@@ -476,13 +474,12 @@ export const TouristProfile = () => {
                 </FormItem>
               )}
             />
- 
+
             <div className="flex justify-end items-end">
               <Button
                 variant="outline"
                 type="submit"
-                className="w-[200px] mt-8 bg-zinc-200 hover:bg-white"
-              >
+                className="w-[200px] mt-8 bg-zinc-200 hover:bg-white">
                 Save Profile
               </Button>
             </div>
@@ -492,5 +489,3 @@ export const TouristProfile = () => {
     </Form>
   );
 };
- 
- 
