@@ -22,10 +22,11 @@ import {
   Hotel,
   Bus,
   Camera,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import MapSearch from "./Map-search";
 
 interface RouteItem {
   title: string;
@@ -170,10 +171,6 @@ export default function RouteStep({
         </p>
       </div>
 
-      <motion.div variants={item} className="flex flex-col gap-1.5">
-        <MapSearch onLocationSelect={handleLocationSelect} />
-      </motion.div>
-
       <div className="space-y-6">
         {formData.route.map((route, index) => {
           const IconComponent =
@@ -207,7 +204,7 @@ export default function RouteStep({
                           disabled={index === 0}
                           className="w-8 h-8"
                         >
-                          <MapPin className="w-4 h-4 rotate-180" />
+                          <ArrowUp className="w-4 h-4" />
                         </Button>
                         <Button
                           type="button"
@@ -217,7 +214,7 @@ export default function RouteStep({
                           disabled={index === formData.route.length - 1}
                           className="w-8 h-8"
                         >
-                          <MapPin className="w-4 h-4" />
+                          <ArrowDown className="w-4 h-4" />
                         </Button>
                         <Button
                           type="button"

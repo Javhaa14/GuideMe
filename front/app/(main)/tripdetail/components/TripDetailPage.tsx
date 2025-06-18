@@ -2,21 +2,23 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Heart } from "lucide-react";
-import { toast } from "sonner";
-import { useParams } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { useParams, useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
+
 import TourBookingPage from "./TourBookingPage";
-import TourMap from "./TourMap";
-import RoadRoute from "./RoadRoute";
 import { Activity } from "./Activity";
 import { TripItem } from "./Booking";
+import Rout from "./Rout";
 
 export const TripDetailPage = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [trip, setTrip] = useState<TripItem>();
   const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [bookingStatus, setBookingStatus] = useState<string | null>(null);
   const params = useParams();
+  const router = useRouter();
 
   const openDialog = (index: number) => {
     setCurrentIndex(index);
@@ -33,8 +35,24 @@ export const TripDetailPage = () => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  const handleAddToWishlist = () => {
-    toast.success("Wishlist-д амжилттай нэмэгдлээ! 🎉");
+  const handleAddToWishlist = async () => {
+    try {
+      if (!trip?._id) return;
+
+      const res = await axiosInstance.post("/wishlist", {
+        tripId: trip._id,
+      });
+
+      if (res.data.success) {
+        toast.success("Аялал wishlist-д нэмэгдлээ!");
+        router.push("/wish");
+      } else {
+        toast.error("Нэмэхэд алдаа гарлаа");
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Серверийн алдаа: " + err.message);
+    }
   };
 
   const fetchTrip = async () => {
@@ -51,7 +69,6 @@ export const TripDetailPage = () => {
       }
 
       const tripData = res.data.tripPlan;
-      console.log("➡️ tripData:", tripData);
       setTrip(tripData);
 
       const imageData = tripData?.images;
@@ -73,20 +90,17 @@ export const TripDetailPage = () => {
 
   return (
     <div className="max-w-5xl p-4 mx-auto font-sans">
-      <h1 className="mb-2 text-3xl font-bold">{trip?.title || "Loading..."}</h1>
-
-      <div className="flex items-center gap-3 mb-4">
-        <div className="flex gap-4 ml-auto text-sm">
-          <button
-            onClick={handleAddToWishlist}
-            className="flex items-center gap-1 px-3 py-1 transition-all border border-gray-300 rounded-lg hover:bg-red-50 active:scale-95"
-          >
-            <Heart size={16} className="text-red-500" />
-            <span className="text-sm font-medium text-gray-700">
-              Add to wishlist
-            </span>
-          </button>
-        </div>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-3xl font-bold">{trip?.title || "Loading..."}</h1>
+        <button
+          onClick={handleAddToWishlist}
+          className="flex items-center gap-1 px-3 py-1 transition-all border border-gray-300 rounded-lg hover:bg-red-50 active:scale-95"
+        >
+          <Heart size={16} className="text-red-500" />
+          <span className="text-sm font-medium text-gray-700">
+            Add to wishlist
+          </span>
+        </button>
       </div>
 
       {images.length > 0 ? (
@@ -126,7 +140,7 @@ export const TripDetailPage = () => {
         {trip?.about || "No trip description available."}
       </p>
 
-      {/* Dialog for full-screen preview */}
+      {/* Dialog */}
       <dialog
         ref={dialogRef}
         aria-modal="true"
@@ -166,9 +180,8 @@ export const TripDetailPage = () => {
 
       {/* Additional Components */}
       <Activity />
-      <TourBookingPage trip={trip!} />
-      <TourMap />
-      <RoadRoute />
+      {/* <TourBookingPage trip={trip!} setBookingStatus={setBookingStatus} /> */}
+      <Rout />
     </div>
   );
 };
