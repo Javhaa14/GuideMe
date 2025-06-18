@@ -8,8 +8,6 @@ import {
   Github,
   Linkedin,
   Instagram,
-  ArrowRight,
-  Heart,
   Globe,
   Shield,
   Zap,
@@ -19,50 +17,15 @@ import {
   FileText,
   Settings,
   Star,
-  CreditCard,
 } from "lucide-react";
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { StatsSection } from "./Stats";
+import { JSX } from "react/jsx-runtime";
 
 // ✅ FooterLink тайп тодорхойлох
 type FooterLink = {
   name: string;
   href: string;
   icon?: JSX.Element;
-};
-
-const featureCards = [
-  { title: "Verified", subtitle: "Local Guides", Icon: Shield },
-  { title: "Tailored", subtitle: "Experiences", Icon: BookOpen },
-  { title: "Community", subtitle: "Driven", Icon: Heart },
-  { title: "Support", subtitle: "That Cares", Icon: HelpCircle },
-];
-
-const Card = ({
-  title,
-  subtitle,
-  Icon,
-}: {
-  title: string;
-  subtitle: string;
-  Icon: React.ElementType;
-}) => {
-  return (
-    <div className="w-full p-4 rounded border border-slate-300 relative overflow-hidden group bg-white shadow-sm">
-      <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300" />
-      <Icon className="absolute z-10 -top-12 -right-12 text-9xl text-slate-100 group-hover:text-violet-400 group-hover:rotate-12 transition-transform duration-300" />
-      <Icon className="mb-2 text-2xl text-violet-600 group-hover:text-white transition-colors relative z-10 duration-300" />
-      <h3 className="font-medium text-lg text-slate-950 group-hover:text-white relative z-10 duration-300">
-        {title}
-      </h3>
-      <p className="text-slate-400 group-hover:text-violet-200 relative z-10 duration-300">
-        {subtitle}
-      </p>
-    </div>
-  );
 };
 
 export default function Footer() {
@@ -154,33 +117,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 text-white">
-      {/* Hero section */}
-      <div className="border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-16 grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-4">
-            <h3 className="text-3xl font-bold">Discover authentic journeys</h3>
-            <p className="text-slate-300 text-lg leading-relaxed">
-              We connect you with local guides to explore Mongolia through a
-              truly personal experience.
-            </p>
-            <Button className="bg-cyan-500 text-white px-6 w-fit">
-              Get enjoy your life <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
-          <div className="space-y-6">
-            <p className="text-xl font-semibold">Why choose us?</p>
-            <div className="grid gap-4 grid-cols-2">
-              {featureCards.map((card, i) => (
-                <Card key={i} {...card} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <StatsSection />
-
+    <footer className="w-full inset-0 bg-black/20 backdrop-blur-xl text-white">
       {/* Footer links + branding + social */}
       <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12">
         {/* Branding */}
@@ -191,9 +128,6 @@ export default function Footer() {
             </div>
             <h4 className="text-2xl font-bold">GuideMe</h4>
           </div>
-          <p className="text-slate-300">
-            Building the future of digital experiences with innovation.
-          </p>
           <div className="space-y-3 text-slate-300">
             <div className="flex items-center gap-3">
               <Mail className="w-4 h-4" /> guideme@gmail.com
@@ -242,24 +176,6 @@ export default function Footer() {
             </ul>
           </div>
         ))}
-      </div>
-
-      {/* Bottom bar */}
-      <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-300">
-          <div className="flex items-center gap-2">
-            © 2025 GuideMe. Made with <Heart className="w-4 h-4 text-sky-400" />{" "}
-            in Ulaanbaatar
-          </div>
-          <div className="flex gap-4 flex-wrap">
-            <Badge className="bg-cyan-100/10 text-cyan-400 border-cyan-400/30">
-              <Shield className="w-3 h-3 mr-1" /> SOC 2
-            </Badge>
-            <Badge className="bg-cyan-100/10 text-teal-400 border-teal-400/30">
-              <Zap className="w-3 h-3 mr-1" /> 99.9% Uptime
-            </Badge>
-          </div>
-        </div>
       </div>
     </footer>
   );

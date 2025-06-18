@@ -25,7 +25,6 @@ export default function RootLayout({
       <Navigation />
       <div className="invicible h-[50px]"></div>
       {children}
-      <Footer />
     </div>
   );
 }
