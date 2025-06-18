@@ -204,6 +204,10 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
     socket.leave(roomId);
     console.log(`🚪 Socket ${socket.id} left room ${roomId}`);
   });
+  socket.on("markNotificationsSeen", ({ senderId, receiverId }) => {
+    if (!senderId || !receiverId) return; // avoid undefined values
+    io.to(`notify_${receiverId}`).emit("notificationsSeen", { senderId });
+  });
 
   // Handle incoming chat message
   socket.on("chat message", async (msg) => {
