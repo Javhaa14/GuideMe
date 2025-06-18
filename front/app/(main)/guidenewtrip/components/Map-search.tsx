@@ -114,7 +114,8 @@ export default function MapSearch({ onLocationSelect }: MapSearchProps) {
           {query && (
             <button
               className="absolute flex items-center justify-center w-6 h-6 text-gray-500 -translate-y-1/2 bg-gray-200 rounded-full right-3 top-1/2 hover:bg-gray-300"
-              onClick={() => setQuery("")}>
+              onClick={() => setQuery("")}
+            >
               <X className="w-3 h-3" />
             </button>
           )}
@@ -126,7 +127,8 @@ export default function MapSearch({ onLocationSelect }: MapSearchProps) {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="absolute z-10 w-full mt-1">
+              className="absolute z-10 w-full mt-1"
+            >
               <Card className="overflow-hidden border-none shadow-lg">
                 <CardContent className="p-0">
                   {results.map((result) => (
@@ -138,11 +140,13 @@ export default function MapSearch({ onLocationSelect }: MapSearchProps) {
                       whileHover={{
                         backgroundColor: "rgba(59, 130, 246, 0.1)",
                       }}
-                      className="border-b border-gray-100 last:border-b-0 dark:border-gray-800">
+                      className="border-b border-gray-100 last:border-b-0 dark:border-gray-800"
+                    >
                       <Button
                         variant="ghost"
                         className="justify-start w-full h-auto px-4 py-3 text-left rounded-none"
-                        onClick={() => handleSelectLocation(result)}>
+                        onClick={() => handleSelectLocation(result)}
+                      >
                         <div className="flex items-center gap-3">
                           <div className="p-1.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
                             <MapPin className="w-4 h-4" />
@@ -165,7 +169,8 @@ export default function MapSearch({ onLocationSelect }: MapSearchProps) {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="absolute z-10 w-full mt-1">
+              className="absolute z-10 w-full mt-1"
+            >
               <Card className="overflow-hidden border-none shadow-lg">
                 <CardContent className="p-4">
                   <p className="mb-3 text-sm text-gray-500">
@@ -174,7 +179,8 @@ export default function MapSearch({ onLocationSelect }: MapSearchProps) {
                   <Button
                     variant="outline"
                     className="justify-start w-full border-dashed"
-                    onClick={handleAddCustomLocation}>
+                    onClick={handleAddCustomLocation}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Add "{query}" as a custom location
                   </Button>
@@ -218,7 +224,8 @@ export default function MapSearch({ onLocationSelect }: MapSearchProps) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex items-center p-3 bg-white border border-blue-100 rounded-md dark:bg-gray-800 dark:border-blue-900/30">
+                  className="flex items-center p-3 bg-white border border-blue-100 rounded-md dark:bg-gray-800 dark:border-blue-900/30"
+                >
                   <div className="p-1.5 rounded-full bg-blue-100 text-blue-600 mr-3 dark:bg-blue-900 dark:text-blue-300">
                     <MapPin className="w-4 h-4" />
                   </div>
@@ -231,7 +238,8 @@ export default function MapSearch({ onLocationSelect }: MapSearchProps) {
                       const newLocations = [...selectedLocations];
                       newLocations.splice(index, 1);
                       setSelectedLocations(newLocations);
-                    }}>
+                    }}
+                  >
                     <X className="w-4 h-4" />
                   </Button>
                 </motion.div>
