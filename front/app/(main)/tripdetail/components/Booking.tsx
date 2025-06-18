@@ -72,38 +72,6 @@ export const Booking: React.FC<BookingProps> = ({ onCheck, trip }) => {
       totalPrice,
     };
     onCheck(data);
-
-    if (!trip) {
-      toast.error("Trip data is missing");
-      return;
-    }
-
-    try {
-      // Prepare payload to send to your create booking backend API
-      const payload = {
-        tripPlanId: trip._id,
-        touristIds: [], // <-- you'll need actual tourist IDs here
-        guideId: trip.guideId._id, // assuming trip has guideId populated
-        numberOfPeople: totalParticipants,
-        selectedDate: "2025-06-18",
-        totalPrice,
-        status: "pending",
-        paymentStatus: "unpaid",
-      };
-
-      const response = await axiosInstance.post("/booking", payload);
-
-      if (response.data.success) {
-        toast.success("Booking created successfully!");
-      } else {
-        toast.error("Failed to create booking: " + response.data.message);
-      }
-    } catch (error: any) {
-      toast.error(
-        "Error creating booking: " + error?.response?.data?.message ||
-          error.message
-      );
-    }
   };
 
   const participantOptions = [
