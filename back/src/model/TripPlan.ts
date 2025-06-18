@@ -1,5 +1,20 @@
 import mongoose from "mongoose";
 
+const routeItemSchema = new mongoose.Schema(
+  {
+    image: String,
+    title: { type: String, required: true },
+    about: String,
+    iconType: String,
+    name: { type: String, required: true },
+    coordinates: {
+      lat: { type: Number, required: true },
+      lng: { type: Number, required: true },
+    },
+  },
+  { _id: false }
+);
+
 const tripPlanSchema = new mongoose.Schema(
   {
     guideId: {
@@ -29,6 +44,7 @@ const tripPlanSchema = new mongoose.Schema(
     languages: {
       type: [String],
       required: true,
+      default: [],
     },
     groupSize: {
       type: String,
@@ -38,19 +54,17 @@ const tripPlanSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    route: [
-      {
-        image: String,
-        title: { type: String, required: true },
-        about: String,
-        iconType: String,
-      },
-    ],
+    route: {
+      type: [routeItemSchema],
+      default: [],
+    },
     highlights: {
       type: [String],
+      default: [],
     },
     tips: {
       type: [String],
+      default: [],
     },
   },
   {
