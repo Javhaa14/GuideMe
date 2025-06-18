@@ -1,45 +1,30 @@
 "use client";
-import { MapPin, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { GuideProfile } from "../Guidedetail/components/GuideMainProfile";
 
-export const Guides = () => {
-  const guides = [
-    {
-      name: "Zaya",
-      description: "Exploring The World In Comfort.",
-      image: "/user.png",
-      location: "Ulaanbaatar, Mongolia",
-      price: 22,
-      rating: 5,
-    },
-    {
-      name: "Bataa",
-      description:
-        "The world is a book, and those who do not travel read only a page.",
-      image: "/user.png",
-      location: "Gobi Desert, Mongolia",
-      price: 28,
-      rating: 4,
-    },
-    {
-      name: "Solongo",
-      description: "Ready to show around my city...",
-      image: "/user.png",
-      location: "Erdenet, Mongolia",
-      price: 20,
-      rating: 5,
-    },
-  ];
+export type TourPost = {
+  // define TourPost fields if needed
+};
+
+interface GuidesProps {
+  guides: GuideProfile[];
+}
+
+export const Guides: React.FC<GuidesProps> = ({ guides }) => {
   const router = useRouter();
+  if (!guides || guides.length === 0) {
+    return <p>No guides available</p>;
+  }
+
   return (
     <div className="p-6 sm:p-10 bg-gray-50 h-fit">
       <div className="flex justify-between items-center mb-10">
         <h2 className="text-4xl font-bold text-gray-800">🌟 Top Guides</h2>
         <p
           onClick={() => router.push("/Guidesinfo")}
-          className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-blue-800 hover:underline transition cursor-pointer"
-        >
+          className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-blue-800 hover:underline transition cursor-pointer">
           See more
           <span className="transition-transform group-hover:translate-x-1">
             →
@@ -48,14 +33,13 @@ export const Guides = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {guides.map((guide, index) => (
+        {guides.map((guide, i) => (
           <div
-            key={index}
-            className="flex bg-white rounded-xl shadow-md overflow-hidden border hover:shadow-lg transition"
-          >
+            key={i}
+            className="flex bg-white rounded-xl shadow-md overflow-hidden border hover:shadow-lg transition">
             <img
-              src={guide.image}
-              alt={guide.name}
+              src={guide.profileimage}
+              alt={`${guide.firstName} ${guide.lastName}`}
               className="w-40 h-40 object-cover object-center sm:w-48 sm:h-full"
             />
 
@@ -63,7 +47,7 @@ export const Guides = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    {guide.name}
+                    {guide.firstName} {guide.lastName}
                   </h3>
                   <p className="text-sm text-gray-500">{guide.location}</p>
                 </div>
@@ -74,7 +58,7 @@ export const Guides = () => {
               </div>
 
               <blockquote className="italic text-gray-600 text-sm mt-3 mb-4">
-                “{guide.description}”
+                “{guide.comment}”
               </blockquote>
 
               <div className="flex items-center justify-between text-sm text-gray-500">
