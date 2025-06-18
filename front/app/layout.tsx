@@ -27,7 +27,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white w-screen h-screen`}
         style={{ cursor: "auto" }}
-      >
+        cz-shortcut-listen="true">
         <Providers>{children}</Providers>
       </body>
     </html>
