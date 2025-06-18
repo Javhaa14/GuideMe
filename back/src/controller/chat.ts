@@ -14,10 +14,6 @@ export const saveChatMessage = async (req: Request, res: Response) => {
       profileimage,
       roomId,
     });
-
-    // Optionally emit via Socket.IO here if you want server to broadcast
-    // io.emit("chat message", newMessage);
-
     res.status(201).json({ success: true, message: newMessage });
   } catch (err) {
     console.error("Failed to save chat message", err);
@@ -105,27 +101,6 @@ export const getConversations = async (req: Request, res: Response) => {
     });
   } catch (err) {
     console.error("Failed to fetch conversations", err);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
-  }
-};
-
-// controller/chat.ts
-export const markMessagesAsRead = async (req: Request, res: Response) => {
-  try {
-    const { roomId, userId } = req.body;
-
-    await ChatMessageModel.updateMany(
-      {
-        roomId,
-        userId: { $ne: userId }, // not sent by this user
-        readBy: { $ne: userId }, // and not already read
-      },
-      { $addToSet: { readBy: userId } } // add userId if not already there
-    );
-
-    res.json({ success: true });
-  } catch (err) {
-    console.error("Failed to mark messages as read", err);
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };

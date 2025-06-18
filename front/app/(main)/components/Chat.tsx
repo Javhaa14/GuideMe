@@ -59,7 +59,7 @@ export default function Chat({
   if (!user) {
     return <p>Loading user...</p>;
   }
-  console.log(onlineUsers, "onlineusers");
+  // console.log(onlineUsers, "onlineusers");
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -118,7 +118,38 @@ export default function Chat({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+  const fetchNotifications = async ({
+    senderId,
+    receiverId,
+    message,
+  }: {
+    senderId: string;
+    receiverId: string;
+    message: string;
+  }) => {
+    try {
+      if (!senderId || !receiverId || !message) {
+        console.warn("Missing notification fields", {
+          senderId,
+          receiverId,
+          message,
+        });
+        return;
+      }
 
+      const res = await axiosInstance.post("/notif/send", {
+        senderId, // <-- change here
+        receiverId, // <-- and here
+        message,
+      });
+
+      if (!res.data.success) {
+        console.warn("Notification sending failed:", res.data);
+      }
+    } catch (error) {
+      console.error("Error sending notification:", error);
+    }
+  };
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -137,16 +168,18 @@ export default function Chat({
       userId: user.id,
     };
 
-    // Optimistic message
-    setMessages((prev) => [...prev, messagePayload]);
-    console.log("Sending message payload:", messagePayload);
-
-    // Send to server
     socket.emit("chat message", messagePayload);
+
+    fetchNotifications({
+      senderId: user.id, // YOU, the sender
+      receiverId: profileId, // THE RECEIVER
+      message: messagePayload.text,
+    });
+
     setInput("");
   };
 
-  console.log("🔌 isConnected:", isConnected);
+  // console.log("🔌 isConnected:", isConnected);
 
   useEffect(() => {
     const fetchChatHistory = async () => {

@@ -33,7 +33,6 @@ import { useRouter } from "next/navigation";
 import { LocationFilterCard } from "../../Guidesinfo/components/SearchLocation";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
 import { fetchTProfile } from "@/app/utils/fetchProfile";
-import Email from "next-auth/providers/email";
 import { Separator } from "@/components/ui/separator";
 
 const MultiSelect = dynamic(
@@ -62,10 +61,7 @@ const formSchema = z.object({
   username: z.string().min(2, "Username is required"),
   firstName: z.string().min(2, "First name is required"),
   lastName: z.string().min(2, "Last name is required"),
-  email: z.string().email("Please enter a valid email"),
   gender: z.string().min(1, "Gender is required"),
-  country: z.string().min(1, "Country is required"),
-  city: z.string().min(1, "City is required"),
   languages: z
     .array(z.string())
     .min(1, { message: "Select at least one language" }),
@@ -102,10 +98,7 @@ export function GProfile() {
       username: user?.name || "",
       firstName: "",
       lastName: "",
-      email: "",
       gender: "",
-      country: "",
-      city: "",
       languages: [],
       socialAddress: "",
       profileimage: "",
@@ -200,8 +193,6 @@ export function GProfile() {
         firstName: tourist.firstName || "",
         lastName: tourist.lastName || "",
         gender: tourist.gender || "",
-        country,
-        city,
         languages: tourist.languages || [],
         socialAddress: tourist.socialAddress || "",
         profileimage: tourist.profileimage || "",
@@ -259,19 +250,6 @@ export function GProfile() {
           username: payload.username,
         });
       }
-
-      // Update tourist profile (if needed)
-      // await axiosInstance.put(`/tprofile/${user.id}`, {
-      //   languages: payload.languages,
-      //   location: payload.location,
-      //   profileimage: payload.profileimage,
-      //   backgroundimage: payload.backgroundimage,
-      //   socialAddress: payload.socialAddress,
-      //   about: payload.about,
-      //   gender: payload.gender,
-      // });
-
-      // Create or update guide profile — better to check if exists and then put/post accordingly
       await axiosInstance.post(`/gprofile`, payload);
 
       router.push("/");
@@ -293,8 +271,7 @@ export function GProfile() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full h-full gap-5 p-5 justify-center items-center"
-      >
+        className="flex flex-col w-full h-full gap-5 p-5 justify-center items-center">
         <p className="text-[16px] font-bold self-start">
           Complete your guide profile page, {user?.name}
         </p>
@@ -392,24 +369,6 @@ export function GProfile() {
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter your email"
-                        className="border solid border-[#d4d4d4] rounded-[10px] h-[40px] px-3 py-2 text-sm bg-[#fff]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
             <Separator />
@@ -425,8 +384,7 @@ export function GProfile() {
                     <FormControl>
                       <Select
                         value={field.value}
-                        onValueChange={field.onChange}
-                      >
+                        onValueChange={field.onChange}>
                         <SelectTrigger className="w-full h-[40px]">
                           <SelectValue placeholder="Select your gender" />
                         </SelectTrigger>
@@ -664,12 +622,28 @@ export function GProfile() {
                   <FormItem>
                     <FormLabel>Do you have a car?</FormLabel>
                     <FormControl>
-                      <input
-                        type="checkbox"
-                        checked={field.value}
-                        onChange={(e) => field.onChange(e.target.checked)}
-                      />
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            value="true"
+                            checked={field.value === true}
+                            onChange={() => field.onChange(true)}
+                          />
+                          Yes
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            value="false"
+                            checked={field.value === false}
+                            onChange={() => field.onChange(false)}
+                          />
+                          No
+                        </label>
+                      </div>
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -830,8 +804,7 @@ export function GProfile() {
               <Button
                 variant="outline"
                 type="submit"
-                className="w-[200px] mt-8 bg-zinc-200 hover:bg-white"
-              >
+                className="w-[200px] mt-8 bg-zinc-200 hover:bg-white">
                 Save Profile
               </Button>
             </div>

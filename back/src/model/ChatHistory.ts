@@ -16,10 +16,6 @@ const ChatMessageSchema = new mongoose.Schema(
     text: String,
     profileimage: String,
     roomId: String,
-    readBy: {
-      type: [String],
-      default: [],
-    },
   },
   { timestamps: true }
 );
