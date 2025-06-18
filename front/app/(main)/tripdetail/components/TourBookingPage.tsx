@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Booking } from "./Booking";
+import { Booking, TripItem } from "./Booking";
 import { Checking } from "./Checking";
-
-export default function TourBookingPage() {
+interface TourBookingPageProps {
+  trip: TripItem;
+}
+export default function TourBookingPage({ trip }: TourBookingPageProps) {
   const [showChecking, setShowChecking] = useState(false);
   const [bookingData, setBookingData] = useState<any | null>(null);
 
@@ -15,7 +17,7 @@ export default function TourBookingPage() {
 
   return (
     <div>
-      <Booking onCheck={handleCheck} />
+      <Booking onCheck={handleCheck} trip={trip} />
       {showChecking && bookingData && <Checking data={bookingData} />}
     </div>
   );

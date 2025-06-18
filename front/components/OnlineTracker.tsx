@@ -14,7 +14,7 @@ export default function OnlineTracker() {
   useEffect(() => {
     if (!socket && typeof window !== "undefined") {
       socket = io(
-        process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000"
+        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"
       );
     }
   }, []);

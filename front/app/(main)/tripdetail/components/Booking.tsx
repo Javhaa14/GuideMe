@@ -10,55 +10,45 @@ import {
 import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
 import { toast } from "sonner";
-
-interface TripItem {
+import { GuideProfile } from "../../Guidedetail/components/GuideMainProfile";
+interface RouteItem {
+  image?: string;
+  title: string;
+  about?: string;
+  iconType?: string;
   _id: string;
+}
+export interface TripItem {
+  _id: string;
+  title: string;
+  about: string;
+  date: string;
+  duration: string;
+  groupSize: string;
+  guideId: GuideProfile;
+  highlights: string[];
+  images: string[];
+  languages: string[];
   price: number;
+  route: RouteItem[];
+  tips: string[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 interface BookingProps {
   onCheck: (data: any) => void;
+  trip: TripItem | null;
 }
-
-export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
+export const Booking: React.FC<BookingProps> = ({ onCheck, trip }) => {
   const [participants, setParticipants] = useState({
     adult: 1,
-    youth: 0,
     child: 0,
   });
 
   const [language, setLanguage] = useState("English");
-  const [trip, setTrip] = useState<TripItem | null>(null);
   const params = useParams();
-
-  const fetchTrip = async () => {
-    const tripId = typeof params.id === "string" ? params.id : params.id?.[0];
-    if (!tripId) return console.warn("⛔ params.id байхгүй байна");
-
-    try {
-      const res = await axiosInstance.get(`/tripPlan/tripPlan/${tripId}`);
-
-      if (!res.data.success || !res.data.tripPlan) {
-        console.warn("⛔ Аялал олдсонгүй:", res.data.message);
-        toast.error("Аялал олдсонгүй: " + res.data.message);
-        return;
-      }
-
-      const tripData = res.data.tripPlan;
-      console.log("➡️ tripData:", tripData);
-      setTrip(tripData);
-    } catch (error: any) {
-      console.error(
-        "❌ API fetch error:",
-        error?.response?.data || error.message
-      );
-      toast.error("Алдаа гарлаа: " + error?.message);
-    }
-  };
-
-  useEffect(() => {
-    fetchTrip();
-  }, []);
 
   const adjustParticipant = (
     type: keyof typeof participants,
@@ -70,12 +60,11 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
     }));
   };
 
-  const totalParticipants =
-    participants.adult + participants.youth + participants.child;
+  const totalParticipants = participants.adult + participants.child;
 
   const totalPrice = trip ? trip.price * totalParticipants : 0;
 
-  const handleCheckClick = () => {
+  const handleCheckClick = async () => {
     const data = {
       participants,
       totalParticipants,
@@ -83,11 +72,42 @@ export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
       totalPrice,
     };
     onCheck(data);
+
+    if (!trip) {
+      toast.error("Trip data is missing");
+      return;
+    }
+
+    try {
+      // Prepare payload to send to your create booking backend API
+      const payload = {
+        tripPlanId: trip._id,
+        touristIds: [], // <-- you'll need actual tourist IDs here
+        guideId: trip.guideId._id, // assuming trip has guideId populated
+        numberOfPeople: totalParticipants,
+        selectedDate: "2025-06-18",
+        totalPrice,
+        status: "pending",
+        paymentStatus: "unpaid",
+      };
+
+      const response = await axiosInstance.post("/booking", payload);
+
+      if (response.data.success) {
+        toast.success("Booking created successfully!");
+      } else {
+        toast.error("Failed to create booking: " + response.data.message);
+      }
+    } catch (error: any) {
+      toast.error(
+        "Error creating booking: " + error?.response?.data?.message ||
+          error.message
+      );
+    }
   };
 
   const participantOptions = [
     { label: "Adult", range: "Age 18-99", key: "adult" },
-    { label: "Youth", range: "Age 13-17", key: "youth" },
     { label: "Child", range: "Age 12 and younger", key: "child" },
   ] as const;
 

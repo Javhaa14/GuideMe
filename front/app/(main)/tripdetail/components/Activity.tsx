@@ -11,7 +11,7 @@ interface TripItem {
   date: string;
   groupSize: number;
   duration: string;
-  languages: string;
+  languages: string[];
 }
 
 const ActivityItem = ({
@@ -100,12 +100,15 @@ export const Activity = () => {
           <ActivityItem
             icon={TimerReset}
             title="Duration"
-            value={trip.duration}
+            value={`${trip.duration} day${trip.duration === "1" ? "" : "s"}`}
           />
+
           <ActivityItem
             icon={Globe}
             title="Live tour guide"
-            value={trip.languages}
+            value={trip.languages
+              .map((lang) => lang.charAt(0).toUpperCase() + lang.slice(1))
+              .join(", ")}
             iconColor="text-blue-500"
           />
         </div>

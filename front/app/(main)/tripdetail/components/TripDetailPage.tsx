@@ -9,17 +9,11 @@ import TourBookingPage from "./TourBookingPage";
 import TourMap from "./TourMap";
 import RoadRoute from "./RoadRoute";
 import { Activity } from "./Activity";
-
-interface TripItem {
-  _id: string;
-  title: string;
-  about: string;
-  images: string[] | string;
-}
+import { TripItem } from "./Booking";
 
 export const TripDetailPage = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [trip, setTrip] = useState<TripItem | null>(null);
+  const [trip, setTrip] = useState<TripItem>();
   const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const params = useParams();
@@ -172,7 +166,7 @@ export const TripDetailPage = () => {
 
       {/* Additional Components */}
       <Activity />
-      <TourBookingPage />
+      <TourBookingPage trip={trip!} />
       <TourMap />
       <RoadRoute />
     </div>
