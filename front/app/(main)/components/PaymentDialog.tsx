@@ -57,18 +57,21 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({
 
     try {
       // Create checkout session via your backend API
-      const res = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          tripPlanId: tripId,
-          numberOfPeople: totalParticipants,
-          totalPrice: amount,
-          selectedDate,
-        }),
-      });
+      const res = await fetch(
+        "https://guideme-8o9f.onrender.com/api/create-checkout-session",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            tripPlanId: tripId,
+            numberOfPeople: totalParticipants,
+            totalPrice: amount,
+            selectedDate,
+          }),
+        }
+      );
 
       const data = await res.json();
 
