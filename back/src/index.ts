@@ -23,7 +23,7 @@ import tripPlanRouter from "./routes/tripPlan";
 import { Notifrouter } from "./routes/notificationSMS";
 import { Notification } from "./model/notification";
 import { Bookingrouter } from "./routes/tripbook";
-import wishlistRouter from "./routes/Wish";
+import { wishlistRouter } from "./routes/wish";
 
 declare module "socket.io" {
   interface Socket {
