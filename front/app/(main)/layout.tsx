@@ -21,10 +21,18 @@ export default function RootLayout({
 }>) {
   return (
     <div
+<<<<<<< HEAD
       className={`${geistSans.variable} ${geistMono.variable} antialiased w-screen h-auto`}>
       <Navigation />
       <div className="invicible h-[50px]"></div>
       {children}
+=======
+      className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white w-screen h-auto`}
+    >
+      <Navigation />
+      {children}
+      <Footer />
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     </div>
   );
 }

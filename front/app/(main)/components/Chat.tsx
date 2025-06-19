@@ -59,6 +59,10 @@ export default function Chat({
   if (!user) {
     return <p>Loading user...</p>;
   }
+<<<<<<< HEAD
+=======
+  // console.log(onlineUsers, "onlineusers");
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -178,6 +182,11 @@ export default function Chat({
     setInput("");
   };
 
+<<<<<<< HEAD
+=======
+  // console.log("🔌 isConnected:", isConnected);
+
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {

@@ -36,7 +36,10 @@ import {
 import { LocationFilterCard } from "../../Guidesinfo/components/SearchLocation";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
 import { Separator } from "@/components/ui/separator";
+<<<<<<< HEAD
 import { useRouter } from "next/navigation";
+=======
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 
 export type CountryType = {
   name: {
@@ -214,7 +217,11 @@ export const TouristProfile = () => {
       socialAddress: values.social,
       gender: values.gender,
       location: searchedValue,
+<<<<<<< HEAD
       languages: values.languages,
+=======
+      languages: searchedValue,
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       about: values.about,
       profileimage: values.profileimage,
       backgroundimage: "",
@@ -234,17 +241,24 @@ export const TouristProfile = () => {
     console.log("Validation errors:", form.formState.errors);
   }, [form.formState.errors]);
 
+<<<<<<< HEAD
   const router = useRouter();
   const handleSubmitButton = () => {
     router.push("/");
   };
 
+=======
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
+<<<<<<< HEAD
         className="flex flex-col w-full h-full gap-5 p-5 justify-center items-start space-y-8"
       >
+=======
+        className="flex flex-col w-full h-full gap-5 p-5 justify-center items-start space-y-8">
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
         <p className="text-[20px] font-bold">Complete your profile page</p>
 
         <div className="flex w-full h-full gap-5 ">
@@ -318,8 +332,12 @@ export const TouristProfile = () => {
                       <Select
                         {...field}
                         onValueChange={field.onChange}
+<<<<<<< HEAD
                         value={field.value || ""}
                       >
+=======
+                        value={field.value || ""}>
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                         <SelectTrigger className="w-[200px] h-[40px]">
                           <SelectValue placeholder="Select your gender" />
                         </SelectTrigger>
@@ -345,6 +363,34 @@ export const TouristProfile = () => {
                   <FormItem>
                     <FormLabel>Languages</FormLabel>
                     <FormControl className="flex w-[300px]">
+<<<<<<< HEAD
+=======
+                      {/* <Controller
+                        control={form.control}
+                        name="languages"
+                        render={({ field: { onChange, value, ref } }) => (
+                          <ReactSelect
+                            ref={ref}
+                            isMulti
+                            options={languageOptions}
+                            value={languageOptions.filter((c) =>
+                              value?.includes(c.value)
+                            )}
+                            onChange={(selected) => {
+                              onChange(
+                                selected
+                                  ? selected.map((option) => option.value)
+                                  : []
+                              );
+                            }}
+                            placeholder="Select languages"
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                            instanceId="tourist-profile-languages"
+                          />
+                        )}
+                      /> */}
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                       <MultiSelect
                         styles={{
                           valueContainer: (base) => ({
@@ -460,11 +506,17 @@ export const TouristProfile = () => {
 
             <div className="flex justify-end items-end">
               <Button
+<<<<<<< HEAD
                 onClick={handleSubmitButton}
                 variant="outline"
                 type="submit"
                 className="w-[200px] mt-8 bg-zinc-200 hover:bg-white"
               >
+=======
+                variant="outline"
+                type="submit"
+                className="w-[200px] mt-8 bg-zinc-200 hover:bg-white">
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                 Save Profile
               </Button>
             </div>

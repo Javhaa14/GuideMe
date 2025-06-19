@@ -81,12 +81,17 @@ export const Booking: React.FC<BookingProps> = ({
       language,
       totalPrice,
     };
+<<<<<<< HEAD
 
     // Only call onCheck if booking is not already confirmed
     if (!alreadyBooked) {
       onCheck(data);
     }
   }, [participants, language, totalPrice, alreadyBooked]);
+=======
+    onCheck(data);
+  }, [participants, language, totalParticipants, totalPrice, onCheck]);
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 
   useEffect(() => {
     if (bookingStatus === "" || bookingStatus === "no booking") {

@@ -1,4 +1,5 @@
 "use client";
+<<<<<<< HEAD
 import { useEffect, useRef, useState } from "react";
 import FloatingChatButton from "./components/FloatingChatButton 2";
 import { Guides } from "./components/Guides";
@@ -80,6 +81,26 @@ export default function Home() {
     "Book your guide today",
   ];
 
+=======
+
+import { Guides } from "./components/Guides";
+import { ImageCarousel } from "./components/ImageCarousel";
+import { Videos } from "./components/Videos";
+import { useEffect, useState } from "react";
+import FloatingChatButton from "./components/FloatingChatButton";
+import { MouseImage } from "./components/MouseImage";
+import { Card } from "./Guidedetail/components/Card";
+import { DragCards } from "./components/Card";
+import { GuideProfile } from "./Guidedetail/components/GuideMainProfile";
+import { axiosInstance } from "@/lib/utils";
+
+export default function Home() {
+  const [open, setOpen] = useState(false);
+  const [guides, setGuides] = useState<GuideProfile[]>();
+  const handleClick = () => {
+    setOpen(!open);
+  };
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   useEffect(() => {
     const fetchGuides = async () => {
       try {
@@ -89,6 +110,7 @@ export default function Home() {
         console.error("❌ Failed to fetch guides:", error);
       }
     };
+<<<<<<< HEAD
     fetchGuides();
   }, []);
 
@@ -222,6 +244,18 @@ export default function Home() {
           </button>
         )}
       </div>
+=======
+
+    fetchGuides();
+  }, []);
+  return (
+    <div className="flex flex-col relative min-h-screen">
+      <ImageCarousel />
+      <Guides guides={guides!} />
+      <Videos />
+      <DragCards />
+      <MouseImage />
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       <FloatingChatButton />
     </div>
   );

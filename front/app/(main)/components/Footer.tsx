@@ -8,6 +8,11 @@ import {
   Github,
   Linkedin,
   Instagram,
+<<<<<<< HEAD
+=======
+  ArrowRight,
+  Heart,
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   Globe,
   Shield,
   Zap,
@@ -17,9 +22,19 @@ import {
   FileText,
   Settings,
   Star,
+<<<<<<< HEAD
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { JSX } from "react/jsx-runtime";
+=======
+  CreditCard,
+} from "lucide-react";
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { StatsSection } from "./Stats";
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 
 // ✅ FooterLink тайп тодорхойлох
 type FooterLink = {
@@ -28,6 +43,40 @@ type FooterLink = {
   icon?: JSX.Element;
 };
 
+<<<<<<< HEAD
+=======
+const featureCards = [
+  { title: "Verified", subtitle: "Local Guides", Icon: Shield },
+  { title: "Tailored", subtitle: "Experiences", Icon: BookOpen },
+  { title: "Community", subtitle: "Driven", Icon: Heart },
+  { title: "Support", subtitle: "That Cares", Icon: HelpCircle },
+];
+
+const Card = ({
+  title,
+  subtitle,
+  Icon,
+}: {
+  title: string;
+  subtitle: string;
+  Icon: React.ElementType;
+}) => {
+  return (
+    <div className="w-full p-4 rounded border border-slate-300 relative overflow-hidden group bg-white shadow-sm">
+      <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300" />
+      <Icon className="absolute z-10 -top-12 -right-12 text-9xl text-slate-100 group-hover:text-violet-400 group-hover:rotate-12 transition-transform duration-300" />
+      <Icon className="mb-2 text-2xl text-violet-600 group-hover:text-white transition-colors relative z-10 duration-300" />
+      <h3 className="font-medium text-lg text-slate-950 group-hover:text-white relative z-10 duration-300">
+        {title}
+      </h3>
+      <p className="text-slate-400 group-hover:text-violet-200 relative z-10 duration-300">
+        {subtitle}
+      </p>
+    </div>
+  );
+};
+
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 export default function Footer() {
   // ✅ Тайп ашиглаж тодорхой болгох
   const footerLinks: Record<string, FooterLink[]> = {
@@ -117,7 +166,37 @@ export default function Footer() {
   ];
 
   return (
+<<<<<<< HEAD
     <footer className="w-full inset-0 bg-black/20 backdrop-blur-xl text-white">
+=======
+    <footer className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 text-white">
+      {/* Hero section */}
+      <div className="border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 py-16 grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-4">
+            <h3 className="text-3xl font-bold">Discover authentic journeys</h3>
+            <p className="text-slate-300 text-lg leading-relaxed">
+              We connect you with local guides to explore Mongolia through a
+              truly personal experience.
+            </p>
+            <Button className="bg-cyan-500 text-white px-6 w-fit">
+              Get enjoy your life <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+          <div className="space-y-6">
+            <p className="text-xl font-semibold">Why choose us?</p>
+            <div className="grid gap-4 grid-cols-2">
+              {featureCards.map((card, i) => (
+                <Card key={i} {...card} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <StatsSection />
+
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       {/* Footer links + branding + social */}
       <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12">
         {/* Branding */}
@@ -128,6 +207,12 @@ export default function Footer() {
             </div>
             <h4 className="text-2xl font-bold">GuideMe</h4>
           </div>
+<<<<<<< HEAD
+=======
+          <p className="text-slate-300">
+            Building the future of digital experiences with innovation.
+          </p>
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
           <div className="space-y-3 text-slate-300">
             <div className="flex items-center gap-3">
               <Mail className="w-4 h-4" /> guideme@gmail.com
@@ -149,7 +234,12 @@ export default function Footer() {
                 className={cn(
                   "w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center text-slate-300 transition",
                   s.color
+<<<<<<< HEAD
                 )}>
+=======
+                )}
+              >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                 {s.icon}
               </a>
             ))}
@@ -167,7 +257,12 @@ export default function Footer() {
                 <li key={link.name}>
                   <a
                     href={link.href}
+<<<<<<< HEAD
                     className="flex items-center gap-2 text-slate-300 hover:text-white">
+=======
+                    className="flex items-center gap-2 text-slate-300 hover:text-white"
+                  >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                     {link.icon && <span>{link.icon}</span>}
                     {link.name}
                   </a>
@@ -177,6 +272,27 @@ export default function Footer() {
           </div>
         ))}
       </div>
+<<<<<<< HEAD
+=======
+
+      {/* Bottom bar */}
+      <div className="border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-300">
+          <div className="flex items-center gap-2">
+            © 2025 GuideMe. Made with <Heart className="w-4 h-4 text-sky-400" />{" "}
+            in Ulaanbaatar
+          </div>
+          <div className="flex gap-4 flex-wrap">
+            <Badge className="bg-cyan-100/10 text-cyan-400 border-cyan-400/30">
+              <Shield className="w-3 h-3 mr-1" /> SOC 2
+            </Badge>
+            <Badge className="bg-cyan-100/10 text-teal-400 border-teal-400/30">
+              <Zap className="w-3 h-3 mr-1" /> 99.9% Uptime
+            </Badge>
+          </div>
+        </div>
+      </div>
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     </footer>
   );
 }

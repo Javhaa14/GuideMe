@@ -138,11 +138,20 @@ export const Navigation = () => {
   if (status === "loading") return null;
 
   return (
+<<<<<<< HEAD
     <nav className="flex fixed top-0 left-0 w-full z-50 items-center justify-between px-4 md:px-8 py-3 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow">
       {/* Logo */}
       <div
         className="flex items-center gap-2 cursor-pointer"
         onClick={() => router.push("/")}>
+=======
+    <nav className="flex items-center justify-between px-4 md:px-8 py-3 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+      {/* Logo */}
+      <div
+        className="flex items-center gap-2 cursor-pointer"
+        onClick={() => router.push("/")}
+      >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
         <TentTree className="text-gray-900 dark:text-white" size={24} />
         <span className="text-lg font-bold text-gray-900 dark:text-white">
           GuideMe
@@ -153,17 +162,32 @@ export const Navigation = () => {
       <div className="hidden md:flex items-center gap-8 mx-auto">
         <Link
           href="/Guidesinfo"
+<<<<<<< HEAD
           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors">
+=======
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+        >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
           {t.guides}
         </Link>
         <Link
           href="/Travelersinfo"
+<<<<<<< HEAD
           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors">
+=======
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+        >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
           {t.tourists}
         </Link>
         <Link
           href="/Tripsinfo"
+<<<<<<< HEAD
           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors">
+=======
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+        >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
           {t.trips}
         </Link>
       </div>
@@ -208,7 +232,12 @@ export const Navigation = () => {
                         } catch (err) {
                           console.error("Failed to update role:", err);
                         }
+<<<<<<< HEAD
                       }}>
+=======
+                      }}
+                    >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
@@ -227,7 +256,12 @@ export const Navigation = () => {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}
+<<<<<<< HEAD
                   className="text-red-500 focus:text-red-500">
+=======
+                  className="text-red-500 focus:text-red-500"
+                >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                   <LogOut className="mr-2 h-4 w-4" />
                   {t.logout}
                 </DropdownMenuItem>
@@ -238,13 +272,23 @@ export const Navigation = () => {
               variant="ghost"
               size="icon"
               className="relative"
+<<<<<<< HEAD
               onClick={() => router.push("/notification")}>
+=======
+              onClick={() => router.push("/notification")}
+            >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
               <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
             </Button>
             <MessengerButton />
             <div
               onClick={() => router.push("/wish")}
+<<<<<<< HEAD
               className="p-2 rounded-full cursor-pointer hover:bg-gray-100">
+=======
+              className="p-2 rounded-full cursor-pointer hover:bg-gray-100"
+            >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
               <Heart color="red" fill="red" />
             </div>
 
@@ -275,9 +319,14 @@ export const Navigation = () => {
                 <div className="p-2">
                   <Select
                     value={language}
+<<<<<<< HEAD
                     onValueChange={(value) =>
                       setLanguage(value as "en" | "mn")
                     }>
+=======
+                    onValueChange={(value) => setLanguage(value as "en" | "mn")}
+                  >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
@@ -296,7 +345,12 @@ export const Navigation = () => {
               variant="default"
               size="sm"
               onClick={() => router.push("/log-in")}
+<<<<<<< HEAD
               className="bg-gray-900 hover:bg-gray-800 text-white">
+=======
+              className="bg-gray-900 hover:bg-gray-800 text-white"
+            >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
               {t.login}
             </Button>
             <DropdownMenu>
@@ -325,9 +379,14 @@ export const Navigation = () => {
                 <div className="p-2">
                   <Select
                     value={language}
+<<<<<<< HEAD
                     onValueChange={(value) =>
                       setLanguage(value as "en" | "mn")
                     }>
+=======
+                    onValueChange={(value) => setLanguage(value as "en" | "mn")}
+                  >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
@@ -345,3 +404,7 @@ export const Navigation = () => {
     </nav>
   );
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305

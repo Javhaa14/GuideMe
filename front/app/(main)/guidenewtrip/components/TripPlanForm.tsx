@@ -14,7 +14,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 const steps = [
   { id: "basic-info", title: "Basic Info" },
   { id: "route", title: "Route" },
@@ -27,8 +30,11 @@ export default function TripPlanForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const { user } = useUser();
+<<<<<<< HEAD
   const router = useRouter();
 
+=======
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   const [formData, setFormData] = useState({
     title: "",
     about: "",
@@ -84,6 +90,7 @@ export default function TripPlanForm() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
+<<<<<<< HEAD
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -92,6 +99,17 @@ export default function TripPlanForm() {
     try {
       if (!user?.id) return;
 
+=======
+  const router = useRouter();
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    setIsSubmitting(true);
+    console.log(formData, "lol");
+
+    try {
+      if (user.id == null) return;
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       const res = await axiosInstance.post(`/tripPlan`, {
         guideId: user.id,
         ...formData,
@@ -100,6 +118,7 @@ export default function TripPlanForm() {
       console.log("Form submitted:", res.data);
 
       toast("Success", {
+<<<<<<< HEAD
         description: "Trip plan created successfully! Redirecting...",
         className: "bg-green-100 text-green-800 border border-green-300",
         duration: 2000,
@@ -108,6 +127,12 @@ export default function TripPlanForm() {
       setTimeout(() => {
         router.push(`/Guidedetail/${user.id}`);
       }, 2000);
+=======
+        description: "Trip plan created successfully!",
+        className: "bg-green-100 text-green-800 border border-green-300",
+      });
+      router.push(`/Guidedetail/${user.id}`);
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     } catch (error) {
       console.error("Error creating trip plan:", error);
       toast("Error", {
@@ -118,7 +143,10 @@ export default function TripPlanForm() {
       setIsSubmitting(false);
     }
   };
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   return (
     <div className="space-y-8">
       <Toaster />
@@ -171,7 +199,10 @@ export default function TripPlanForm() {
           })}
         </div>
       </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       <Card className="overflow-hidden border-none shadow-xl bg-white/90 backdrop-blur-sm dark:bg-gray-800/90">
         <CardContent className="p-0">
           <form className="space-y-8" onSubmit={handleSubmit}>

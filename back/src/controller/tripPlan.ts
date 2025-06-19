@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { TripPlanModel } from "../model/TripPlan";
 import { Guidemodel } from "../model/Guide";
+<<<<<<< HEAD
 import { WishlistModel } from "../model/Wish";
+=======
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 
 export const createTripPlan = async (req: Request, res: Response) => {
   try {
@@ -27,7 +30,10 @@ export const getTripPlanById = async (
   res: Response
 ): Promise<any> => {
   const { id } = req.params;
+<<<<<<< HEAD
   const { userId } = req.query;
+=======
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({
@@ -46,6 +52,7 @@ export const getTripPlanById = async (
       });
     }
 
+<<<<<<< HEAD
     let isWishlisted = false;
 
     // Optional: check if userId is provided and valid
@@ -68,6 +75,14 @@ export const getTripPlanById = async (
     return res.status(500).json({
       success: false,
       message: (error as Error).message || "Server error",
+=======
+    return res.status(200).json({ success: true, tripPlan });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: (error as Error).message,
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     });
   }
 };

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+<<<<<<< HEAD
 import { Heart, HeartPlus } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useParams } from "next/navigation";
@@ -21,20 +22,47 @@ export const TripDetailPage = () => {
 
   const params = useParams();
   const { user } = useUser();
+=======
+import { Heart } from "lucide-react";
+import { toast } from "sonner";
+import { useParams } from "next/navigation";
+import { axiosInstance } from "@/lib/utils";
+import TourBookingPage from "./TourBookingPage";
+import TourMap from "./TourMap";
+import RoadRoute from "./RoadRoute";
+import { Activity } from "./Activity";
+import { TripItem } from "./Booking";
+
+export const TripDetailPage = () => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [trip, setTrip] = useState<TripItem>();
+  const [images, setImages] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const params = useParams();
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 
   const openDialog = (index: number) => {
     setCurrentIndex(index);
     dialogRef.current?.showModal();
   };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   const closeDialog = () => dialogRef.current?.close();
 
   const nextImage = () => {
     setCurrentIndex((prev) => (prev + 1) % images.length);
   };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   const prevImage = () => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+<<<<<<< HEAD
   // Call backend to add trip to wishlist
   const addTripToWishlist = async (tripId: string) => {
     try {
@@ -89,10 +117,15 @@ export const TripDetailPage = () => {
       console.error(err);
       toast.error("Серверийн алдаа: " + (err.message || "Тодорхойгүй алдаа"));
     }
+=======
+  const handleAddToWishlist = () => {
+    toast.success("Wishlist-д амжилттай нэмэгдлээ! 🎉");
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   };
 
   const fetchTrip = async () => {
     const tripId = params?.id as string;
+<<<<<<< HEAD
     const userId = user?.id;
 
     console.log("Fetching trip for:", tripId, "with user:", userId);
@@ -125,10 +158,38 @@ export const TripDetailPage = () => {
     } catch (error: any) {
       console.error("API fetch error:", error?.response?.data || error.message);
       toast.error("Алдаа гарлаа: " + (error.message || "Тодорхойгүй алдаа"));
+=======
+    if (!tripId) return console.warn("⛔ params.id байхгүй байна");
+
+    try {
+      const res = await axiosInstance.get(`/tripPlan/tripPlan/${tripId}`);
+
+      if (!res.data.success || !res.data.tripPlan) {
+        console.warn("⛔ Аялал олдсонгүй:", res.data.message);
+        toast.error("Аялал олдсонгүй: " + res.data.message);
+        return;
+      }
+
+      const tripData = res.data.tripPlan;
+      console.log("➡️ tripData:", tripData);
+      setTrip(tripData);
+
+      const imageData = tripData?.images;
+      if (imageData) {
+        setImages(Array.isArray(imageData) ? imageData : [imageData]);
+      }
+    } catch (error: any) {
+      console.error(
+        "❌ API fetch error:",
+        error?.response?.data || error.message
+      );
+      toast.error("Алдаа гарлаа: " + error?.message);
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     }
   };
 
   useEffect(() => {
+<<<<<<< HEAD
     if (user?.id && params?.id) {
       fetchTrip();
     }
@@ -158,6 +219,27 @@ export const TripDetailPage = () => {
             {isWishlisted ? "In wishlist" : "Add to wishlist"}
           </span>
         </button>
+=======
+    fetchTrip();
+  }, []);
+
+  return (
+    <div className="max-w-5xl p-4 mx-auto font-sans">
+      <h1 className="mb-2 text-3xl font-bold">{trip?.title || "Loading..."}</h1>
+
+      <div className="flex items-center gap-3 mb-4">
+        <div className="flex gap-4 ml-auto text-sm">
+          <button
+            onClick={handleAddToWishlist}
+            className="flex items-center gap-1 px-3 py-1 transition-all border border-gray-300 rounded-lg hover:bg-red-50 active:scale-95"
+          >
+            <Heart size={16} className="text-red-500" />
+            <span className="text-sm font-medium text-gray-700">
+              Add to wishlist
+            </span>
+          </button>
+        </div>
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       </div>
 
       {images.length > 0 ? (
@@ -197,21 +279,40 @@ export const TripDetailPage = () => {
         {trip?.about || "No trip description available."}
       </p>
 
+<<<<<<< HEAD
+=======
+      {/* Dialog for full-screen preview */}
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       <dialog
         ref={dialogRef}
         aria-modal="true"
         role="dialog"
+<<<<<<< HEAD
         className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]">
         <div className="relative flex items-center justify-center w-full h-full px-12">
           <button
             onClick={closeDialog}
             className="absolute z-20 flex items-center justify-center w-12 h-12 text-4xl text-white transition duration-200 rounded-full top-4 right-6 hover:text-gray-300 bg-black/40 hover:bg-black/60 backdrop-blur">
+=======
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]"
+      >
+        <div className="relative flex items-center justify-center w-full h-full px-12">
+          <button
+            onClick={closeDialog}
+            className="absolute z-20 flex items-center justify-center w-12 h-12 text-4xl text-white transition duration-200 rounded-full top-4 right-6 hover:text-gray-300 bg-black/40 hover:bg-black/60 backdrop-blur"
+          >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
             ×
           </button>
           <button
             onClick={prevImage}
             className="absolute left-0 z-30 px-3 py-2 text-3xl text-white transition duration-200 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur"
+<<<<<<< HEAD
             aria-label="Previous Image">
+=======
+            aria-label="Previous Image"
+          >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
             ‹
           </button>
           {images.length > 0 && (
@@ -224,7 +325,12 @@ export const TripDetailPage = () => {
           <button
             onClick={nextImage}
             className="absolute right-0 z-30 px-3 py-2 text-3xl text-white transition duration-200 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur"
+<<<<<<< HEAD
             aria-label="Next Image">
+=======
+            aria-label="Next Image"
+          >
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
             ›
           </button>
         </div>
@@ -232,8 +338,14 @@ export const TripDetailPage = () => {
 
       {/* Additional Components */}
       <Activity />
+<<<<<<< HEAD
       {trip && <TourBookingPage trip={trip} />}
       <Rout />
+=======
+      <TourBookingPage trip={trip!} />
+      <TourMap />
+      <RoadRoute />
+>>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     </div>
   );
 };
