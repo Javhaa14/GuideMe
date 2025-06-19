@@ -7,7 +7,7 @@ import {
   UserCheck,
   Users,
 } from "lucide-react";
-import { Sidebar, Statscard, ActivityItem, UserGrid } from "../components";
+import { Sidebar, Statscard, ActivityItem, UserGrid } from ".";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
