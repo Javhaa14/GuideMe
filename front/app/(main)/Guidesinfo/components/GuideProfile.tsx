@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { Guide } from "../page";
-
+import { io } from "socket.io-client";
 export const GuideProfile = ({
   id,
   name,
