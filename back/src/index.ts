@@ -204,9 +204,14 @@ If unrelated question, respond: "I'm here to help only with travel-related quest
   // Handle chat message using your controller
   socket.on("chat message", async (msg) => {
     try {
+      // Determine recipient from roomId
+      const participants = msg.roomId.split("-");
+      const recipientId = participants.find((id: string) => id !== msg.userId);
+
       await saveChatToDB({
         id: msg.id, // or msg.tempId if that's your client ID
-        user: msg.user,
+        user: msg.user, // sender's userId
+        receiver: recipientId, // receiver's userId
         text: msg.text,
         profileimage: msg.profileimage || null,
         roomId: msg.roomId,
@@ -216,9 +221,6 @@ If unrelated question, respond: "I'm here to help only with travel-related quest
       io.to(msg.roomId).emit("chat message", msg);
 
       // Notify recipient if they are not in the room
-      const participants = msg.roomId.split("-");
-      const recipientId = participants.find((id: string) => id !== msg.userId);
-
       if (recipientId) {
         const recipientSocket = [...io.sockets.sockets.values()].find(
           (s) => s.data?.userId === recipientId

@@ -58,7 +58,7 @@ export const MessengerButton = () => {
 
     const handleNotificationsSeen = (data: { senderId: string }) => {
       console.log("✅ Notifications seen from sender:", data.senderId);
-      fetchNotificationCount();
+      setNotificationCounts((prev) => ({ ...prev, [data.senderId]: 0 }));
     };
 
     socket.on("notify", handleNotify);
@@ -71,8 +71,43 @@ export const MessengerButton = () => {
     };
   }, [socket, isConnected, userId]);
 
+  // When sheet is opened, clear all notifications
+  useEffect(() => {
+    if (open && userId && socket) {
+      // Clear all notification counts
+      setNotificationCounts({});
+      // Emit notificationsSeen for all senders
+      Object.keys(notificationCounts).forEach((senderId) => {
+        socket.emit("markNotificationsSeen", { senderId, receiverId: userId });
+      });
+    }
+  }, [open, userId, socket]);
+
+  // Fetch chat rooms when sheet is opened
+  useEffect(() => {
+    const fetchChatRooms = async () => {
+      if (open && userId) {
+        setLoading(true);
+        try {
+          const res = await axiosInstance.get(`/chat/rooms/${userId}`);
+          if (res.data.success && res.data.rooms) {
+            setConversations(res.data.rooms);
+          } else {
+            setConversations([]);
+          }
+        } catch (err) {
+          setError("Failed to fetch chat list");
+          setConversations([]);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchChatRooms();
+  }, [open, userId]);
+
   const onSendMessage = async () => {
-    await fetchNotificationCount();
+    // No-op or you can refresh conversations if needed
   };
 
   const onConversationOpen = async (otherUserId: string) => {
@@ -99,11 +134,10 @@ export const MessengerButton = () => {
         <Button
           variant="ghost"
           className="relative rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-          aria-label="Open Messenger"
-        >
+          aria-label="Open Messenger">
           <MessageCircleMore className="h-5 w-5 text-gray-700 dark:text-gray-200" />
           {notificationCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full animate-bounce shadow-lg">
               {notificationCount}
             </span>
           )}
@@ -130,8 +164,7 @@ export const MessengerButton = () => {
             console.log("Current socket:", socket);
             console.log("Socket connected?", isConnected);
             console.log("Socket ID:", socket?.id);
-          }}
-        >
+          }}>
           Debug Socket
         </Button>
       </SheetContent>

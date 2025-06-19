@@ -17,12 +17,14 @@ dayjs.extend(localizedFormat);
 dayjs.extend(calendar);
 
 type ChatMessage = {
+  id?: string;
+  _id?: string;
   sender: string;
   text: string;
-  profileimage: string;
+  profileimage: string | null;
   roomId: string;
   receiver: string;
-  createdAt: Date;
+  createdAt: Date | string;
 };
 
 export type UserPayload = {
@@ -53,6 +55,8 @@ export default function Chat({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [isOtherTyping, setIsOtherTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Create a consistent roomId from sorted user IDs
   // Memoize roomId to ensure it doesn't change identity unless inputs change
@@ -66,7 +70,12 @@ export default function Chat({
 
     socket.emit("identify", user.id);
     socket.emit("joinRoom", roomId);
-  }, [socket, user.id, roomId]); // Now all primitive + stable
+    // Emit markNotificationsSeen to clear notifications for this chat
+    socket.emit("markNotificationsSeen", {
+      senderId: profileId,
+      receiverId: user.id,
+    });
+  }, [socket, user.id, roomId, profileId]);
 
   // Fetch chat history for the room
   useEffect(() => {
@@ -76,14 +85,18 @@ export default function Chat({
       try {
         const res = await axiosInstance.get(`/chat/history/${roomId}`);
         if (res.data.success) {
-          const msgs = res.data.messages.map((msg: any) => ({
-            id: msg._id || msg.id,
-            user: msg.user,
-            text: msg.text,
-            profileimage: msg.profileimage || null,
-            roomId: msg.roomId,
-            createdAt: msg.createdAt,
-          }));
+          const msgs = res.data.messages.map(
+            (msg: any) =>
+              ({
+                id: msg._id || msg.id,
+                sender: msg.sender,
+                receiver: msg.receiver,
+                text: msg.text,
+                profileimage: msg.profileimage || null,
+                roomId: msg.roomId,
+                createdAt: msg.createdAt,
+              } as ChatMessage)
+          );
           setMessages(msgs);
           scrollToBottom();
         }
@@ -124,10 +137,7 @@ export default function Chat({
     if (!socket) return;
 
     const handleIncomingMessage = (newMessage: ChatMessage) => {
-      setMessages((prev) => {
-        if (prev.some((msg) => msg.sender === newMessage.sender)) return prev;
-        return [...prev, newMessage];
-      });
+      setMessages((prev) => [...prev, newMessage]);
     };
 
     socket.on("chat message", handleIncomingMessage);
@@ -136,6 +146,27 @@ export default function Chat({
       socket.off("chat message", handleIncomingMessage);
     };
   }, [socket]);
+
+  // Listen for typing events
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleTyping = ({ user: typingUser }: { user: string }) => {
+      if (typingUser !== user.id) {
+        setIsOtherTyping(true);
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(
+          () => setIsOtherTyping(false),
+          2000
+        );
+      }
+    };
+    socket.on("typing", handleTyping);
+    return () => {
+      socket.off("typing", handleTyping);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    };
+  }, [socket, user.id]);
 
   // Send notification through REST API
   const fetchNotifications = async ({
@@ -170,12 +201,14 @@ export default function Chat({
 
     if (!input.trim() || !socket || !isConnected) return;
 
-    const messagePayload = {
+    const messagePayload: ChatMessage = {
       sender: user.id, // backend expects user ID
       receiver: profileId, // recipient ID
       text: input,
-      profileimage: profileimage,
+      profileimage: profileimage || null,
       roomId,
+      createdAt: new Date().toISOString(),
+      id: uuidv4(),
     };
 
     try {
@@ -186,20 +219,10 @@ export default function Chat({
       socket.emit("chat message", {
         ...messagePayload,
         user: username, // for frontend rendering
-        createdAt: new Date().toISOString(), // show timestamp immediately
-        id: uuidv4(), // temp ID for local use
       });
 
       // Optimistic UI update
-      setMessages((prev) => [
-        ...prev,
-        {
-          ...messagePayload,
-          user: username,
-          createdAt: new Date().toISOString(),
-          id: uuidv4(),
-        },
-      ]);
+      setMessages((prev) => [...prev, messagePayload]);
 
       // Send notification
       fetchNotifications({
@@ -214,20 +237,28 @@ export default function Chat({
     }
   };
 
+  // Emit typing event when user types
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+    if (socket && isConnected) {
+      socket.emit("typing", { roomId, user: user.id });
+    }
+  };
+
   return (
-    <div className="flex flex-col w-full bg-white relative">
+    <div className="flex flex-col w-full max-w-xl mx-auto bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 rounded-3xl shadow-2xl relative min-h-[500px] h-[500px]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 text-white">
+      <div className="bg-gradient-to-r from-blue-800 to-blue-700 p-6 text-white rounded-t-3xl shadow-md">
         <div className="flex flex-col items-start justify-between">
           {onlineUsers[profileId]?.isOnline ? (
             <div className="flex gap-2 items-center">
-              <span>Online</span>
-              <div className="flex w-3 h-3 rounded-full bg-white animate-pulse"></div>
+              <span className="font-semibold text-lg">Online</span>
+              <div className="flex w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
             </div>
           ) : (
             <div className="flex justify-between items-center w-full ">
-              <p className="text-gray-800">Offline</p>
-              <span className="text-sm">
+              <p className="text-gray-300 font-semibold">Offline</p>
+              <span className="text-sm text-gray-400">
                 Last seen {dayjs(onlineUsers[profileId]?.lastSeen).fromNow()}
               </span>
             </div>
@@ -236,18 +267,18 @@ export default function Chat({
       </div>
 
       {/* Messages */}
-      <div className="flex flex-col w-full h-[300px] scrollbar-hide overflow-scroll p-4 space-y-3 bg-gray-50">
+      <div className="flex flex-col w-full flex-1 h-[380px] scrollbar-hide overflow-y-auto p-6 space-y-5 bg-gradient-to-br from-blue-950 via-blue-900 to-blue-950 rounded-b-3xl">
         {messages.length === 0 && (
-          <div className="text-center text-gray-500 py-8">
-            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User size={24} className="text-gray-800" />
+          <div className="text-center text-gray-400 py-16">
+            <div className="w-20 h-20 bg-blue-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <User size={32} className="text-blue-300" />
             </div>
-            <p>No messages yet. Start the conversation!</p>
+            <p className="text-lg">No messages yet. Start the conversation!</p>
           </div>
         )}
 
         {messages.map((msg, i) => {
-          const isCurrentUser = msg.sender === username;
+          const isCurrentUser = msg.sender === user.id;
           const prevMsg = messages[i - 1];
           const currentTime = dayjs(msg.createdAt);
           const prevTime = prevMsg ? dayjs(prevMsg.createdAt) : null;
@@ -256,9 +287,9 @@ export default function Chat({
             i === 0 || !prevTime || currentTime.diff(prevTime, "minute") >= 5;
 
           return (
-            <div key={msg.sender || i}>
+            <div key={msg.id || msg._id || i}>
               {showTimestamp && (
-                <div className="text-center text-gray-400 text-xs py-2">
+                <div className="text-center text-blue-400 text-xs py-2">
                   {dayjs(msg.createdAt).format("MMM D, h:mm A")}
                 </div>
               )}
@@ -267,12 +298,9 @@ export default function Chat({
                 className={`flex ${
                   isCurrentUser ? "justify-end" : "justify-start"
                 }`}>
-                <div
-                  className="relative max-w-xs group"
-                  onMouseEnter={() => setHoveredIndex(i)}
-                  onMouseLeave={() => setHoveredIndex(null)}>
+                <div className="relative max-w-lg group">
                   <div
-                    className={`flex items-end gap-2 ${
+                    className={`flex items-end gap-3 ${
                       isCurrentUser ? "flex-row-reverse" : "flex-row"
                     }`}>
                     {/* Profile Image */}
@@ -281,35 +309,35 @@ export default function Chat({
                         <img
                           src={msg.profileimage}
                           alt="profile"
-                          className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
+                          className="w-10 h-10 rounded-full border-2 border-blue-700 shadow-md"
                         />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
-                          {msg.sender[0]?.toUpperCase()}
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-900 flex items-center justify-center text-white font-semibold text-lg shadow-md">
+                          {msg.sender?.slice(0, 2).toUpperCase()}
                         </div>
                       )}
                     </div>
 
                     {/* Message Bubble */}
                     <div
-                      className={`px-4 py-2 rounded-2xl shadow-sm ${
+                      className={`px-6 py-3 rounded-2xl shadow-lg text-base font-medium ${
                         isCurrentUser
-                          ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
-                          : "bg-white text-gray-800 border border-gray-200"
+                          ? "bg-gradient-to-r from-blue-700 to-blue-600 text-white"
+                          : "bg-blue-950 text-blue-100 border border-blue-800"
                       }`}>
-                      <p className="text-sm leading-relaxed">{msg.text}</p>
+                      <p className="leading-relaxed break-words">{msg.text}</p>
                     </div>
                   </div>
 
                   {/* Username Tooltip */}
                   {hoveredIndex === i && (
                     <div
-                      className={`absolute -top-8 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg z-50 whitespace-nowrap ${
+                      className={`absolute -top-10 px-3 py-1 bg-blue-800 text-white text-xs rounded-md shadow-lg z-50 whitespace-nowrap ${
                         isCurrentUser ? "right-0" : "left-0"
                       }`}>
                       {msg.sender}
                       <div
-                        className={`absolute top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800 ${
+                        className={`absolute top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-blue-800 ${
                           isCurrentUser ? "right-2" : "left-2"
                         }`}></div>
                     </div>
@@ -323,24 +351,29 @@ export default function Chat({
       </div>
 
       {/* Input */}
-      <div className="absolute px-4 bottom-3 border-t border-gray-200 bg-white w-full">
-        <form onSubmit={sendMessage} className="flex items-center gap-3">
+      <div className="absolute px-8 bottom-5 border-t border-blue-800 bg-gradient-to-r from-blue-900 to-blue-950 w-full rounded-b-3xl">
+        <form onSubmit={sendMessage} className="flex items-center gap-4 py-4">
           <div className="flex-1 relative">
             <input
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Мессеж бичих..."
-              className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50 transition-all"
+              onChange={handleInputChange}
+              placeholder="Type your message..."
+              className="w-full px-6 py-4 pr-16 border border-blue-800 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-blue-950 text-blue-100 placeholder-blue-400 text-lg shadow-md transition-all"
             />
           </div>
           <button
             type="submit"
             disabled={!input.trim()}
-            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg">
-            <Send size={18} />
+            className="w-14 h-14 bg-gradient-to-r from-blue-700 to-blue-600 text-white rounded-full flex items-center justify-center hover:from-blue-800 hover:to-blue-700 transition-all duration-200 shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg text-xl">
+            <Send size={22} />
           </button>
         </form>
+        {isOtherTyping && (
+          <div className="text-blue-300 text-sm mt-2 mb-1 animate-pulse">
+            The other user is typing...
+          </div>
+        )}
       </div>
     </div>
   );
