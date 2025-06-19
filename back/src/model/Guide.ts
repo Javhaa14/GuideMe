@@ -57,6 +57,7 @@ const guideschema = new mongoose.Schema({
   backgroundimage: String,
   experience: String,
   about: String,
+  slogan: String,
   SocialAddress: String,
   car: {
     type: String,

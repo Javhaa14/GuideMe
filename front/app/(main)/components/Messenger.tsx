@@ -34,51 +34,6 @@ export const MessengerButton = () => {
     0
   );
 
-  const fetchNotificationCount = async () => {
-    if (!userId) return;
-    try {
-      // Use the correct API endpoint here
-      const res = await axiosInstance.get(`/notif/unseen/${userId}`);
-      const notificationsArray = res.data || [];
-
-      const counts: Record<string, number> = {};
-      notificationsArray.forEach((notif: any) => {
-        const sender = notif.sender;
-        if (!counts[sender]) counts[sender] = 0;
-        counts[sender]++;
-      });
-
-      setNotificationCounts(counts);
-    } catch (error) {
-      console.error("❌ Failed to fetch notifications:", error);
-    }
-  };
-
-  const fetchConversations = async () => {
-    if (!userId) return;
-    setLoading(true);
-    try {
-      const res = await axiosInstance.get(`/api/chat/conversations/${userId}`);
-      if (res.data.success) {
-        setConversations(res.data.conversations);
-        setError(null);
-      } else {
-        setError("Failed to load conversations");
-      }
-    } catch {
-      setError("Failed to load conversations");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (userId) {
-      fetchNotificationCount();
-      fetchConversations();
-    }
-  }, [userId]);
-
   useEffect(() => {
     if (!socket || !isConnected || !userId) return;
 
@@ -144,7 +99,8 @@ export const MessengerButton = () => {
         <Button
           variant="ghost"
           className="relative rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-          aria-label="Open Messenger">
+          aria-label="Open Messenger"
+        >
           <MessageCircleMore className="h-5 w-5 text-gray-700 dark:text-gray-200" />
           {notificationCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
@@ -174,7 +130,8 @@ export const MessengerButton = () => {
             console.log("Current socket:", socket);
             console.log("Socket connected?", isConnected);
             console.log("Socket ID:", socket?.id);
-          }}>
+          }}
+        >
           Debug Socket
         </Button>
       </SheetContent>

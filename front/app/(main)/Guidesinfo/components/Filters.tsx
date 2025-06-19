@@ -29,7 +29,7 @@ const initialFilters: Filters = {
   language: [],
 };
 
-export const Filters2 = ({ guides }: { guides: Guide[] }) => {
+export const Filters = ({ guides }: { guides: Guide[] }) => {
   const { filteredData, setFilteredData } = useFilteredData();
   const { priceRange, setPriceRange } = usePriceRange();
   const { searchedValue, setSearchedValue } = useSearchLocation();
@@ -115,7 +115,9 @@ export const Filters2 = ({ guides }: { guides: Guide[] }) => {
   }, [guides, filters, searchedValue, priceRange, reviewNumber]);
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col border-[3px] border-gray-200 rounded-md p-4 gap-6 w-fit">
+      <h2 className="text-amber-800 text-xl font-semibold">Filters</h2>
+
       {/* Location Filter */}
       <div className="border rounded-lg p-4 shadow-sm">
         <h3 className="font-medium text-gray-900 mb-2">Location</h3>
@@ -128,13 +130,30 @@ export const Filters2 = ({ guides }: { guides: Guide[] }) => {
 
       {/* Price Filter */}
       <div className="border rounded-lg p-4 shadow-sm">
-        {/* <h3 className="font-medium text-gray-900 mb-2">Price Range</h3> */}
         <PriceFilterCard />
       </div>
 
       {/* Experience Filter */}
       <div className="border rounded-lg p-4 shadow-sm space-y-2">
         <h3 className="font-medium text-gray-900">Experience</h3>
+
+        {/* Selected tags */}
+        <div className="flex flex-wrap gap-2 mt-2">
+          {filters.experience.map((exp) => (
+            <span
+              key={exp}
+              className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+            >
+              {experience.map((el) => {
+                if (el.experienceNumber === exp) {
+                  return el.experience;
+                }
+              })}
+              <button onClick={() => removeTag("experience", exp)}>×</button>
+            </span>
+          ))}
+        </div>
+
         <div className="space-y-2">
           {experience.map((exp) => (
             <label key={exp.id} className="flex items-center gap-2">
@@ -148,23 +167,24 @@ export const Filters2 = ({ guides }: { guides: Guide[] }) => {
             </label>
           ))}
         </div>
-        {/* Selected tags */}
-        <div className="flex flex-wrap gap-2 mt-2">
-          {filters.experience.map((exp) => (
-            <span
-              key={exp}
-              className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center gap-1"
-            >
-              {exp}
-              <button onClick={() => removeTag("experience", exp)}>×</button>
-            </span>
-          ))}
-        </div>
       </div>
 
       {/* Language Filter */}
       <div className="border rounded-lg p-4 shadow-sm space-y-2">
         <h3 className="font-medium text-gray-900">Language</h3>
+
+        {/* Selected tags */}
+        <div className="flex flex-wrap gap-2 mt-2">
+          {filters.language.map((lang) => (
+            <span
+              key={lang}
+              className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+            >
+              {lang}
+              <button onClick={() => removeTag("language", lang)}>×</button>
+            </span>
+          ))}
+        </div>
 
         {/* First 6 Languages */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -190,7 +210,7 @@ export const Filters2 = ({ guides }: { guides: Guide[] }) => {
           onValueChange={(value) => setIsExpanded(value === "more-languages")}
         >
           <AccordionItem value="more-languages">
-            <AccordionTrigger className="flex items-center gap-1 text-sm text-blue-600 hover:underline px-0 group">
+            <AccordionTrigger className="flex items-center gap-1 text-sm text-amber-900 hover:underline px-0 group">
               {isExpanded ? "Show Less Languages" : "Show More Languages"}
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-300 ${
@@ -215,32 +235,17 @@ export const Filters2 = ({ guides }: { guides: Guide[] }) => {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-
-        {/* Selected tags */}
-        <div className="flex flex-wrap gap-2 mt-2">
-          {filters.language.map((lang) => (
-            <span
-              key={lang}
-              className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center gap-1"
-            >
-              {lang}
-              <button onClick={() => removeTag("language", lang)}>×</button>
-            </span>
-          ))}
-        </div>
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-between items-center mt-4">
-        <Button variant="outline" onClick={handleAllClearButton}>
-          Clear All Filters
-        </Button>
+      <div className="flex justify-end items-center mt-4">
         <Button
           variant="ghost"
-          className="text-fuchsia-600 flex items-center gap-1"
+          className="text-amber-800 font-semibold flex items-center gap-1"
+          onClick={handleAllClearButton}
         >
           <RefreshCw className="w-4 h-4" />
-          Update Filters
+          Clear Filters
         </Button>
       </div>
     </div>

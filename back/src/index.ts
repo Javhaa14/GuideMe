@@ -7,8 +7,6 @@ import { v4 } from "uuid";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import jwt, { JwtPayload } from "jsonwebtoken";
-
 import { postRouter } from "./routes/post";
 import { connectMongoDB } from "./connectDB";
 import { touristRouter } from "./routes/touristProfile";
@@ -16,18 +14,22 @@ import { userRouter } from "./routes/user";
 import { authRouter } from "./routes/auth";
 import { commentRouter } from "./routes/comments";
 import { guideRouter } from "./routes/guideProfile";
-
 import { Onlinerouter } from "./routes/online";
-import { ChatMessageModel } from "./model/ChatHistory";
 import tripPlanRouter from "./routes/tripPlan";
 import { Notifrouter } from "./routes/notificationSMS";
 import { Notification } from "./model/notification";
 import { Bookingrouter } from "./routes/tripbook";
-import wishlistRouter from "./routes/Wish";
+import { wishlistRouter } from "./routes/wish";
+import { Chatrouter } from "./routes/chat";
+import { getChatHistoryByRoomId, saveChatMessage } from "./controller/chat";
+import { saveChatToDB } from "./controller/chatLogic";
+
+// Import your chat controllers
 
 declare module "socket.io" {
   interface Socket {
     userId?: string;
+    currentRoom?: string;
   }
 }
 dotenv.config();
@@ -64,31 +66,27 @@ app.use("/api", Onlinerouter);
 app.use("/notif", Notifrouter);
 app.use("/bookings", Bookingrouter);
 app.use("/wishlist", wishlistRouter);
+app.use("/chat", Chatrouter);
 
 ////////////////////////////////////////////////////////////////
 // QR Payment system using Socket.IO
-// Map paymentId => Set of socket IDs watching that payment
 const paymentWatchers: Record<string, Set<string>> = {};
 
-// Endpoint to generate QR code for payment
 app.get("/", async (_req: Request, res: Response) => {
   const id = v4();
   const baseUrl = "https://guideme-8o9f.onrender.com";
 
   const qr = await QRcode.toDataURL(`${baseUrl}/scanqr?id=${id}`);
 
-  // Initialize the payment as not scanned yet (optional tracking)
   res.send({ qr, id });
 });
 
-// Endpoint called when QR code is scanned
 app.get("/scanqr", (req, res: any) => {
   const { id } = req.query;
   if (typeof id !== "string") {
     return res.status(400).send("Missing or invalid id");
   }
 
-  // Notify all watchers of this paymentId via Socket.IO
   const watchers = paymentWatchers[id];
   if (watchers) {
     watchers.forEach((socketId) => {
@@ -122,19 +120,15 @@ io.on("connection", (socket) => {
   let chatHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
   console.log(`🔌 Socket connected: ${socket.id}`);
 
-  // --- QR payment watch handling ---
-
-  // Client asks to watch a payment by id
+  // QR payment watchers logic (unchanged)
   socket.on("watchPayment", (paymentId: string) => {
     if (!paymentWatchers[paymentId]) paymentWatchers[paymentId] = new Set();
     paymentWatchers[paymentId].add(socket.id);
     console.log(`Socket ${socket.id} is watching payment ${paymentId}`);
   });
 
-  // When socket disconnects, remove from all payment watchers
   socket.on("disconnect", () => {
     chatHistory = [];
-
     for (const [paymentId, watchers] of Object.entries(paymentWatchers)) {
       if (watchers.has(socket.id)) {
         watchers.delete(socket.id);
@@ -146,10 +140,10 @@ io.on("connection", (socket) => {
         }
       }
     }
+    console.log(`❌ Socket disconnected: ${socket.id}`);
   });
 
-  // --- AI Chatbot ---
-
+  // AI Chatbot logic (unchanged)
   socket.on("ai chatbot", async (msg: string) => {
     chatHistory.push({ role: "user", content: msg });
 
@@ -157,10 +151,9 @@ io.on("connection", (socket) => {
       role: "system",
       content: `
 You are an AI assistant for the GuideMe website. 
-Only provide information related to travel, destinations, hotels, transportation, and travel tips that are relevant to the GuideMe platform.
-And it can be in any language—first detect which language it is, then respond accordingly.
-If a question is unrelated (like programming, celebrities, or personal advice), respond with: 
-"I'm here to help only with travel-related questions on GuideMe."`,
+Only provide information related to travel, destinations, hotels, transportation, and travel tips relevant to the GuideMe platform.
+Detect language and respond accordingly.
+If unrelated question, respond: "I'm here to help only with travel-related questions on GuideMe."`,
     };
 
     try {
@@ -179,108 +172,75 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
     }
   });
 
-  // --- Chat room join ---
+  // User identification & room joining
   socket.on("identify", (userId) => {
     socket.data.userId = userId;
-    socket.join(userId); // Optional: join a personal room by userId
+    socket.join(userId);
     console.log(`✅ Socket ${socket.id} identified as user ${userId}`);
   });
 
-  // Join notification room
   socket.on("joinNotificationRoom", (userId: string) => {
     socket.join(`notify_${userId}`);
     console.log(`🔔 User ${userId} joined notify_${userId}`);
-
-    // Debug: List all socket rooms
-    setTimeout(() => {
-      console.log(`🧠 Socket ${socket.id} rooms:`, [...socket.rooms]);
-    }, 1000); // wait a sec to allow join
   });
 
-  // Join chat room
-  socket.on("joinRoom", (roomId) => {
+  socket.on("joinRoom", (roomId: string) => {
     socket.join(roomId);
     socket.data.currentRoom = roomId;
     console.log(`👥 Socket ${socket.id} joined room ${roomId}`);
   });
 
-  // Leave chat room
-  socket.on("leaveRoom", (roomId) => {
+  socket.on("leaveRoom", (roomId: string) => {
     socket.leave(roomId);
+    delete socket.data.currentRoom;
     console.log(`🚪 Socket ${socket.id} left room ${roomId}`);
   });
+
   socket.on("markNotificationsSeen", ({ senderId, receiverId }) => {
-    if (!senderId || !receiverId) return; // avoid undefined values
+    if (!senderId || !receiverId) return;
     io.to(`notify_${receiverId}`).emit("notificationsSeen", { senderId });
   });
 
-  // Handle incoming chat message
+  // Handle chat message using your controller
   socket.on("chat message", async (msg) => {
-    console.log("📩 Message received:", msg);
-
     try {
-      // Save message to DB (replace with your DB code)
-      const savedMessage = await ChatMessageModel.create({
+      await saveChatToDB({
+        id: msg.id, // or msg.tempId if that's your client ID
         user: msg.user,
-        userId: msg.userId,
         text: msg.text,
-        profileimage: msg.profileimage,
+        profileimage: msg.profileimage || null,
         roomId: msg.roomId,
-        // timestamp will be added automatically
+        createdAt: msg.createdAt,
       });
+      // Just broadcast to the room. Don't save in DB here.
+      io.to(msg.roomId).emit("chat message", msg);
 
-      if (!savedMessage) {
-        throw new Error("Failed to save message");
-      }
+      // Notify recipient if they are not in the room
+      const participants = msg.roomId.split("-");
+      const recipientId = participants.find((id: string) => id !== msg.userId);
 
-      // Emit message to the chat room
-      io.to(msg.roomId).emit("chat message", savedMessage);
+      if (recipientId) {
+        const recipientSocket = [...io.sockets.sockets.values()].find(
+          (s) => s.data?.userId === recipientId
+        );
+        const isViewingChat = recipientSocket?.data?.currentRoom === msg.roomId;
 
-      // Determine recipient userId
-      const [userA, userB] = msg.roomId.split("-");
-      const recipientId = msg.userId === userA ? userB : userA;
-
-      // Save notification in DB (replace with your DB code)
-      await Notification.create({
-        sender: msg.userId,
-        receiver: recipientId,
-        messageId: savedMessage._id,
-        roomId: msg.roomId,
-        seen: false,
-      });
-
-      // Find recipient's socket to check current room
-      const recipientSocket = [...io.sockets.sockets.values()].find(
-        (s) => s.data?.userId === recipientId
-      );
-
-      const isViewingChat = recipientSocket?.data?.currentRoom === msg.roomId;
-
-      console.log(`Checking if should notify recipient ${recipientId}`);
-      console.log(`Is viewing chat: ${isViewingChat}`);
-      console.log(`Is sender: ${recipientId === msg.userId}`);
-
-      if (!isViewingChat && recipientId !== msg.userId) {
-        console.log(`📣 Emitting to notify_${recipientId}`);
-        io.to(`notify_${recipientId}`).emit("notify", {
-          title: "New Message",
-          message: `${msg.user} sent you a message`,
-          roomId: msg.roomId,
-          senderId: msg.userId,
-          type: "message",
-        });
-      } else {
-        console.log("🔕 No notification sent (user is in room or is sender)");
+        if (!isViewingChat && recipientId !== msg.userId) {
+          io.to(`notify_${recipientId}`).emit("notify", {
+            title: "New Message",
+            message: `${msg.user} sent you a message`,
+            roomId: msg.roomId,
+            senderId: msg.userId,
+            type: "message",
+          });
+        }
       }
     } catch (err) {
       console.error("❌ Failed to process chat message:", err);
     }
   });
-
-  // Handle disconnect cleanup if needed
-  socket.on("disconnect", () => {
-    console.log(`❌ Socket disconnected: ${socket.id}`);
-    // You can remove socket from any tracking str
+  socket.on("typing", ({ roomId, user }) => {
+    socket.to(roomId).emit("typing", { user });
   });
 });
 

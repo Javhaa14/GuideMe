@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera } from "lucide-react";
+import { Camera, Quote } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -53,6 +53,7 @@ export interface TouristProfile {
   price?: string;
   experience?: string;
   about?: string;
+  slogan?: string;
   activities?: string[];
   car?: boolean;
 }
@@ -71,6 +72,7 @@ const formSchema = z.object({
   price: z.string().min(1, "Price is required"),
   experience: z.string().min(1, "Experience is required"),
   about: z.string().min(1, "About is required"),
+  slogan: z.string().min(1, "Slogan is required"),
   activities: z
     .array(z.string())
     .min(1, { message: "Select at least one activity" }),
@@ -81,16 +83,16 @@ export function GProfile() {
   const { user } = useUser();
   const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
-  const [result, setResult] = useState<string[]>([]);
-
   const [cityOptions, setCityOptions] = useState<OptionType[]>([]);
-  const [selectedcity, setSelectedcity] = useState<string>("");
 
   const [languageOptions, setLanguageOptions] = useState<OptionType[]>([]);
   const [tourist, setTourist] = useState<TouristProfile>();
   const { searchedValue, setSearchedValue } = useSearchLocation();
 
   const router = useRouter();
+  const handleSubmitButton = () => {
+    router.push("/");
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -106,6 +108,7 @@ export function GProfile() {
       price: "",
       experience: "",
       about: "",
+      slogan: "",
       activities: [],
       car: false,
     },
@@ -157,36 +160,37 @@ export function GProfile() {
     loadData();
   }, [user]);
 
-  useEffect(() => {
-    const fetchCities = async (countryName: string) => {
-      if (!countryName) return;
+  // useEffect(() => {
+  //   const fetchCities = async (countryName: string) => {
+  //     if (!countryName) return;
 
-      try {
-        const res = await axios.post(
-          "https://countriesnow.space/api/v0.1/countries/cities",
-          {
-            country: countryName,
-          }
-        );
+  //     try {
+  //       const res = await axios.post(
+  //         "https://countriesnow.space/api/v0.1/countries/cities",
+  //         {
+  //           country: countryName,
+  //         }
+  //       );
 
-        const options: OptionType[] = res.data.data
-          .sort((a: string, b: string) => a.localeCompare(b))
-          .map((city: string) => ({
-            label: city,
-            value: city,
-          }));
+  //       const options: OptionType[] = res.data.data
+  //         .sort((a: string, b: string) => a.localeCompare(b))
+  //         .map((city: string) => ({
+  //           label: city,
+  //           value: city,
+  //         }));
 
-        setCityOptions(options);
-      } catch (error) {
-        console.error("Failed to fetch cities", error);
-      }
-    };
-    fetchCities(selectedCountry);
-  }, [selectedCountry]);
+  //       setCityOptions(options);
+  //     } catch (error) {
+  //       console.error("Failed to fetch cities", error);
+  //     }
+  //   };
+  //   fetchCities(selectedCountry);
+  // }, [selectedCountry]);
+
   useEffect(() => {
     if (tourist) {
-      const [city = "", country = ""] =
-        tourist.location?.split(",").map((x) => x.trim()) ?? [];
+      // const [city = "", country = ""] =
+      //   tourist.location?.split(",").map((x) => x.trim()) ?? [];
 
       form.reset({
         username: user?.name || "",
@@ -200,12 +204,13 @@ export function GProfile() {
         price: tourist.price || "",
         experience: tourist.experience || "",
         about: tourist.about || "",
+        slogan: tourist.slogan || "",
         activities: tourist.activities || [],
         car: tourist.car || false,
       });
 
-      if (country) {
-      }
+      // if (country) {
+      // }
     }
   }, [tourist]);
 
@@ -237,6 +242,7 @@ export function GProfile() {
       socialAddress: values.socialAddress,
       location: searchedValue,
       about: values.about,
+      slogan: values.slogan,
       gender: values.gender,
       profileimage: values.profileimage,
       backgroundimage: values.backgroundimage,
@@ -260,18 +266,24 @@ export function GProfile() {
 
   const activityOptions: OptionType[] = [
     { value: "hiking", label: "Hiking" },
-    { value: "city-tour", label: "City Tour" },
-    { value: "museums", label: "Museums" },
-    { value: "food", label: "Food" },
+    { value: "citytour", label: "City Tour" },
+    { value: "food", label: "Eat & Drinks" },
     { value: "shopping", label: "Shopping" },
+    { value: "sightseeing", label: "Sightseeing" },
+    { value: "stargazing", label: "Stargazing" },
+    { value: "festivals", label: "Festivals" },
+    { value: "local", label: "Local Experiences" },
+    { value: "religious", label: "Religious Sites" },
   ];
+
   if (!user) return <p>Loading user...</p>;
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full h-full gap-5 p-5 justify-center items-center">
+        className="flex flex-col w-full h-full gap-5 p-5 justify-center items-center"
+      >
         <p className="text-[16px] font-bold self-start">
           Complete your guide profile page, {user?.name}
         </p>
@@ -322,6 +334,25 @@ export function GProfile() {
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Slogan */}
+            <FormField
+              control={form.control}
+              name="slogan"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  <FormLabel>Slogan</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="w-[400px] h-[40px]"
+                      placeholder="Your Slogan"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className="absolute top-17" />
                 </FormItem>
               )}
             />
@@ -384,7 +415,8 @@ export function GProfile() {
                     <FormControl>
                       <Select
                         value={field.value}
-                        onValueChange={field.onChange}>
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger className="w-full h-[40px]">
                           <SelectValue placeholder="Select your gender" />
                         </SelectTrigger>
@@ -487,114 +519,6 @@ export function GProfile() {
               placeholder="Search and select a city"
               className="w-full border solid border-[#d4d4d4] rounded-[10px] h-[40px] px-3 py-2 text-sm bg-[#fff]"
             />
-
-            {/* <div className="flex w-full gap-4 justify-between">
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field: { onChange, value } }) => (
-                  <FormItem className="w-[207px]">
-                    <FormLabel>Country</FormLabel>
-                    <FormControl>
-                      <SingleSelect
-                        styles={{
-                          valueContainer: (base) => ({
-                            ...base,
-                          }),
-                          control: (base) => ({
-                            ...base,
-                            backgroundColor: "#f0f0f0", // Custom background color
-                            borderRadius: "8px", // Custom border radius
-                            borderColor: "white", // Custom border color
-                            padding: "", // Custom padding
-                            boxShadow: "none", // Remove default box shadow
-                            "&:hover": {
-                              borderColor: "gray-500", // Change border color on hover
-                            },
-                          }),
-                          option: (base) => ({
-                            ...base,
-                            padding: "10px 15px", // Custom padding for options
-                            backgroundColor: "white", // Default background for options
-                            color: "black", // Default text color
-                            cursor: "pointer", // Pointer cursor
-                            "&:hover": {
-                              backgroundColor: "black", // Light blue background on hover
-                              color: "white", // Text color on hover
-                              borderColor: "#4C9AFF", // Border color on hover (though border doesn't show in options)
-                            },
-                          }),
-                        }}
-                        options={countryOptions}
-                        value={
-                          countryOptions.find((opt) => opt.value === value) ||
-                          null
-                        }
-                        onChange={(newVal) => {
-                          onChange(newVal ? newVal.value : "");
-                          setSelectedCountry(newVal ? newVal.value : "");
-                        }}
-                        placeholder="Select a country"
-                        className="text-sm text-gray-700 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field: { onChange, value } }) => (
-                  <FormItem className="w-[207px]">
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <SingleSelect
-                        styles={{
-                          valueContainer: (base) => ({
-                            ...base,
-                          }),
-                          control: (base) => ({
-                            ...base,
-                            backgroundColor: "#f0f0f0", // Custom background color
-                            borderRadius: "8px", // Custom border radius
-                            borderColor: "white", // Custom border color
-                            padding: "", // Custom padding
-                            boxShadow: "none", // Remove default box shadow
-                            "&:hover": {
-                              borderColor: "gray-500", // Change border color on hover
-                            },
-                          }),
-                          option: (base) => ({
-                            ...base,
-                            padding: "10px 15px", // Custom padding for options
-                            backgroundColor: "white", // Default background for options
-                            color: "black", // Default text color
-                            cursor: "pointer", // Pointer cursor
-                            "&:hover": {
-                              backgroundColor: "black", // Light blue background on hover
-                              color: "white", // Text color on hover
-                              borderColor: "#4C9AFF", // Border color on hover (though border doesn't show in options)
-                            },
-                          }),
-                        }}
-                        options={cityOptions}
-                        value={
-                          cityOptions.find((opt) => opt.value === value) || null
-                        }
-                        onChange={(newVal) => {
-                          onChange(newVal ? newVal.value : "");
-                          setSelectedcity(newVal ? newVal.value : "");
-                        }}
-                        placeholder="Select a city"
-                        className="text-sm text-gray-700 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div> */}
 
             {/* Price and Car */}
             <div className="flex gap-4 items-center">
@@ -804,7 +728,8 @@ export function GProfile() {
               <Button
                 variant="outline"
                 type="submit"
-                className="w-[200px] mt-8 bg-zinc-200 hover:bg-white">
+                className="w-[200px] mt-8 bg-zinc-200 hover:bg-white"
+              >
                 Save Profile
               </Button>
             </div>
