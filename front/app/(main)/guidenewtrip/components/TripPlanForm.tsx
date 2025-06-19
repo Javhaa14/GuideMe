@@ -107,7 +107,7 @@ export default function TripPlanForm() {
 
       setTimeout(() => {
         router.push(`/Guidedetail/${user.id}`);
-      }, 2000);
+      }, 5000);
     } catch (error) {
       console.error("Error creating trip plan:", error);
       toast("Error", {

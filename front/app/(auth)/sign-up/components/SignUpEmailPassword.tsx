@@ -65,7 +65,8 @@ const FloatingStars = ({ count = 20 }: { count?: number }) => {
             top: star.top,
             animationDelay: star.delay,
             animationDuration: star.duration,
-          }}>
+          }}
+        >
           <Star className="w-2 h-2 text-white/20" />
         </div>
       ))}
@@ -142,7 +143,8 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-6">
+            className="flex flex-col gap-6"
+          >
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-white">
                 Welcome, {username}
@@ -194,7 +196,8 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Create Account
               </Button>
             </CardFooter>
@@ -207,10 +210,11 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
             <Button
               variant="outline"
               className="flex items-center gap-2"
-              onClick={() => handleSocialSignIn("google")}>
+              onClick={() => handleSocialSignIn("google")}
+            >
               {/* Use an icon if you have */}
               <img
-                src="/icons/google.svg"
+                src="/google.png"
                 alt="Google"
                 className="w-5 h-5"
                 loading="lazy"
