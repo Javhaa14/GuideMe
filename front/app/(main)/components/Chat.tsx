@@ -137,7 +137,7 @@ export default function Chat({
       tempId,
       user: username,
       text: input,
-      profileimage,
+      profileimage: profileimage,
       roomId,
       createdAt: new Date().toISOString(),
       userId: user.id,
@@ -145,6 +145,7 @@ export default function Chat({
 
     // Emit via socket.io to backend for real-time update
     socket.emit("chat message", messagePayload);
+    console.log(messagePayload);
 
     // Also send a notification through your REST API
     fetchNotifications({
@@ -156,6 +157,7 @@ export default function Chat({
     // Clear input field
     setInput("");
   };
+  console.log(messages, "messages");
 
   return (
     <div className="flex flex-col w-full bg-white">
