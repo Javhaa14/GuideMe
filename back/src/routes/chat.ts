@@ -9,7 +9,7 @@ import {
 } from "../controller/chat";
 
 export const Chatrouter = express.Router();
-Chatrouter.post("/message", saveChatMessage as any)
+Chatrouter.post("/", saveChatMessage as any)
   .get("/history/:roomId", getChatHistoryByRoomId as any)
   .post("/mark-seen", markMessagesSeen as any)
   .delete("/delete", deleteChatMessage as any)

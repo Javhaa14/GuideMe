@@ -1,31 +1,28 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { Send, User } from "lucide-react";
-import io from "socket.io-client";
-import { axiosInstance } from "@/lib/utils";
+import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useParams } from "next/navigation";
-import { OnlineUsers } from "../Touristdetail/components/TouristMainProfile";
-import { v4 as uuidv4 } from "uuid";
-import calendar from "dayjs/plugin/calendar";
-
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { fetchTProfile } from "@/app/utils/fetchProfile";
+import calendar from "dayjs/plugin/calendar";
+import { axiosInstance } from "@/lib/utils";
 import { useSocket } from "@/app/context/SocketContext";
+import { fetchTProfile } from "@/app/utils/fetchProfile";
+
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 dayjs.extend(calendar);
 
 type ChatMessage = {
-  id: string;
-  user: string;
+  sender: string;
   text: string;
-  profileimage: string | null;
+  profileimage: string;
   roomId: string;
-  createdAt: string;
+  receiver: string;
+  createdAt: Date;
 };
 
 export type UserPayload = {
@@ -34,18 +31,20 @@ export type UserPayload = {
   role: string;
   email: string;
 };
+
 export default function Chat({
   user,
   onlineUsers,
   profileId,
 }: {
   user: UserPayload;
-  onlineUsers: OnlineUsers;
+  onlineUsers: Record<string, { isOnline: boolean; lastSeen: string }>;
   profileId: string;
 }) {
   if (!profileId) {
     return <p>User ID not found in URL params.</p>;
   }
+
   const { socket, isConnected } = useSocket();
 
   const [username, setUsername] = useState("");
@@ -54,11 +53,22 @@ export default function Chat({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const roomId = [profileId, user.id].sort().join("-");
 
-  if (!user) {
-    return <p>Loading user...</p>;
-  }
+  // Create a consistent roomId from sorted user IDs
+  // Memoize roomId to ensure it doesn't change identity unless inputs change
+  const roomId = useMemo(
+    () => [profileId, user.id].sort().join("-"),
+    [profileId, user.id]
+  );
+
+  useEffect(() => {
+    if (!socket || !user?.id || !roomId) return;
+
+    socket.emit("identify", user.id);
+    socket.emit("joinRoom", roomId);
+  }, [socket, user.id, roomId]); // Now all primitive + stable
+
+  // Fetch chat history for the room
   useEffect(() => {
     if (!roomId) return;
 
@@ -66,7 +76,7 @@ export default function Chat({
       try {
         const res = await axiosInstance.get(`/chat/history/${roomId}`);
         if (res.data.success) {
-          const messages = res.data.messages.map((msg: any) => ({
+          const msgs = res.data.messages.map((msg: any) => ({
             id: msg._id || msg.id,
             user: msg.user,
             text: msg.text,
@@ -74,7 +84,8 @@ export default function Chat({
             roomId: msg.roomId,
             createdAt: msg.createdAt,
           }));
-          setMessages(messages);
+          setMessages(msgs);
+          scrollToBottom();
         }
       } catch (err) {
         console.error("Failed to fetch chat history", err);
@@ -84,12 +95,11 @@ export default function Chat({
     fetchChatHistory();
   }, [roomId]);
 
+  // Fetch user profile info (name + profile image)
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const tpro = await fetchTProfile(user.id);
-        console.log("Fetched profile image:", tpro.profileimage);
-
         setUsername(user.name);
         setProfileImage(tpro.profileimage);
       } catch (error) {
@@ -99,6 +109,35 @@ export default function Chat({
 
     fetchProfile();
   }, [user]);
+
+  // Scroll chat to bottom on new messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Listen for new incoming chat messages
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleIncomingMessage = (newMessage: ChatMessage) => {
+      setMessages((prev) => {
+        if (prev.some((msg) => msg.sender === newMessage.sender)) return prev;
+        return [...prev, newMessage];
+      });
+    };
+
+    socket.on("chat message", handleIncomingMessage);
+
+    return () => {
+      socket.off("chat message", handleIncomingMessage);
+    };
+  }, [socket]);
+
+  // Send notification through REST API
   const fetchNotifications = async ({
     senderId,
     receiverId,
@@ -125,42 +164,58 @@ export default function Chat({
     }
   };
 
-  const sendMessage = (e: React.FormEvent) => {
+  // Handle send message submit
+  const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!input.trim() || !socket || !isConnected) return;
 
-    const tempId = uuidv4();
-
     const messagePayload = {
-      id: tempId,
-      tempId,
-      user: username,
+      sender: user.id, // backend expects user ID
+      receiver: profileId, // recipient ID
       text: input,
       profileimage: profileimage,
       roomId,
-      createdAt: new Date().toISOString(),
-      userId: user.id,
     };
 
-    // Emit via socket.io to backend for real-time update
-    socket.emit("chat message", messagePayload);
-    console.log(messagePayload);
+    try {
+      // Save message to DB
+      await axiosInstance.post(`/chat`, messagePayload);
 
-    // Also send a notification through your REST API
-    fetchNotifications({
-      senderId: user.id,
-      receiverId: profileId,
-      message: messagePayload.text,
-    });
+      // Emit real-time socket event
+      socket.emit("chat message", {
+        ...messagePayload,
+        user: username, // for frontend rendering
+        createdAt: new Date().toISOString(), // show timestamp immediately
+        id: uuidv4(), // temp ID for local use
+      });
 
-    // Clear input field
-    setInput("");
+      // Optimistic UI update
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...messagePayload,
+          user: username,
+          createdAt: new Date().toISOString(),
+          id: uuidv4(),
+        },
+      ]);
+
+      // Send notification
+      fetchNotifications({
+        senderId: user.id,
+        receiverId: profileId,
+        message: input,
+      });
+
+      setInput("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
   };
-  console.log(messages, "messages");
 
   return (
-    <div className="flex flex-col w-full bg-white">
+    <div className="flex flex-col w-full bg-white relative">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 text-white">
         <div className="flex flex-col items-start justify-between">
@@ -192,7 +247,7 @@ export default function Chat({
         )}
 
         {messages.map((msg, i) => {
-          const isCurrentUser = msg.user === username;
+          const isCurrentUser = msg.sender === username;
           const prevMsg = messages[i - 1];
           const currentTime = dayjs(msg.createdAt);
           const prevTime = prevMsg ? dayjs(prevMsg.createdAt) : null;
@@ -201,7 +256,7 @@ export default function Chat({
             i === 0 || !prevTime || currentTime.diff(prevTime, "minute") >= 5;
 
           return (
-            <div key={msg.id || i}>
+            <div key={msg.sender || i}>
               {showTimestamp && (
                 <div className="text-center text-gray-400 text-xs py-2">
                   {dayjs(msg.createdAt).format("MMM D, h:mm A")}
@@ -211,18 +266,15 @@ export default function Chat({
               <div
                 className={`flex ${
                   isCurrentUser ? "justify-end" : "justify-start"
-                }`}
-              >
+                }`}>
                 <div
                   className="relative max-w-xs group"
                   onMouseEnter={() => setHoveredIndex(i)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                >
+                  onMouseLeave={() => setHoveredIndex(null)}>
                   <div
                     className={`flex items-end gap-2 ${
                       isCurrentUser ? "flex-row-reverse" : "flex-row"
-                    }`}
-                  >
+                    }`}>
                     {/* Profile Image */}
                     <div className="flex-shrink-0">
                       {msg.profileimage ? (
@@ -233,7 +285,7 @@ export default function Chat({
                         />
                       ) : (
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
-                          {msg.user[0]?.toUpperCase()}
+                          {msg.sender[0]?.toUpperCase()}
                         </div>
                       )}
                     </div>
@@ -244,8 +296,7 @@ export default function Chat({
                         isCurrentUser
                           ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
                           : "bg-white text-gray-800 border border-gray-200"
-                      }`}
-                    >
+                      }`}>
                       <p className="text-sm leading-relaxed">{msg.text}</p>
                     </div>
                   </div>
@@ -255,14 +306,12 @@ export default function Chat({
                     <div
                       className={`absolute -top-8 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg z-50 whitespace-nowrap ${
                         isCurrentUser ? "right-0" : "left-0"
-                      }`}
-                    >
-                      {msg.user}
+                      }`}>
+                      {msg.sender}
                       <div
                         className={`absolute top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800 ${
                           isCurrentUser ? "right-2" : "left-2"
-                        }`}
-                      ></div>
+                        }`}></div>
                     </div>
                   )}
                 </div>
@@ -270,12 +319,11 @@ export default function Chat({
             </div>
           );
         })}
-
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
-      <div className="absolute px-4 bottom-3 border-t border-gray-200 bg-white">
+      <div className="absolute px-4 bottom-3 border-t border-gray-200 bg-white w-full">
         <form onSubmit={sendMessage} className="flex items-center gap-3">
           <div className="flex-1 relative">
             <input
@@ -289,8 +337,7 @@ export default function Chat({
           <button
             type="submit"
             disabled={!input.trim()}
-            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg"
-          >
+            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg">
             <Send size={18} />
           </button>
         </form>

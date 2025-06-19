@@ -2,11 +2,15 @@ import mongoose from "mongoose";
 import { Schema, model } from "mongoose";
 
 export interface IChatMessage extends Document {
-  user: {
+  sender: {
     type: mongoose.Schema.Types.ObjectId;
     ref: "User";
   };
-  roomId: string;
+  receiver: {
+    type: mongoose.Schema.Types.ObjectId;
+    ref: "User";
+  };
+  roomId: { type: String; required: true };
   text: string;
   profileimage?: string;
   seen: boolean;
@@ -15,7 +19,8 @@ export interface IChatMessage extends Document {
 }
 const chatSchema = new Schema<IChatMessage>(
   {
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    receiver: { type: Schema.Types.ObjectId, ref: "User", required: true },
     roomId: { type: String, required: true },
     text: { type: String, required: true },
     profileimage: { type: String },

@@ -8,9 +8,9 @@ import { Types } from "mongoose";
 
 export const saveChatMessage = async (req: Request, res: Response) => {
   try {
-    const { user, receiver, text, profileimage, roomId } = req.body;
+    const { sender, receiver, text, profileimage, roomId } = req.body;
 
-    if (!user || !receiver || !text || !roomId) {
+    if (!sender || !receiver || !text || !roomId) {
       return res
         .status(400)
         .json({ success: false, error: "Missing required fields" });
@@ -18,7 +18,8 @@ export const saveChatMessage = async (req: Request, res: Response) => {
 
     // 1. Save chat message
     const newMessage = await ChatModel.create({
-      user,
+      sender,
+      receiver,
       text,
       profileimage,
       roomId,
@@ -26,7 +27,7 @@ export const saveChatMessage = async (req: Request, res: Response) => {
 
     // 2. Create notification for receiver
     await Notification.create({
-      sender: user,
+      sender,
       receiver,
       message: text,
       seen: false,
@@ -122,7 +123,7 @@ export const deleteChatMessage = async (req: Request, res: Response) => {
     }
 
     // Users can only delete their own messages (soft delete)
-    if (message.user.toString() !== userId) {
+    if (message.sender.toString() !== userId) {
       return res.status(403).json({ success: false, error: "Unauthorized" });
     }
 

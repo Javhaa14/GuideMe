@@ -8,6 +8,8 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    roomId: { type: String, required: true },
+
     text: { type: String, trim: true },
     // Optionally support attachments (images, files, etc)
     attachments: [
