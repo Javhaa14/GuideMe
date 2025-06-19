@@ -49,6 +49,7 @@ export const getUserWishlist = async (req: Request, res: Response) => {
   }
 
   try {
+    // Find the wishlist document for the user
     const wishlist = await WishlistModel.findOne({ userId }).populate(
       "tripPlanIds"
     );
@@ -57,6 +58,7 @@ export const getUserWishlist = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Wishlist not found" });
     }
 
+    // Return the array of populated trip plans
     res.json(wishlist.tripPlanIds);
   } catch (err) {
     console.error("getUserWishlist error:", err);

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Heart } from "lucide-react";
+import { Heart, HeartPlus } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
 
 import { Activity } from "./Activity";
@@ -17,10 +17,11 @@ export const TripDetailPage = () => {
   const [trip, setTrip] = useState<TripItem | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
   const params = useParams();
-  const router = useRouter();
   const { user } = useUser();
-  // Зураг дэлгэц дээр томруулж харах
+
   const openDialog = (index: number) => {
     setCurrentIndex(index);
     dialogRef.current?.showModal();
@@ -34,22 +35,53 @@ export const TripDetailPage = () => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  // Wishlist-д нэмэх функц
-  const handleAddToWishlist = async () => {
+  // Call backend to add trip to wishlist
+  const addTripToWishlist = async (tripId: string) => {
     try {
-      if (!trip?._id) {
-        toast.error("Аяллын мэдээлэл дутуу байна");
-        return;
+      const res = await axiosInstance.post(`/wishlist/add`, {
+        userId: user?.id,
+        tripPlanId: tripId,
+      });
+      return res.data;
+    } catch (error: any) {
+      console.error("Add to wishlist error:", error);
+      toast.error(
+        "Нэмэхэд алдаа гарлаа: " + (error.message || "Тодорхойгүй алдаа")
+      );
+      return null;
+    }
+  };
+
+  const handleAddToWishlist = async () => {
+    if (isWishlisted) {
+      toast("Already in wishlist!");
+      return;
+    }
+
+    if (!trip?._id) {
+      toast.error("Аяллын мэдээлэл дутуу байна");
+      return;
+    }
+
+    try {
+      // First, check if trip is already in wishlist
+      const wishlistRes = await axiosInstance.get(`/wishlist/${user.id}`);
+      if (Array.isArray(wishlistRes.data)) {
+        const exists = wishlistRes.data.some(
+          (item: { _id: string }) => item._id === trip._id
+        );
+        if (exists) {
+          setIsWishlisted(true);
+          toast("Already in wishlist!");
+          return;
+        }
       }
 
-      const res = await axiosInstance.post("/wishlist", {
-        userId: user.id,
-        tripPlanId: trip._id,
-      });
-
-      if (res.data.success) {
+      // If not in wishlist, add it
+      const addRes = await addTripToWishlist(trip._id);
+      if (addRes && addRes.success) {
+        setIsWishlisted(true);
         toast.success("Аялал wishlist-д нэмэгдлээ!");
-        router.push("/wish");
       } else {
         toast.error("Нэмэхэд алдаа гарлаа");
       }
@@ -61,26 +93,35 @@ export const TripDetailPage = () => {
 
   const fetchTrip = async () => {
     const tripId = params?.id as string;
+    const userId = user?.id;
+
+    console.log("Fetching trip for:", tripId, "with user:", userId);
+
     if (!tripId) {
       toast.error("Аяллын ID олдсонгүй");
       return;
     }
 
     try {
-      const res = await axiosInstance.get(`/tripPlan/tripPlan/${tripId}`);
+      const res = await axiosInstance.get(`/tripPlan/tripPlan/${tripId}`, {
+        params: { userId },
+      });
+      console.log("API response:", res.data);
 
       if (!res.data.success || !res.data.tripPlan) {
         toast.error("Аялал олдсонгүй: " + (res.data.message || ""));
         return;
       }
 
-      const tripData = res.data.tripPlan;
-      setTrip(tripData);
-
-      const imageData = tripData?.images;
+      setTrip(res.data.tripPlan);
       setImages(
-        Array.isArray(imageData) ? imageData : imageData ? [imageData] : []
+        Array.isArray(res.data.tripPlan.images)
+          ? res.data.tripPlan.images
+          : res.data.tripPlan.images
+          ? [res.data.tripPlan.images]
+          : []
       );
+      setIsWishlisted(res.data.isWishlisted || false);
     } catch (error: any) {
       console.error("API fetch error:", error?.response?.data || error.message);
       toast.error("Алдаа гарлаа: " + (error.message || "Тодорхойгүй алдаа"));
@@ -88,8 +129,12 @@ export const TripDetailPage = () => {
   };
 
   useEffect(() => {
-    fetchTrip();
-  }, []);
+    if (user?.id && params?.id) {
+      fetchTrip();
+    }
+  }, [user?.id, params?.id]);
+
+  console.log(isWishlisted, "wishlist status");
 
   return (
     <div className="max-w-5xl p-4 mx-auto font-sans">
@@ -97,10 +142,20 @@ export const TripDetailPage = () => {
         <h1 className="text-3xl font-bold">{trip?.title || "Loading..."}</h1>
         <button
           onClick={handleAddToWishlist}
-          className="flex items-center gap-1 px-3 py-1 transition-all border border-gray-300 rounded-lg hover:bg-red-50 active:scale-95">
-          <Heart size={16} className="text-red-500" />
-          <span className="text-sm font-medium text-gray-700">
-            Add to wishlist
+          className="flex items-center gap-1 px-3 py-1 transition-all border border-gray-300 rounded-lg hover:bg-red-50 active:scale-95"
+          aria-label={
+            isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+          }>
+          {isWishlisted ? (
+            <HeartPlus size={16} className="text-red-600" />
+          ) : (
+            <Heart size={16} className="text-gray-400" />
+          )}
+          <span
+            className={`text-sm font-medium ${
+              isWishlisted ? "text-red-600" : "text-gray-700"
+            }`}>
+            {isWishlisted ? "In wishlist" : "Add to wishlist"}
           </span>
         </button>
       </div>
@@ -142,7 +197,6 @@ export const TripDetailPage = () => {
         {trip?.about || "No trip description available."}
       </p>
 
-      {/* Зураг томруулж харах dialog */}
       <dialog
         ref={dialogRef}
         aria-modal="true"
@@ -178,7 +232,7 @@ export const TripDetailPage = () => {
 
       {/* Additional Components */}
       <Activity />
-      <TourBookingPage trip={trip!} />
+      {trip && <TourBookingPage trip={trip} />}
       <Rout />
     </div>
   );
