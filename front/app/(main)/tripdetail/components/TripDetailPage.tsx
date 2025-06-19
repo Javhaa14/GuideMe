@@ -6,38 +6,39 @@ import { toast } from "react-hot-toast";
 import { useParams, useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
 
-import TourBookingPage from "./TourBookingPage";
 import { Activity } from "./Activity";
 import { TripItem } from "./Booking";
 import Rout from "./Rout";
 
 export const TripDetailPage = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [trip, setTrip] = useState<TripItem>();
+  const [trip, setTrip] = useState<TripItem | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [bookingStatus, setBookingStatus] = useState<string | null>(null);
   const params = useParams();
   const router = useRouter();
 
+  // Зураг дэлгэц дээр томруулж харах
   const openDialog = (index: number) => {
     setCurrentIndex(index);
     dialogRef.current?.showModal();
   };
-
   const closeDialog = () => dialogRef.current?.close();
 
   const nextImage = () => {
     setCurrentIndex((prev) => (prev + 1) % images.length);
   };
-
   const prevImage = () => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  // Wishlist-д нэмэх функц
   const handleAddToWishlist = async () => {
     try {
-      if (!trip?._id) return;
+      if (!trip?._id) {
+        toast.error("Аяллын мэдээлэл дутуу байна");
+        return;
+      }
 
       const res = await axiosInstance.post("/wishlist", {
         tripId: trip._id,
@@ -51,20 +52,22 @@ export const TripDetailPage = () => {
       }
     } catch (err: any) {
       console.error(err);
-      toast.error("Серверийн алдаа: " + err.message);
+      toast.error("Серверийн алдаа: " + (err.message || "Тодорхойгүй алдаа"));
     }
   };
 
   const fetchTrip = async () => {
     const tripId = params?.id as string;
-    if (!tripId) return console.warn("⛔ params.id байхгүй байна");
+    if (!tripId) {
+      toast.error("Аяллын ID олдсонгүй");
+      return;
+    }
 
     try {
       const res = await axiosInstance.get(`/tripPlan/tripPlan/${tripId}`);
 
       if (!res.data.success || !res.data.tripPlan) {
-        console.warn("⛔ Аялал олдсонгүй:", res.data.message);
-        toast.error("Аялал олдсонгүй: " + res.data.message);
+        toast.error("Аялал олдсонгүй: " + (res.data.message || ""));
         return;
       }
 
@@ -72,15 +75,12 @@ export const TripDetailPage = () => {
       setTrip(tripData);
 
       const imageData = tripData?.images;
-      if (imageData) {
-        setImages(Array.isArray(imageData) ? imageData : [imageData]);
-      }
-    } catch (error: any) {
-      console.error(
-        "❌ API fetch error:",
-        error?.response?.data || error.message
+      setImages(
+        Array.isArray(imageData) ? imageData : imageData ? [imageData] : []
       );
-      toast.error("Алдаа гарлаа: " + error?.message);
+    } catch (error: any) {
+      console.error("API fetch error:", error?.response?.data || error.message);
+      toast.error("Алдаа гарлаа: " + (error.message || "Тодорхойгүй алдаа"));
     }
   };
 
@@ -140,7 +140,7 @@ export const TripDetailPage = () => {
         {trip?.about || "No trip description available."}
       </p>
 
-      {/* Dialog */}
+      {/* Зураг томруулж харах dialog */}
       <dialog
         ref={dialogRef}
         aria-modal="true"
