@@ -1,24 +1,34 @@
 import { Request, Response } from "express";
 import { WishlistModel } from "../model/Wish";
+import mongoose from "mongoose";
 
 export const addToWishlist = async (req: Request, res: Response) => {
-  const { userId, itemId } = req.body;
-  console.log("Wishlist add request:", { userId, itemId });
+  const { userId, tripPlanId } = req.body;
+  if (!userId || !tripPlanId) {
+    return res
+      .status(400)
+      .json({ message: "userId болон tripPlanId шаардлагатай" });
+  }
 
   try {
-    if (!userId || !itemId) {
-      return res
-        .status(400)
-        .json({ message: "userId болон itemId шаардлагатай" });
+    let wishlist = await WishlistModel.findOne({ userId });
+
+    if (!wishlist) {
+      // Create new wishlist document if none exists
+      wishlist = new WishlistModel({ userId, tripPlanIds: [tripPlanId] });
+      await wishlist.save();
+      return res.status(201).json({ message: "Added to wishlist" });
     }
 
-    const existing = await WishlistModel.findOne({ userId, itemId });
-    if (existing) {
+    // Check if tripPlanId already exists
+    if (wishlist.tripPlanIds.includes(tripPlanId)) {
       return res.status(409).json({ message: "Already in wishlist" });
     }
 
-    const newItem = new WishlistModel({ userId, itemId });
-    await newItem.save();
+    // Add tripPlanId to array
+    wishlist.tripPlanIds.push(tripPlanId);
+    await wishlist.save();
+
     res.status(201).json({ message: "Added to wishlist" });
   } catch (err: unknown) {
     if (err instanceof Error) {
@@ -33,31 +43,54 @@ export const addToWishlist = async (req: Request, res: Response) => {
 
 export const getUserWishlist = async (req: Request, res: Response) => {
   const { userId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid userId" });
+  }
+
   try {
-    const wishlist = await WishlistModel.find({ userId }).populate("itemId");
-    res.json(wishlist);
+    const wishlist = await WishlistModel.findOne({ userId }).populate(
+      "tripPlanIds"
+    );
+
+    if (!wishlist) {
+      return res.status(404).json({ message: "Wishlist not found" });
+    }
+
+    res.json(wishlist.tripPlanIds);
   } catch (err) {
+    console.error("getUserWishlist error:", err);
     res.status(500).json({ message: "Server error", error: err });
   }
 };
 
 export const removeFromWishlist = async (req: Request, res: Response) => {
-  const { userId, itemId } = req.body;
-
-  if (!userId || !itemId) {
+  const { userId, tripPlanId } = req.body;
+  if (!userId || !tripPlanId) {
     return res
       .status(400)
-      .json({ message: "userId ба itemId заавал байх ёстой" });
+      .json({ message: "userId ба tripPlanId заавал байх ёстой" });
   }
 
   try {
-    const removed = await WishlistModel.findOneAndDelete({ userId, itemId });
+    const wishlist = await WishlistModel.findOne({ userId });
 
-    if (!removed) {
+    if (!wishlist) {
+      return res
+        .status(404)
+        .json({ message: "Wishlist document not found for this user" });
+    }
+
+    // Remove tripPlanId from array
+    const index = wishlist.tripPlanIds.indexOf(tripPlanId);
+    if (index === -1) {
       return res
         .status(404)
         .json({ message: "Wishlist дээр энэ item байхгүй байна" });
     }
+
+    wishlist.tripPlanIds.splice(index, 1);
+    await wishlist.save();
 
     res.json({ message: "Амжилттай устгалаа" });
   } catch (err) {
