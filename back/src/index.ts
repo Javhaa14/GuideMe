@@ -22,6 +22,7 @@ import { Bookingrouter } from "./routes/tripbook";
 import { wishlistRouter } from "./routes/wish";
 import { Chatrouter } from "./routes/chat";
 import { getChatHistoryByRoomId, saveChatMessage } from "./controller/chat";
+import { saveChatToDB } from "./controller/chatLogic";
 
 // Import your chat controllers
 
@@ -203,6 +204,14 @@ If unrelated question, respond: "I'm here to help only with travel-related quest
   // Handle chat message using your controller
   socket.on("chat message", async (msg) => {
     try {
+      await saveChatToDB({
+        id: msg.id, // or msg.tempId if that's your client ID
+        user: msg.user,
+        text: msg.text,
+        profileimage: msg.profileimage || null,
+        roomId: msg.roomId,
+        createdAt: msg.createdAt,
+      });
       // Just broadcast to the room. Don't save in DB here.
       io.to(msg.roomId).emit("chat message", msg);
 
@@ -230,69 +239,9 @@ If unrelated question, respond: "I'm here to help only with travel-related quest
       console.error("❌ Failed to process chat message:", err);
     }
   });
-
-  // Add socket events for the other controllers as needed
-  // For example: fetching chat history
-  // socket.on("getChatHistory", async ({ roomId }) => {
-  //   if (!roomId) {
-  //     return socket.emit("error", "Missing roomId");
-  //   }
-  //   try {
-  //     const messages = await getChatHistoryByRoomId(roomId);
-  //     socket.emit("chatHistory", { roomId, messages });
-  //   } catch (err) {
-  //     console.error("❌ Error fetching chat history:", err);
-  //     socket.emit("error", "Failed to get chat history");
-  //   }
-  // });
-
-  // // Mark messages seen event
-  // socket.on("markMessagesSeen", async ({ roomId, userId }) => {
-  //   if (!roomId || !userId) return;
-
-  //   try {
-  //     await markMessagesSeen(roomId, userId);
-  //     io.to(roomId).emit("messagesSeen", { roomId, userId });
-  //   } catch (err) {
-  //     console.error("❌ Error marking messages seen:", err);
-  //   }
-  // });
-
-  // // Delete chat message event
-  // socket.on("deleteChatMessage", async ({ messageId, roomId }) => {
-  //   if (!messageId || !roomId) return;
-
-  //   try {
-  //     await deleteChatMessage(messageId);
-  //     io.to(roomId).emit("chatMessageDeleted", { messageId });
-  //   } catch (err) {
-  //     console.error("❌ Error deleting chat message:", err);
-  //   }
-  // });
-
-  // // Get chat rooms for user
-  // socket.on("getChatRooms", async ({ userId }) => {
-  //   if (!userId) return;
-
-  //   try {
-  //     const rooms = await getChatRoomsForUser(userId);
-  //     socket.emit("chatRooms", rooms);
-  //   } catch (err) {
-  //     console.error("❌ Error getting chat rooms:", err);
-  //   }
-  // });
-
-  // // Start or get chat room
-  // socket.on("startOrGetChatRoom", async ({ userA, userB }) => {
-  //   if (!userA || !userB) return;
-
-  //   try {
-  //     const room = await startOrGetChatRoom(userA, userB);
-  //     socket.emit("chatRoom", room);
-  //   } catch (err) {
-  //     console.error("❌ Error starting or getting chat room:", err);
-  //   }
-  // });
+  socket.on("typing", ({ roomId, user }) => {
+    socket.to(roomId).emit("typing", { user });
+  });
 });
 
 export { io };

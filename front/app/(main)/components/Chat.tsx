@@ -19,13 +19,13 @@ dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 dayjs.extend(calendar);
 
-export type ChatMessage = {
+type ChatMessage = {
   id: string;
   user: string;
   text: string;
   profileimage: string | null;
-  roomId?: string;
-  createdAt?: string;
+  roomId: string;
+  createdAt: string;
 };
 
 export type UserPayload = {
@@ -60,6 +60,31 @@ export default function Chat({
     return <p>Loading user...</p>;
   }
   useEffect(() => {
+    if (!roomId) return;
+
+    const fetchChatHistory = async () => {
+      try {
+        const res = await axiosInstance.get(`/chat/history/${roomId}`);
+        if (res.data.success) {
+          const messages = res.data.messages.map((msg: any) => ({
+            id: msg._id || msg.id,
+            user: msg.user,
+            text: msg.text,
+            profileimage: msg.profileimage || null,
+            roomId: msg.roomId,
+            createdAt: msg.createdAt,
+          }));
+          setMessages(messages);
+        }
+      } catch (err) {
+        console.error("Failed to fetch chat history", err);
+      }
+    };
+
+    fetchChatHistory();
+  }, [roomId]);
+
+  useEffect(() => {
     const fetchProfile = async () => {
       try {
         const tpro = await fetchTProfile(user.id);
@@ -74,49 +99,6 @@ export default function Chat({
 
     fetchProfile();
   }, [user]);
-
-  const listenerAttached = useRef(false);
-
-  useEffect(() => {
-    if (!socket || !isConnected || !roomId) return;
-    console.log("Connecting to backend:", process.env.NEXT_PUBLIC_BACKEND_URL);
-
-    socket.emit("joinRoom", roomId);
-
-    socket.on("chat message", (msg) => {
-      if (msg.roomId !== roomId) return;
-
-      const normalizedMsg = {
-        ...msg,
-        id: msg.id || msg._id, // fallback
-      };
-
-      setMessages((prev) => {
-        // If this is a response to an optimistic message (matches tempId), replace it
-        if (msg.tempId) {
-          const exists = prev.find((m) => m.id === msg.tempId);
-          if (exists) {
-            return prev.map((m) => (m.id === msg.tempId ? normalizedMsg : m));
-          }
-        }
-
-        // If already exists by ID, skip
-        if (prev.some((m) => m.id === normalizedMsg.id)) return prev;
-
-        // Otherwise, add normally
-        return [...prev, normalizedMsg];
-      });
-    });
-
-    return () => {
-      socket.emit("leaveRoom", roomId);
-      socket.off("chat message");
-    };
-  }, [socket, isConnected, roomId]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
   const fetchNotifications = async ({
     senderId,
     receiverId,
@@ -127,18 +109,11 @@ export default function Chat({
     message: string;
   }) => {
     try {
-      if (!senderId || !receiverId || !message) {
-        console.warn("Missing notification fields", {
-          senderId,
-          receiverId,
-          message,
-        });
-        return;
-      }
+      if (!senderId || !receiverId || !message) return;
 
       const res = await axiosInstance.post("/notif/send", {
-        senderId, // <-- change here
-        receiverId, // <-- and here
+        senderId,
+        receiverId,
         message,
       });
 
@@ -149,6 +124,7 @@ export default function Chat({
       console.error("Error sending notification:", error);
     }
   };
+
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -167,37 +143,19 @@ export default function Chat({
       userId: user.id,
     };
 
+    // Emit via socket.io to backend for real-time update
     socket.emit("chat message", messagePayload);
 
+    // Also send a notification through your REST API
     fetchNotifications({
-      senderId: user.id, // YOU, the sender
-      receiverId: profileId, // THE RECEIVER
+      senderId: user.id,
+      receiverId: profileId,
       message: messagePayload.text,
     });
 
+    // Clear input field
     setInput("");
   };
-
-  useEffect(() => {
-    const fetchChatHistory = async () => {
-      try {
-        const res = await axiosInstance.get(`/api/chat/${roomId}`);
-        if (res.data.success) {
-          setMessages((prev) => {
-            const existingIds = new Set(prev.map((m) => m.id));
-            const newMessages = res.data.messages.filter(
-              (m: ChatMessage) => !existingIds.has(m.id)
-            );
-            return [...prev, ...newMessages];
-          });
-        }
-      } catch (err) {
-        console.error("Failed to fetch chat history", err);
-      }
-    };
-
-    fetchChatHistory();
-  }, [roomId]);
 
   return (
     <div className="flex flex-col w-full bg-white">
@@ -251,15 +209,18 @@ export default function Chat({
               <div
                 className={`flex ${
                   isCurrentUser ? "justify-end" : "justify-start"
-                }`}>
+                }`}
+              >
                 <div
                   className="relative max-w-xs group"
                   onMouseEnter={() => setHoveredIndex(i)}
-                  onMouseLeave={() => setHoveredIndex(null)}>
+                  onMouseLeave={() => setHoveredIndex(null)}
+                >
                   <div
                     className={`flex items-end gap-2 ${
                       isCurrentUser ? "flex-row-reverse" : "flex-row"
-                    }`}>
+                    }`}
+                  >
                     {/* Profile Image */}
                     <div className="flex-shrink-0">
                       {msg.profileimage ? (
@@ -281,7 +242,8 @@ export default function Chat({
                         isCurrentUser
                           ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
                           : "bg-white text-gray-800 border border-gray-200"
-                      }`}>
+                      }`}
+                    >
                       <p className="text-sm leading-relaxed">{msg.text}</p>
                     </div>
                   </div>
@@ -291,12 +253,14 @@ export default function Chat({
                     <div
                       className={`absolute -top-8 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg z-50 whitespace-nowrap ${
                         isCurrentUser ? "right-0" : "left-0"
-                      }`}>
+                      }`}
+                    >
                       {msg.user}
                       <div
                         className={`absolute top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800 ${
                           isCurrentUser ? "right-2" : "left-2"
-                        }`}></div>
+                        }`}
+                      ></div>
                     </div>
                   )}
                 </div>
@@ -323,7 +287,8 @@ export default function Chat({
           <button
             type="submit"
             disabled={!input.trim()}
-            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg">
+            className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg"
+          >
             <Send size={18} />
           </button>
         </form>
