@@ -4,11 +4,7 @@ import React, { useEffect, useState } from "react";
 import { CalendarDays, Globe, TimerReset, Users } from "lucide-react";
 import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
-<<<<<<< HEAD
 import { toast } from "sonner";
-=======
-import { toast } from "sonner"; // ✨ Заавал импорт хийх
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 
 interface TripItem {
   _id: string;
@@ -95,11 +91,7 @@ export const Activity = () => {
           <ActivityItem
             icon={Users}
             title="Group size"
-<<<<<<< HEAD
             value={`${trip.groupSize}`}
-=======
-            value={`${trip.groupSize} people`}
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
             iconColor="text-emerald-500"
           />
         </div>
@@ -108,11 +100,7 @@ export const Activity = () => {
           <ActivityItem
             icon={TimerReset}
             title="Duration"
-<<<<<<< HEAD
             value={`${trip.duration} days`}
-=======
-            value={`${trip.duration} day${trip.duration === "1" ? "" : "s"}`}
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
           />
 
           <ActivityItem

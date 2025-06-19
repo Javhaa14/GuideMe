@@ -45,12 +45,8 @@ export const GuideTrips = () => {
           <div
             key={trip._id}
             className="relative w-full overflow-hidden transition duration-300 transform bg-white shadow rounded-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer"
-<<<<<<< HEAD
-            onClick={() => router.push(`/tripdetail/${trip._id}`)}>
-=======
             onClick={() => router.push(`/tripdetail/${trip._id}`)}
           >
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
             {user?.id?.toString() === params.id?.toString() && (
               <Button
                 size="icon"
@@ -59,35 +55,20 @@ export const GuideTrips = () => {
                 onClick={(e) => {
                   e.stopPropagation();
                   router.push(`/edit/${trip._id}`);
-<<<<<<< HEAD
-                }}>
-=======
                 }}
               >
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                 <PenLine size={18} />
               </Button>
             )}
 
             <div className="relative w-full h-48">
-<<<<<<< HEAD
               <img
-=======
-              <Image
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                 src={
                   typeof trip.images === "string" ? trip.images : trip.images[0]
                 }
                 alt={`Trip image: ${trip.title}`}
-<<<<<<< HEAD
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 33vw"
-=======
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 33vw"
-                priority
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
               />
             </div>
 

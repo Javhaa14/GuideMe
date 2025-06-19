@@ -109,7 +109,6 @@
   display: none; /* Chrome, Safari, Opera */
 }
 
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -228,7 +227,6 @@
 .sheet-close {
   display: none !important;
 }
-<<<<<<< HEAD
 /* Ensures smooth GPU scrolling */
 .will-change-scroll {
   will-change: scroll-position;
@@ -240,17 +238,15 @@
   white-space: nowrap !important;
 }
 @theme inline {
-  --animate-scroll: scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite;
- 
+  --animate-scroll: scroll var(--animation-duration, 40s)
+    var(--animation-direction, forwards) linear infinite;
+
   @keyframes scroll {
     to {
       transform: translate(calc(-50% - 0.5rem));
     }
   }
 }
-=======
-
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 @layer base {
   * {
     @apply border-border;

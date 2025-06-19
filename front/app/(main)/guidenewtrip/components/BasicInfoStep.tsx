@@ -18,7 +18,6 @@ import { MultiSelect } from "./Multi-selsect";
 import Image from "next/image";
 import { languageOptions } from "@/lib/options";
 import { useState } from "react";
-<<<<<<< HEAD
 import {
   Select,
   SelectContent,
@@ -26,8 +25,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-=======
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 
 interface BasicInfoStepProps {
   formData: any;
@@ -135,16 +132,12 @@ export default function BasicInfoStep({
           />
         </motion.div>
 
-<<<<<<< HEAD
         {/* Duration dropdown */}
-=======
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
         <motion.div variants={item} className="flex flex-col gap-1.5">
           <Label className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-primary" />
             Duration
           </Label>
-<<<<<<< HEAD
           <Select
             value={formData.duration}
             onValueChange={(value) => updateFormData({ duration: value })}
@@ -163,21 +156,11 @@ export default function BasicInfoStep({
         </motion.div>
 
         {/* Group size dropdown */}
-=======
-          <Input
-            value={formData.duration}
-            onChange={(e) => updateFormData({ duration: e.target.value })}
-            placeholder="e.g., 3 days"
-          />
-        </motion.div>
-
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
         <motion.div variants={item} className="flex flex-col gap-1.5">
           <Label className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" />
             Group Size
           </Label>
-<<<<<<< HEAD
           <Select
             value={formData.groupSize}
             onValueChange={(value) => updateFormData({ groupSize: value })}
@@ -193,13 +176,6 @@ export default function BasicInfoStep({
               <SelectItem value="21+ people">21+ people</SelectItem>
             </SelectContent>
           </Select>
-=======
-          <Input
-            value={formData.groupSize}
-            onChange={(e) => updateFormData({ groupSize: e.target.value })}
-            placeholder="e.g., 2–8 people"
-          />
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
         </motion.div>
 
         <motion.div variants={item} className="flex flex-col gap-1.5">

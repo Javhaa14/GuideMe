@@ -28,18 +28,11 @@ export default function Tpost({ post, onclick, user }: any) {
                 <div key={i}>
                   <button
                     // onClick={item.onClick}
-<<<<<<< HEAD
-                    className="flex flex-col items-center justify-center bg-white shadow-md rounded-2xl min-w-[100px] py-4 px-2 transition-all hover:scale-105 active:scale-95">
+                    className="flex flex-col items-center justify-center bg-white shadow-md rounded-2xl min-w-[100px] py-4 px-2 transition-all hover:scale-105 active:scale-95"
+                  >
                     {selectActivites.map((act, i) => {
                       if (act.activity === el) {
                         return <p key={i}>{act.icon}</p>;
-=======
-                    className="flex flex-col items-center justify-center bg-white shadow-md rounded-2xl min-w-[100px] py-4 px-2 transition-all hover:scale-105 active:scale-95"
-                  >
-                    {selectActivites.map((act) => {
-                      if (act.activity === el) {
-                        return <p>{act.icon}</p>;
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                       }
                     })}
                     <span className="text-sm font-medium text-gray-700 mt-2">
@@ -68,12 +61,8 @@ export default function Tpost({ post, onclick, user }: any) {
           <div>
             <h4
               className="font-semibold text-gray-900 cursor-pointer hover:text-blue-900"
-<<<<<<< HEAD
-              onClick={onclick}>
-=======
               onClick={onclick}
             >
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
               {post.userInfo?.username}
             </h4>
             <p className="text-sm text-gray-500">
@@ -91,12 +80,8 @@ export default function Tpost({ post, onclick, user }: any) {
           {showFullDesc ? post.content : `${post.content?.slice(0, 120)}...`}
           <button
             onClick={() => setShowFullDesc(!showFullDesc)}
-<<<<<<< HEAD
-            className="text-red-500 text-sm ml-1 font-semibold">
-=======
             className="text-red-500 text-sm ml-1 font-semibold"
           >
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
             {showFullDesc ? "Show Less" : "See Full Description"}
           </button>
         </p>

@@ -81,17 +81,12 @@ export const Booking: React.FC<BookingProps> = ({
       language,
       totalPrice,
     };
-<<<<<<< HEAD
 
     // Only call onCheck if booking is not already confirmed
     if (!alreadyBooked) {
       onCheck(data);
     }
   }, [participants, language, totalPrice, alreadyBooked]);
-=======
-    onCheck(data);
-  }, [participants, language, totalParticipants, totalPrice, onCheck]);
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 
   useEffect(() => {
     if (bookingStatus === "" || bookingStatus === "no booking") {
@@ -121,7 +116,8 @@ export const Booking: React.FC<BookingProps> = ({
           <PopoverTrigger asChild>
             <button
               disabled={alreadyBooked}
-              className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow disabled:opacity-50"
+            >
               <Users className="text-[#453C67]" />
               <span>{`Person x ${totalParticipants}`}</span>
             </button>
@@ -138,7 +134,8 @@ export const Booking: React.FC<BookingProps> = ({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => adjustParticipant(key, -1)}
-                        className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300">
+                        className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300"
+                      >
                         −
                       </button>
                       <span className="w-6 font-medium text-center">
@@ -146,7 +143,8 @@ export const Booking: React.FC<BookingProps> = ({
                       </span>
                       <button
                         onClick={() => adjustParticipant(key, 1)}
-                        className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300">
+                        className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300"
+                      >
                         ＋
                       </button>
                     </div>
@@ -161,7 +159,8 @@ export const Booking: React.FC<BookingProps> = ({
           <PopoverTrigger asChild>
             <button
               disabled={alreadyBooked}
-              className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow disabled:opacity-50"
+            >
               <Globe className="text-[#453C67]" />
               <span>{language}</span>
             </button>
@@ -172,7 +171,8 @@ export const Booking: React.FC<BookingProps> = ({
                 <div
                   key={lang}
                   onClick={() => setLanguage(lang)}
-                  className="p-2 transition rounded cursor-pointer hover:bg-gray-100">
+                  className="p-2 transition rounded cursor-pointer hover:bg-gray-100"
+                >
                   {lang}
                 </div>
               ))}
@@ -191,7 +191,8 @@ export const Booking: React.FC<BookingProps> = ({
             alreadyBooked
               ? "bg-red-400 hover:bg-red-500"
               : "bg-[#6D67E4] hover:bg-[#46C2CB]"
-          } transition text-white font-semibold px-6 py-3 rounded-full shadow-md`}>
+          } transition text-white font-semibold px-6 py-3 rounded-full shadow-md`}
+        >
           {alreadyBooked
             ? checkingOpen
               ? "Close Edit"

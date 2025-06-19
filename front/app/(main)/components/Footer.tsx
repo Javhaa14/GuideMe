@@ -8,11 +8,8 @@ import {
   Github,
   Linkedin,
   Instagram,
-<<<<<<< HEAD
-=======
   ArrowRight,
   Heart,
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   Globe,
   Shield,
   Zap,
@@ -22,19 +19,14 @@ import {
   FileText,
   Settings,
   Star,
-<<<<<<< HEAD
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { JSX } from "react/jsx-runtime";
-=======
   CreditCard,
 } from "lucide-react";
+import { JSX } from "react/jsx-runtime";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { StatsSection } from "./Stats";
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 
 // ✅ FooterLink тайп тодорхойлох
 type FooterLink = {
@@ -43,8 +35,6 @@ type FooterLink = {
   icon?: JSX.Element;
 };
 
-<<<<<<< HEAD
-=======
 const featureCards = [
   { title: "Verified", subtitle: "Local Guides", Icon: Shield },
   { title: "Tailored", subtitle: "Experiences", Icon: BookOpen },
@@ -76,7 +66,6 @@ const Card = ({
   );
 };
 
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 export default function Footer() {
   // ✅ Тайп ашиглаж тодорхой болгох
   const footerLinks: Record<string, FooterLink[]> = {
@@ -166,9 +155,6 @@ export default function Footer() {
   ];
 
   return (
-<<<<<<< HEAD
-    <footer className="w-full inset-0 bg-black/20 backdrop-blur-xl text-white">
-=======
     <footer className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 text-white">
       {/* Hero section */}
       <div className="border-b border-white/10">
@@ -196,7 +182,6 @@ export default function Footer() {
 
       <StatsSection />
 
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       {/* Footer links + branding + social */}
       <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12">
         {/* Branding */}
@@ -207,12 +192,9 @@ export default function Footer() {
             </div>
             <h4 className="text-2xl font-bold">GuideMe</h4>
           </div>
-<<<<<<< HEAD
-=======
           <p className="text-slate-300">
             Building the future of digital experiences with innovation.
           </p>
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
           <div className="space-y-3 text-slate-300">
             <div className="flex items-center gap-3">
               <Mail className="w-4 h-4" /> guideme@gmail.com
@@ -234,12 +216,8 @@ export default function Footer() {
                 className={cn(
                   "w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center text-slate-300 transition",
                   s.color
-<<<<<<< HEAD
-                )}>
-=======
                 )}
               >
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                 {s.icon}
               </a>
             ))}
@@ -257,12 +235,8 @@ export default function Footer() {
                 <li key={link.name}>
                   <a
                     href={link.href}
-<<<<<<< HEAD
-                    className="flex items-center gap-2 text-slate-300 hover:text-white">
-=======
                     className="flex items-center gap-2 text-slate-300 hover:text-white"
                   >
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                     {link.icon && <span>{link.icon}</span>}
                     {link.name}
                   </a>
@@ -272,8 +246,6 @@ export default function Footer() {
           </div>
         ))}
       </div>
-<<<<<<< HEAD
-=======
 
       {/* Bottom bar */}
       <div className="border-t border-white/10">
@@ -292,7 +264,6 @@ export default function Footer() {
           </div>
         </div>
       </div>
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     </footer>
   );
 }

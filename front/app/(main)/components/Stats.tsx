@@ -18,11 +18,7 @@ export function StatsSection() {
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
         {stats.map((s) => (
           <div key={s.label} className="text-center">
-<<<<<<< HEAD
             <div className="text-5xl font-bold text-sky-400">
-=======
-            <div className="text-3xl font-bold text-sky-400">
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
               {inView ? (
                 <CountUp end={s.value} duration={2} suffix={s.suffix} />
               ) : (

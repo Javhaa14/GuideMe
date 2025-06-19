@@ -1,5 +1,4 @@
 "use client";
-<<<<<<< HEAD
 import { useEffect, useRef, useState } from "react";
 import FloatingChatButton from "./components/FloatingChatButton 2";
 import { Guides } from "./components/Guides";
@@ -41,7 +40,8 @@ export default function Home() {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
       viewport={{ once: true }}
-      className="text-white text-7xl">
+      className="text-white text-7xl"
+    >
       Welcome to GuideMe
     </motion.div>,
 
@@ -50,7 +50,8 @@ export default function Home() {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.1 }}
       viewport={{ once: true }}
-      className="text-white text-7xl">
+      className="text-white text-7xl"
+    >
       Welcome to Mongolia
     </motion.div>,
 
@@ -59,7 +60,8 @@ export default function Home() {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.2 }}
       viewport={{ once: true }}
-      className="text-white text-7xl">
+      className="text-white text-7xl"
+    >
       Discover your next adventure
     </motion.div>,
 
@@ -68,7 +70,8 @@ export default function Home() {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.3 }}
       viewport={{ once: true }}
-      className="w-full relative flex justify-center">
+      className="w-full relative flex justify-center"
+    >
       <StatsSection />
     </motion.div>,
   ];
@@ -81,26 +84,6 @@ export default function Home() {
     "Book your guide today",
   ];
 
-=======
-
-import { Guides } from "./components/Guides";
-import { ImageCarousel } from "./components/ImageCarousel";
-import { Videos } from "./components/Videos";
-import { useEffect, useState } from "react";
-import FloatingChatButton from "./components/FloatingChatButton";
-import { MouseImage } from "./components/MouseImage";
-import { Card } from "./Guidedetail/components/Card";
-import { DragCards } from "./components/Card";
-import { GuideProfile } from "./Guidedetail/components/GuideMainProfile";
-import { axiosInstance } from "@/lib/utils";
-
-export default function Home() {
-  const [open, setOpen] = useState(false);
-  const [guides, setGuides] = useState<GuideProfile[]>();
-  const handleClick = () => {
-    setOpen(!open);
-  };
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   useEffect(() => {
     const fetchGuides = async () => {
       try {
@@ -110,7 +93,6 @@ export default function Home() {
         console.error("❌ Failed to fetch guides:", error);
       }
     };
-<<<<<<< HEAD
     fetchGuides();
   }, []);
 
@@ -165,7 +147,8 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.8 }}
-                className="text-5xl font-bold text-center px-4">
+                className="text-5xl font-bold text-center px-4"
+              >
                 {scrollMessages[scrollIndex]}
               </motion.h1>
             </AnimatePresence>
@@ -176,7 +159,8 @@ export default function Home() {
       {/* Scrollable sections that snap */}
       <div
         className="snap-y snap-mandatory h-screen overflow-y-scroll z-10 relative"
-        ref={scrollContainerRef}>
+        ref={scrollContainerRef}
+      >
         {scrollSections.map((sectionContent, i) => (
           <motion.section
             key={i}
@@ -187,7 +171,8 @@ export default function Home() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
-            viewport={{ once: true }}>
+            viewport={{ once: true }}
+          >
             {sectionContent}
           </motion.section>
         ))}
@@ -195,7 +180,8 @@ export default function Home() {
           ref={(el) => {
             sectionRefs.current[scrollSections.length] = el;
           }}
-          className="snap-start h-screen overflow-y-auto flex justify-center items-start">
+          className="snap-start h-screen overflow-y-auto flex justify-center items-start"
+        >
           <Guides guides={guides!} />
         </section>
         <section className="relative flex-col h-full snap-start flex justify-center items-center">
@@ -220,7 +206,8 @@ export default function Home() {
               </p>
               <Button
                 onClick={() => router.push("/become-guide")}
-                className="bg-gradient-to-r from-yellow-500/80 to-orange-500/80 backdrop-blur-sm border border-yellow-400/50 text-white hover:from-yellow-500 hover:to-orange-500 px-8 py-3 text-lg font-bold">
+                className="bg-gradient-to-r from-yellow-500/80 to-orange-500/80 backdrop-blur-sm border border-yellow-400/50 text-white hover:from-yellow-500 hover:to-orange-500 px-8 py-3 text-lg font-bold"
+              >
                 Become a Guide
               </Button>
             </div>
@@ -239,23 +226,12 @@ export default function Home() {
                 behavior: "smooth",
               });
             }}
-            className="fixed bottom-25 right-6 z-50 p-3 size-16 rounded-full bg-white/20 text-white hover:bg-white/30 transition shadow-lg backdrop-blur-md">
+            className="fixed bottom-25 right-6 z-50 p-3 size-16 rounded-full bg-white/20 text-white hover:bg-white/30 transition shadow-lg backdrop-blur-md"
+          >
             ↑
           </button>
         )}
       </div>
-=======
-
-    fetchGuides();
-  }, []);
-  return (
-    <div className="flex flex-col relative min-h-screen">
-      <ImageCarousel />
-      <Guides guides={guides!} />
-      <Videos />
-      <DragCards />
-      <MouseImage />
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       <FloatingChatButton />
     </div>
   );

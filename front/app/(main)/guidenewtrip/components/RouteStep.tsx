@@ -22,18 +22,11 @@ import {
   Hotel,
   Bus,
   Camera,
-<<<<<<< HEAD
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-=======
-} from "lucide-react";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import MapSearch from "./Map-search";
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 
 interface RouteItem {
   title: string;
@@ -178,13 +171,6 @@ export default function RouteStep({
         </p>
       </div>
 
-<<<<<<< HEAD
-=======
-      <motion.div variants={item} className="flex flex-col gap-1.5">
-        <MapSearch onLocationSelect={handleLocationSelect} />
-      </motion.div>
-
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       <div className="space-y-6">
         {formData.route.map((route, index) => {
           const IconComponent =
@@ -218,11 +204,7 @@ export default function RouteStep({
                           disabled={index === 0}
                           className="w-8 h-8"
                         >
-<<<<<<< HEAD
                           <ArrowUp className="w-4 h-4" />
-=======
-                          <MapPin className="w-4 h-4 rotate-180" />
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                         </Button>
                         <Button
                           type="button"
@@ -232,11 +214,7 @@ export default function RouteStep({
                           disabled={index === formData.route.length - 1}
                           className="w-8 h-8"
                         >
-<<<<<<< HEAD
                           <ArrowDown className="w-4 h-4" />
-=======
-                          <MapPin className="w-4 h-4" />
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
                         </Button>
                         <Button
                           type="button"

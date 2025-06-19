@@ -3,11 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-<<<<<<< HEAD
 import { Globe, MapPin, Users, Calendar } from "lucide-react";
-=======
-import { Globe, MapPin, Users, Calendar, X, Edit2 } from "lucide-react";
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
 import { io, Socket } from "socket.io-client";
 import {
   Dialog,
@@ -19,7 +15,6 @@ import {
 import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
 
-<<<<<<< HEAD
 interface Participants {
   adult: number;
   child: number;
@@ -28,23 +23,11 @@ interface Participants {
 interface CheckingProps {
   data: {
     participants: Participants;
-=======
-interface CheckingProps {
-  data: {
-    participants: {
-      adult: number;
-      child: number;
-    };
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     totalParticipants: number;
     language: string;
     totalPrice: number;
   };
-<<<<<<< HEAD
   trip: any; // Ideally, replace with proper type like TripItem
-=======
-  trip: any;
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   onBookingConfirmed: () => void;
   onCancel: () => void;
   onEdit: () => void;
@@ -63,28 +46,15 @@ export const Checking: React.FC<CheckingProps> = ({
 }) => {
   const { participants, totalParticipants, language, totalPrice } = data;
   const { user } = useUser();
-<<<<<<< HEAD
-
-=======
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   const [qr, setQr] = useState<string>("");
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [loadingQr, setLoadingQr] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-<<<<<<< HEAD
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [userPeopleCount, setUserPeopleCount] = useState<number>(1); // default 1
 
   // Fetch QR code on demand
-=======
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editParticipants, setEditParticipants] = useState(totalParticipants);
-  const [editLanguage, setEditLanguage] = useState(language);
-  const [bookingId, setBookingId] = useState<string | null>(null);
-
-  // Fetch QR code when dialog opens
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   const fetchQr = async () => {
     setLoadingQr(true);
     try {
@@ -98,30 +68,18 @@ export const Checking: React.FC<CheckingProps> = ({
     setLoadingQr(false);
   };
 
-<<<<<<< HEAD
   // Initialize socket once
-=======
-  // Initialize socket once on mount
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   useEffect(() => {
     const newSocket = io("https://guideme-8o9f.onrender.com", {
       transports: ["websocket"],
     });
 
     newSocket.on("connect", () => {
-<<<<<<< HEAD
       console.log("Socket connected:", newSocket.id);
     });
 
     newSocket.on("connect_error", (err) => {
       console.error("Socket connection error:", err);
-=======
-      console.log("Socket connected with id:", newSocket.id);
-    });
-
-    newSocket.on("connect_error", (err) => {
-      console.error("Socket connect error:", err);
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     });
 
     setSocket(newSocket);
@@ -131,30 +89,18 @@ export const Checking: React.FC<CheckingProps> = ({
     };
   }, []);
 
-<<<<<<< HEAD
   // Listen to paymentStatus events for the current paymentId
-=======
-  // Watch payment status when paymentId & socket are ready
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   useEffect(() => {
     if (!socket || !paymentId) return;
 
     socket.emit("watchPayment", paymentId);
 
-<<<<<<< HEAD
     const handler = async (message: { status: boolean }) => {
-=======
-    socket.on("paymentStatus", async (message: { status: boolean }) => {
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       if (message.status === true) {
         setBookingStatus("payment success");
 
         try {
-<<<<<<< HEAD
           // Check for existing booking or create/update it
-=======
-          // Check for existing booking or create one
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
           const checkRes = await axiosInstance.get("/bookings", {
             params: {
               tripPlanId: trip._id,
@@ -162,15 +108,7 @@ export const Checking: React.FC<CheckingProps> = ({
             },
           });
 
-<<<<<<< HEAD
           if (checkRes.data?.bookings && checkRes.data.bookings.length > 0) {
-=======
-          if (
-            checkRes.data &&
-            checkRes.data.bookings &&
-            checkRes.data.bookings.length > 0
-          ) {
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
             const existingBooking = checkRes.data.bookings[0];
             await axiosInstance.put(`/bookings/${existingBooking._id}`, {
               numberOfPeople: totalParticipants,
@@ -190,7 +128,6 @@ export const Checking: React.FC<CheckingProps> = ({
             });
           }
 
-<<<<<<< HEAD
           onBookingConfirmed();
 
           setTimeout(() => {
@@ -208,23 +145,6 @@ export const Checking: React.FC<CheckingProps> = ({
 
     return () => {
       socket.off("paymentStatus", handler);
-=======
-          onBookingConfirmed(); // Notify parent about successful booking
-        } catch (err) {
-          console.error("Booking creation/updation failed:", err);
-        }
-
-        setTimeout(() => {
-          setIsDialogOpen(false);
-          setQr("");
-          setPaymentId(null);
-        }, 3000);
-      }
-    });
-
-    return () => {
-      socket.off("paymentStatus");
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     };
   }, [
     socket,
@@ -236,17 +156,9 @@ export const Checking: React.FC<CheckingProps> = ({
     onBookingConfirmed,
   ]);
 
-<<<<<<< HEAD
   // Check existing booking on mount or when user/trip changes
   const checkExistingBooking = async () => {
     if (!user?.id) {
-=======
-  // On mount check existing booking payment status
-
-  const checkExistingBooking = async () => {
-    if (!user?.id) {
-      console.warn("Cannot check bookings: user ID missing");
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
       setBookingStatus("no booking");
       setBookingId(null);
       return;
@@ -259,7 +171,6 @@ export const Checking: React.FC<CheckingProps> = ({
       if (paidBooking) {
         setBookingStatus("payment success");
         setBookingId(paidBooking._id);
-<<<<<<< HEAD
         setUserPeopleCount(paidBooking.numberOfPeople); // ✅ Save number of people
       } else {
         setBookingStatus("no booking");
@@ -274,20 +185,6 @@ export const Checking: React.FC<CheckingProps> = ({
     }
   };
 
-=======
-      } else {
-        setBookingStatus("no booking");
-        setBookingId(null);
-      }
-    } catch (err) {
-      console.error("Failed to check booking status:", err);
-      setBookingStatus("no booking");
-      setBookingId(null);
-    }
-  };
-
-  // useEffect calls the above on mount or when user/trip changes
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   useEffect(() => {
     if (!user?.id) {
       setBookingStatus("no booking");
@@ -298,17 +195,12 @@ export const Checking: React.FC<CheckingProps> = ({
       checkExistingBooking();
     }
   }, [user, trip, setBookingStatus]);
-<<<<<<< HEAD
 
   // Cancel Booking
-=======
-  // Cancel Booking Handler
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
   const handleCancelBooking = async (bookingId: string) => {
     try {
       await axiosInstance.put(`/bookings/${bookingId}`, {
         cancelTouristId: user.id,
-<<<<<<< HEAD
         numberOfPeople: userPeopleCount, // ✅ Use dynamic count
       });
       alert("Your booking has been cancelled successfully.");
@@ -316,16 +208,6 @@ export const Checking: React.FC<CheckingProps> = ({
     } catch (error) {
       alert("Failed to cancel booking. Please try again.");
       console.error(error);
-=======
-      });
-
-      alert("Your booking has been cancelled successfully.");
-
-      // refetch or update local booking info here
-      await checkExistingBooking(); // your function to get fresh booking state
-    } catch (error: any) {
-      // error handling
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     }
   };
 
@@ -402,15 +284,12 @@ export const Checking: React.FC<CheckingProps> = ({
 
           <div className="space-y-3">
             {["adult", "child"].map((type) => {
-<<<<<<< HEAD
               const count = participants[type as keyof Participants] || 0;
-=======
-              const count = participants[type as keyof typeof participants];
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
               return (
                 <div
                   key={type}
-                  className="flex items-center justify-between py-2 border-b border-gray-100">
+                  className="flex items-center justify-between py-2 border-b border-gray-100"
+                >
                   <div>
                     <p className="font-medium text-gray-800">
                       {type.charAt(0).toUpperCase() + type.slice(1)} × {count}
@@ -448,7 +327,8 @@ export const Checking: React.FC<CheckingProps> = ({
                     } else {
                       alert("Booking ID not found.");
                     }
-                  }}>
+                  }}
+                >
                   Cancel Booking
                 </Button>
               </div>
@@ -459,7 +339,8 @@ export const Checking: React.FC<CheckingProps> = ({
                   fetchQr();
                 }}
                 className="px-8 py-6 text-lg font-semibold bg-[#453C67] hover:bg-[#5a4f8a] transition"
-                disabled={loadingQr}>
+                disabled={loadingQr}
+              >
                 {loadingQr ? "Loading QR..." : "Pay Now"}
               </Button>
             )}
@@ -474,11 +355,7 @@ export const Checking: React.FC<CheckingProps> = ({
             <DialogTitle className="text-xl font-bold">
               {trip.title} - Payment
             </DialogTitle>
-<<<<<<< HEAD
             <DialogClose />
-=======
-            <DialogClose></DialogClose>
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
           </DialogHeader>
 
           <div className="flex flex-col items-center gap-6 mt-4">

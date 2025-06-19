@@ -1,6 +1,5 @@
 "use client";
 
-<<<<<<< HEAD
 import { axiosInstance } from "@/lib/utils";
 import WishlistCard from "./components/WishlistCard";
 import { useUser } from "@/app/context/Usercontext";
@@ -70,25 +69,6 @@ export default function Home() {
       ) : (
         <p>No wishlists found.</p>
       )}
-=======
-import WishlistCard from "./components/WishlistCard";
-
-export default function Home() {
-  return (
-    <div className="px-10 py-10">
-      <WishlistCard
-        id="1"
-        name="Gobi Desert Adventure"
-        location="Gobi, Mongolia"
-        image="/lake.png"
-        startDate="2025-07-15"
-        groupSize="small"
-        price={1200}
-        currency="USD"
-        isFavorite={true}
-        onRemove={() => alert("Removed from wishlist")}
-      />
->>>>>>> 8cf4585019f5686889b411c16e1309b7d5003305
     </div>
   );
 }
