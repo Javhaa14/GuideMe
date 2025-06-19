@@ -45,20 +45,8 @@ export const GuideTrips = () => {
           <div
             key={trip._id}
             className="relative w-full overflow-hidden transition duration-300 transform bg-white shadow rounded-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer"
-            onClick={() => router.push(`/tripdetail/${trip._id}`)}>
-            {user?.id?.toString() === params.id?.toString() && (
-              <Button
-                size="icon"
-                variant="secondary"
-                className="absolute z-10 p-2 text-gray-600 bg-white rounded-full shadow top-3 left-3 hover:bg-gray-100"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/edit/${trip._id}`);
-                }}>
-                <PenLine size={18} />
-              </Button>
-            )}
-
+            onClick={() => router.push(`/tripdetail/${trip._id}`)}
+          >
             <div className="relative w-full h-48">
               <img
                 src={

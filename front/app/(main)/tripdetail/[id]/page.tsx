@@ -2,7 +2,7 @@ import { TripDetailPage } from "../components/TripDetailPage";
 
 export default function TripDetail() {
   return (
-    <div>
+    <div className="py-8">
       <TripDetailPage />
     </div>
   );

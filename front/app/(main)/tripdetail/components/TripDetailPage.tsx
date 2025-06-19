@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Heart } from "lucide-react";
+import { Heart, PenLine } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useParams, useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
@@ -11,6 +11,7 @@ import { TripItem } from "./Booking";
 import Rout from "./Rout";
 import { useUser } from "@/app/context/Usercontext";
 import TourBookingPage from "./TourBookingPage";
+import { Button } from "@/components/ui/button";
 
 export const TripDetailPage = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -92,17 +93,27 @@ export const TripDetailPage = () => {
   }, []);
 
   return (
-    <div className="max-w-5xl p-4 mx-auto font-sans">
-      <div className="flex items-center justify-between mb-2">
+    <div className="max-w-5xl mx-auto font-sans">
+      <div className="flex items-center justify-between mb-3">
         <h1 className="text-3xl font-bold">{trip?.title || "Loading..."}</h1>
-        <button
-          onClick={handleAddToWishlist}
-          className="flex items-center gap-1 px-3 py-1 transition-all border border-gray-300 rounded-lg hover:bg-red-50 active:scale-95">
-          <Heart size={16} className="text-red-500" />
-          <span className="text-sm font-medium text-gray-700">
-            Add to wishlist
-          </span>
-        </button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/tripedit/${trip?._id}`)}
+          >
+            <PenLine size={18} />
+          </Button>
+
+          <button
+            onClick={handleAddToWishlist}
+            className="flex items-center gap-1 px-3 py-1 transition-all border border-gray-300 rounded-lg hover:bg-red-50 active:scale-95"
+          >
+            <Heart size={16} className="text-red-500" />
+            <span className="text-sm font-medium text-gray-700">
+              Add to wishlist
+            </span>
+          </button>
+        </div>
       </div>
 
       {images.length > 0 ? (
@@ -147,17 +158,20 @@ export const TripDetailPage = () => {
         ref={dialogRef}
         aria-modal="true"
         role="dialog"
-        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]">
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]"
+      >
         <div className="relative flex items-center justify-center w-full h-full px-12">
           <button
             onClick={closeDialog}
-            className="absolute z-20 flex items-center justify-center w-12 h-12 text-4xl text-white transition duration-200 rounded-full top-4 right-6 hover:text-gray-300 bg-black/40 hover:bg-black/60 backdrop-blur">
+            className="absolute z-20 flex items-center justify-center w-12 h-12 text-4xl text-white transition duration-200 rounded-full top-4 right-6 hover:text-gray-300 bg-black/40 hover:bg-black/60 backdrop-blur"
+          >
             ×
           </button>
           <button
             onClick={prevImage}
             className="absolute left-0 z-30 px-3 py-2 text-3xl text-white transition duration-200 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur"
-            aria-label="Previous Image">
+            aria-label="Previous Image"
+          >
             ‹
           </button>
           {images.length > 0 && (
@@ -170,7 +184,8 @@ export const TripDetailPage = () => {
           <button
             onClick={nextImage}
             className="absolute right-0 z-30 px-3 py-2 text-3xl text-white transition duration-200 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur"
-            aria-label="Next Image">
+            aria-label="Next Image"
+          >
             ›
           </button>
         </div>
