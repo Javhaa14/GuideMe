@@ -1,29 +1,37 @@
 "use client";
 
 import { axiosInstance } from "@/lib/utils";
-import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
+import { useState, useEffect, useRef } from "react";
+import { io, Socket } from "socket.io-client";
 
-const socket = io("https://guideme-8o9f.onrender.com"); // Your backend URL here
+type ResetStep = "enterEmail" | "waitingApproval" | "resetPassword";
 
 export default function PasswordReset() {
   const [email, setEmail] = useState("");
-  const [step, setStep] = useState<
-    "enterEmail" | "waitingApproval" | "resetPassword"
-  >("enterEmail");
+  const [step, setStep] = useState<ResetStep>("enterEmail");
   const [message, setMessage] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
-  // Listen for reset approval from server via Socket.IO
+  const socketRef = useRef<Socket | null>(null);
+
+  // Setup Socket.IO connection only once
   useEffect(() => {
     console.log("🔌 Connecting to socket...");
+    const socket = io("https://guideme-8o9f.onrender.com", {
+      transports: ["websocket"], // Optional: improves speed
+    });
+
+    socketRef.current = socket;
+
     socket.on("resetApproved", (data) => {
       console.log("✅ resetApproved received:", data);
-      setMessage(data.message);
+      setMessage(data.message || "You may now reset your password.");
       setStep("resetPassword");
     });
 
     return () => {
-      socket.off("resetApproved");
+      console.log("🔌 Disconnecting socket...");
+      socket.disconnect();
     };
   }, []);
 
@@ -43,6 +51,27 @@ export default function PasswordReset() {
     } catch (err) {
       console.error("❌ Failed to send request:", err);
       setMessage("Failed to send request");
+    }
+  };
+
+  const handleSubmitNewPassword = async () => {
+    if (!newPassword) return setMessage("Password cannot be empty");
+
+    try {
+      const res = await axiosInstance.post("/auth/reset-password", {
+        email,
+        newPassword,
+      });
+
+      if (res.data.success) {
+        setMessage("✅ Password reset successfully!");
+        setStep("enterEmail"); // or redirect
+      } else {
+        setMessage(res.data.error || "Something went wrong.");
+      }
+    } catch (error) {
+      console.error("❌ Error resetting password:", error);
+      setMessage("Server error occurred.");
     }
   };
 
@@ -76,13 +105,14 @@ export default function PasswordReset() {
         <>
           <h2>Reset Password</h2>
           <p>{message}</p>
-          {/* Here you can add your new password form */}
           <input
             type="password"
             placeholder="New password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
             style={{ width: "100%", padding: 8, marginBottom: 12 }}
           />
-          <button>Submit New Password</button>
+          <button onClick={handleSubmitNewPassword}>Submit New Password</button>
         </>
       )}
 
