@@ -59,7 +59,6 @@ export default function Chat({
   if (!user) {
     return <p>Loading user...</p>;
   }
-  // console.log(onlineUsers, "onlineusers");
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -178,8 +177,6 @@ export default function Chat({
 
     setInput("");
   };
-
-  // console.log("🔌 isConnected:", isConnected);
 
   useEffect(() => {
     const fetchChatHistory = async () => {

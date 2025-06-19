@@ -18,6 +18,13 @@ import { MultiSelect } from "./Multi-selsect";
 import Image from "next/image";
 import { languageOptions } from "@/lib/options";
 import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface BasicInfoStepProps {
   formData: any;
@@ -125,28 +132,50 @@ export default function BasicInfoStep({
           />
         </motion.div>
 
+        {/* Duration dropdown */}
         <motion.div variants={item} className="flex flex-col gap-1.5">
           <Label className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-primary" />
             Duration
           </Label>
-          <Input
+          <Select
             value={formData.duration}
-            onChange={(e) => updateFormData({ duration: e.target.value })}
-            placeholder="e.g., 3 days"
-          />
+            onValueChange={(value) => updateFormData({ duration: value })}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select duration" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1-5">1-5</SelectItem>
+              <SelectItem value="6-10">6-10</SelectItem>
+              <SelectItem value="11-15">11-15</SelectItem>
+              <SelectItem value="16-20">16-20</SelectItem>
+              <SelectItem value="21+">21+</SelectItem>
+            </SelectContent>
+          </Select>
         </motion.div>
 
+        {/* Group size dropdown */}
         <motion.div variants={item} className="flex flex-col gap-1.5">
           <Label className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" />
             Group Size
           </Label>
-          <Input
+          <Select
             value={formData.groupSize}
-            onChange={(e) => updateFormData({ groupSize: e.target.value })}
-            placeholder="e.g., 2–8 people"
-          />
+            onValueChange={(value) => updateFormData({ groupSize: value })}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select group size" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1–5 people">1–5 people</SelectItem>
+              <SelectItem value="6–10 people">6–10 people</SelectItem>
+              <SelectItem value="11–15 people">11–15 people</SelectItem>
+              <SelectItem value="16–20 people">16–20 people</SelectItem>
+              <SelectItem value="21+ people">21+ people</SelectItem>
+            </SelectContent>
+          </Select>
         </motion.div>
 
         <motion.div variants={item} className="flex flex-col gap-1.5">

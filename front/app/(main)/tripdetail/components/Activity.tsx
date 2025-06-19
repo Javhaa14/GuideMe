@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { CalendarDays, Globe, TimerReset, Users } from "lucide-react";
 import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
-import { toast } from "sonner"; // ✨ Заавал импорт хийх
+import { toast } from "sonner";
 
 interface TripItem {
   _id: string;
@@ -91,7 +91,7 @@ export const Activity = () => {
           <ActivityItem
             icon={Users}
             title="Group size"
-            value={`${trip.groupSize} people`}
+            value={`${trip.groupSize}`}
             iconColor="text-emerald-500"
           />
         </div>
@@ -100,7 +100,7 @@ export const Activity = () => {
           <ActivityItem
             icon={TimerReset}
             title="Duration"
-            value={`${trip.duration} day${trip.duration === "1" ? "" : "s"}`}
+            value={`${trip.duration} days`}
           />
 
           <ActivityItem
