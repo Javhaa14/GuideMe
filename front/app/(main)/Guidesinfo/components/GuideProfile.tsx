@@ -11,17 +11,20 @@ import {
   Star,
   ThumbsUp,
 } from "lucide-react";
+import { BiSolidQuoteLeft } from "react-icons/bi";
+import { BiSolidQuoteRight } from "react-icons/bi";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { Guide } from "../page";
+import Image from "next/image";
 
 export const GuideProfile = ({
   id,
   name,
   location,
-  about,
+  slogan,
   price,
   rating,
   status,
@@ -34,7 +37,7 @@ export const GuideProfile = ({
   name: string;
   profileimage: string;
   location: string;
-  about: string;
+  slogan: string;
   price: number | string;
   rating: number;
   status: string;
@@ -67,13 +70,17 @@ export const GuideProfile = ({
   };
 
   return (
-    <div className="flex gap-4 bg-white border border-gray-200 rounded-2xl p-4 shadow-md max-w-3xl w-[500px] relative hover:bg-gray-200">
+    <div className="flex gap-4 bg-white border border-gray-200 rounded-2xl p-4 shadow-md max-w-3xl w-[550px] relative hover:bg-gray-200">
       {/* Profile Image */}
-      <img
-        src={profileimage || "/user.jpg"}
-        alt={`${name || "Guide"}'s profile`}
-        className="w-30 h-30 rounded-full object-cover border-2 border-white shadow-md"
-      />
+      <div className="w-[200px] h-[200px] relative">
+        <Image
+          src={profileimage || "/user.jpg"}
+          alt={`${name || "Guide"}'s profile`}
+          priority
+          fill
+          className="w-[200px] h-[200px] rounded-bl-2xl rounded-tl-2xl object-cover border-2 border-white shadow-md"
+        />
+      </div>
 
       {/* Content */}
       <div className="flex flex-col flex-1">
@@ -86,7 +93,13 @@ export const GuideProfile = ({
             >
               {name}
             </h2>
-            <span className="text-sm text-gray-600">{about}</span>
+            <div className="flex gap-1 items-end">
+              <span className="flex gap-1 text-sm text-gray-600">
+                <BiSolidQuoteLeft className="size-3 stroke-gray-400 fill-gray-400" />
+                {slogan}
+              </span>
+              <BiSolidQuoteRight className="size-3 stroke-gray-400 fill-gray-400" />
+            </div>
           </div>
           <span
             className={`text-xs font-medium px-2 py-1 rounded-full ${
@@ -99,13 +112,13 @@ export const GuideProfile = ({
           </span>
         </div>
 
-        <div className="flex flex-col items-baseline gap-2 mt-2">
-          <div className="flex items-center gap-2">
-            <span className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full flex items-center gap-1">
-              <MapPin className="w-3 h-3" />
+        <div className="flex flex-col w-full items-baseline gap-2 mt-2">
+          <div className="flex w-full items-center gap-2">
+            <span className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full flex w-full items-center gap-1">
+              <MapPin className="w-4 h-4" />
               {location}
             </span>
-            <span className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full flex items-center gap-1">
+            <span className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full flex w-full items-center gap-1">
               <Globe2 className="size-4 text-gray-500" />
               {languages}
             </span>
