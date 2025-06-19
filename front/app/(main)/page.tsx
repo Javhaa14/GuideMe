@@ -116,7 +116,7 @@ export default function Home() {
         <div className="relative w-full h-screen overflow-hidden z-0">
           <video
             className="absolute top-0 left-0 w-full h-full object-cover"
-            src="/videos/background.mp4"
+            src="https://res.cloudinary.com/dgwpwmmle/video/upload/v1750296010/Beautiful_Mongolia_2_ady0yc.mov"
             autoPlay
             loop
             muted
