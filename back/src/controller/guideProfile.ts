@@ -73,7 +73,7 @@ export const createGuideProfile = async (
 export const getGuideByuserId = async (
   req: Request,
   res: Response
-): Promise<void> => {
+): Promise<any> => {
   const { _id } = req.params;
 
   try {
@@ -83,8 +83,7 @@ export const getGuideByuserId = async (
     });
 
     if (!guide) {
-      res.status(404).send({ message: 'Guide profile not found' });
-      return;
+      return res.status(200).send(null);
     }
 
     res.status(200).send(guide);
@@ -105,6 +104,7 @@ export const getGuideByuserId = async (
     }
   }
 };
+
 
 export const getGuides = async (_: Request, res: Response): Promise<void> => {
   try {

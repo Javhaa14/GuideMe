@@ -10,6 +10,7 @@ import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { PostType } from "../../Travelersinfo/page";
 import { useOnlineStatus } from "@/app/context/Onlinestatus";
+import { fetchTProfile } from "@/app/utils/fetchProfile";
 export type TouristProfile = {
   _id: {
     _id: string;
@@ -45,15 +46,6 @@ export default function TravelerProfile() {
   const [chat, setChat] = useState(false);
   const [post, setPost] = useState<PostType[]>([]);
 
-  const fetchProfile = async () => {
-    try {
-      const res = await axiosInstance.get(`/tprofile/${params.id}`);
-      console.log("✅ Posts fetched:", res.data);
-      setTourist(res.data);
-    } catch (err) {
-      console.error("❌ Post fetch failed:", err);
-    }
-  };
   const fetchPosts = async () => {
     try {
       const res = await axiosInstance.get(`/post/${params.id}`);
@@ -64,9 +56,17 @@ export default function TravelerProfile() {
     }
   };
   useEffect(() => {
-    fetchProfile();
-    fetchPosts();
+    const loadData = async () => {
+      if (params.id && typeof params.id === "string") {
+        const tpro = await fetchTProfile(params.id);
+        setTourist(tpro);
+      }
+      fetchPosts();
+    };
+
+    loadData();
   }, []);
+
   const router = useRouter();
   const todetail = (id: string) => {
     router.push(`/Touristdetail/${id}`);
@@ -91,7 +91,13 @@ export default function TravelerProfile() {
               </div>
             </div>
             <div className="flex w-full">
-              <Chat onlineUsers={onlineUsers} user={user!} />
+              <Chat
+                profileId={
+                  params.id && typeof params.id === "string" ? params.id : ""
+                }
+                onlineUsers={onlineUsers}
+                user={user!}
+              />
             </div>
           </div>
         </div>

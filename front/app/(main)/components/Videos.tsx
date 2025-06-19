@@ -26,25 +26,20 @@ export const Videos = () => {
   }, [hasBeenVisible]);
 
   return (
-    <div className="p-8">
-      <h2 className="text-4xl font-bold text-gray-800 mb-10">🌟 Video</h2>
+    <div className="p-4">
+      <h2 className="mb-10 text-4xl font-bold text-gray-800">🌟 Video</h2>
 
-      <div
-        ref={containerRef}
-        className="w-full h-[800px] flex justify-center mx-auto border rounded overflow-hidden"
-      >
+      <div ref={containerRef} className="relative w-full aspect-video">
         {hasBeenVisible ? (
           <iframe
-            width="2400px"
-            height="800px"
+            className="absolute top-0 left-0 w-full h-full"
             src="https://www.youtube.com/embed/N_UahGd75EY?autoplay=1&mute=1"
             title="YouTube video player"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          ></iframe>
+            allowFullScreen></iframe>
         ) : (
-          <div className="w-[2400px] h-[800px] bg-gray-200 flex items-center justify-center">
+          <div className="absolute top-0 left-0 flex items-center justify-center w-full h-full bg-gray-200">
             <p>🔄 Scroll to load video...</p>
           </div>
         )}

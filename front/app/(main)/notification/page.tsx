@@ -1,14 +1,15 @@
-import { CheckedGuides } from "@/app/(main)/notification/components/checkedGuides";
-import PriceRangeSlider from "./components/PriceRangeSlider";
+"use client";
+import { useUser } from "@/app/context/Usercontext";
+import { LikedUsersByMyPosts } from "./components/likedUsers";
 
-const TravelersPost = () => {
+export default function Home() {
+  const { user } = useUser();
+
+  if (!user) return <div>No user found</div>;
+
   return (
     <div>
-      <PriceRangeSlider />
-
-      <CheckedGuides />
+      <LikedUsersByMyPosts currentUserId={user.id} />
     </div>
   );
-};
-
-export default TravelersPost;
+}

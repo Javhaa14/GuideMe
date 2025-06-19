@@ -1,8 +1,16 @@
 import express, { Request, Response } from "express";
 import { UserModel } from "../model/User";
 import mongoose from "mongoose";
+import {
+  getChatHistory,
+  getConversations,
+  saveChatMessage,
+} from "../controller/chat";
 
 export const Onlinerouter = express.Router();
+Onlinerouter.post("/chat", saveChatMessage)
+  .get("/chat/:roomId", getChatHistory)
+  .get("/chat/conversations/:userId", getConversations);
 
 // Helper: build filter based on userId
 function buildUserFilter(userId: string) {

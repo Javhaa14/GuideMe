@@ -6,7 +6,7 @@ interface GuideProfile {
   name: string;
   location: string;
   bio: string;
-  profileImage: string;
+  profileimage: string;
   coverImage: string;
   followers: number;
   following: number;
@@ -24,7 +24,7 @@ const sampleGuide: GuideProfile = {
   name: "Amira Hussein",
   location: "Cairo, Egypt",
   bio: "Passionate about sharing the beauty of Egyptian history. Let's explore the world together!",
-  profileImage: "/profile.jpg",
+  profileimage: "/profile.jpg",
   coverImage: "/cover.jpg",
   followers: 1250,
   following: 380,
@@ -69,7 +69,7 @@ export default function GuideProfilePage() {
       <div className="flex flex-col md:flex-row items-center md:items-end gap-4 mt-[-4rem] p-4">
         <div className="relative w-32 h-32 rounded-full border-4 border-white overflow-hidden">
           <Image
-            src={guide.profileImage}
+            src={guide.profileimage}
             alt="Profile"
             layout="fill"
             objectFit="cover"

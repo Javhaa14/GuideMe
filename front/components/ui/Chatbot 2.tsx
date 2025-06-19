@@ -2,8 +2,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import ReactMarkdown from "react-markdown";
+import { useUser } from "@/app/context/Usercontext";
 
-const socket = io("http://localhost:4000");
+const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL);
 
 type Message = {
   sender: "user" | "ai";
@@ -11,12 +12,17 @@ type Message = {
 };
 
 function ChatBot() {
+  const { user } = useUser();
   const [message, setMessage] = useState("");
   const [responses, setResponses] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Socket connected, emitting identify with userId", user.id);
+      socket.emit("identify", user.id);
+    });
     socket.on("ai chatbot", (response: string) => {
       setResponses((prev) => [...prev, { sender: "ai", text: response }]);
       setLoading(false);
@@ -24,6 +30,7 @@ function ChatBot() {
 
     return () => {
       socket.off("ai chatbot");
+      socket.off("connect");
     };
   }, []);
 
@@ -40,7 +47,8 @@ function ChatBot() {
   };
 
   return (
-    <div className={` max-w-xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg border border-gray-200`}>
+    <div
+      className={` max-w-xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg border border-gray-200`}>
       <h2 className="text-2xl font-bold text-blue-700 text-center mb-4">
         🌍 GuideMe Travel Assistant
       </h2>
@@ -51,15 +59,13 @@ function ChatBot() {
             key={i}
             className={`flex ${
               msg.sender === "user" ? "justify-end" : "justify-start"
-            }`}
-          >
+            }`}>
             <div
               className={`max-w-[75%] px-4 py-3 text-sm rounded-xl shadow whitespace-pre-wrap ${
                 msg.sender === "user"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-200 text-gray-800"
-              }`}
-            >
+              }`}>
               {msg.sender === "ai" ? (
                 <ReactMarkdown>{msg.text}</ReactMarkdown>
               ) : (
@@ -89,8 +95,7 @@ function ChatBot() {
         <button
           onClick={sendMessage}
           disabled={loading}
-          className="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 disabled:opacity-50 transition text-sm"
-        >
+          className="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 disabled:opacity-50 transition text-sm">
           {loading ? "..." : "Send"}
         </button>
       </div>

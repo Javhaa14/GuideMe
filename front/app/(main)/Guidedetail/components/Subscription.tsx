@@ -8,13 +8,15 @@ import {
 import { Card } from "./Card";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/utils";
+import { io, Socket } from "socket.io-client";
 
 export const Subscription = () => {
   const [step, setStep] = useState(1);
-  const [paymentId, setPaymentId] = useState(null);
+  const [paymentId, setPaymentId] = useState<string | null>(null);
   const [status, setStatus] = useState("");
   const [qr, setQr] = useState("");
-  const [open, setOpen] = useState(false); // control dialog state
+  const [open, setOpen] = useState(false);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   const handleplan = async (e: any, plan: string | null) => {
     e.stopPropagation();
@@ -35,24 +37,31 @@ export const Subscription = () => {
   };
 
   useEffect(() => {
-    if (!paymentId) return;
-
-    const ws = new WebSocket("wss://guideme-8o9f.onrender.com"); // should be wss for secure
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ type: "watch", paymentId }));
-    };
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.status === true) {
-        setStatus("payment success");
-        ws.close();
-      }
-    };
+    // Initialize socket connection once when component mounts
+    const newSocket = io("https://guideme-8o9f.onrender.com", {
+      transports: ["websocket"],
+    });
+    setSocket(newSocket);
 
     return () => {
-      ws.close();
+      newSocket.disconnect();
     };
-  }, [paymentId]);
+  }, []);
+
+  useEffect(() => {
+    if (!socket || !paymentId) return;
+
+    socket.emit("watchPayment", paymentId);
+
+    socket.on("paymentStatus", (message: { status: boolean }) => {
+      if (message.status === true) {
+        setStatus("payment success");
+      }
+    });
+    return () => {
+      socket.off("paymentStatus");
+    };
+  }, [socket, paymentId]);
 
   useEffect(() => {
     if (!open) {

@@ -34,7 +34,7 @@ const guideschema = new mongoose.Schema({
       ref: "User",
     },
   ],
-  comments: [
+  reviwedBy: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Comment",

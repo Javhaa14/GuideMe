@@ -4,14 +4,17 @@ import {
   deleteTripPlan,
   getAllTripPlans,
   getTripPlanById,
+  getTripPlansByGuideId,
   updateTripPlan,
 } from "../controller/tripPlan";
 
-export const tripPlanRouter = Router();
+const tripPlanRouter = Router();
 
-tripPlanRouter
-  .post("/", createTripPlan)
-  .get("/", getAllTripPlans)
-  .get("/:id", getTripPlanById)
-  .put("/:id", updateTripPlan)
-  .delete("/:id", deleteTripPlan);
+tripPlanRouter.post("/", createTripPlan);
+tripPlanRouter.get("/", getAllTripPlans);
+tripPlanRouter.get("/tripPlan/:id", getTripPlanById);
+tripPlanRouter.get("/:userid", getTripPlansByGuideId);
+tripPlanRouter.put("/:id", updateTripPlan);
+tripPlanRouter.delete("/:id", deleteTripPlan);
+
+export default tripPlanRouter;

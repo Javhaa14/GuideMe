@@ -2,40 +2,60 @@ import mongoose from "mongoose";
 
 const tripPlanSchema = new mongoose.Schema(
   {
-    GuideId: {
+    guideId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Guide",
       required: true,
     },
-    Date: {
+    title: {
       type: String,
       required: true,
     },
-    Location: {
+    images: {
+      type: [String],
+      default: [],
+    },
+    about: {
+      type: String,
+    },
+    date: {
       type: String,
       required: true,
-      trim: true,
     },
-    About: {
+    duration: {
       type: String,
+      required: true,
     },
-    Image: {
+    languages: {
+      type: [String],
+      required: true,
+    },
+    groupSize: {
       type: String,
-    },
-    people: {
-      type: Number,
-      default: 1,
+      required: true,
     },
     price: {
       type: Number,
       required: true,
     },
-    Activities: {
+    route: [
+      {
+        image: String,
+        title: { type: String, required: true },
+        about: String,
+        iconType: String,
+      },
+    ],
+    highlights: {
+      type: [String],
+    },
+    tips: {
       type: [String],
     },
   },
   {
     timestamps: true,
+    strict: true,
   }
 );
 

@@ -1,7 +1,6 @@
 import express, { json, Request, Response } from "express";
 import cors from "cors";
 import { createServer } from "http";
-import { WebSocketServer, WebSocket } from "ws";
 import { Server as SocketIOServer } from "socket.io";
 import QRcode from "qrcode";
 import { v4 } from "uuid";
@@ -14,12 +13,21 @@ import { postRouter } from "./routes/post";
 import { connectMongoDB } from "./connectDB";
 import { touristRouter } from "./routes/touristProfile";
 import { userRouter } from "./routes/user";
-import { tripPlanRouter } from "./routes/tripPlan";
 import { authRouter } from "./routes/auth";
 import { commentRouter } from "./routes/comments";
 import { guideRouter } from "./routes/guideProfile";
 
 import { Onlinerouter } from "./routes/online";
+import { ChatMessageModel } from "./model/ChatHistory";
+import tripPlanRouter from "./routes/tripPlan";
+import { Notifrouter } from "./routes/notificationSMS";
+import { Notification } from "./model/notification";
+import { Bookingrouter } from "./routes/tripbook";
+declare module "socket.io" {
+  interface Socket {
+    userId?: string;
+  }
+}
 import { adminRouter } from "./routes/admin";
 import { statsRouter } from "./routes/stats";
 
@@ -57,63 +65,56 @@ app.use("/stats", statsRouter);
 // app.use('/GuideProfile', GuideProfileRouter);
 app.use("/tprofile", touristRouter);
 app.use("/api", Onlinerouter);
+app.use("/notif", Notifrouter);
+app.use("/bookings", Bookingrouter);
 
 ////////////////////////////////////////////////////////////////
-// QR System
-let qrs: Record<string, boolean> = {};
-let clients: Record<string, WebSocket> = {};
+// QR Payment system using Socket.IO
+// Map paymentId => Set of socket IDs watching that payment
+const paymentWatchers: Record<string, Set<string>> = {};
 
+// Endpoint to generate QR code for payment
 app.get("/", async (_req: Request, res: Response) => {
   const id = v4();
   const baseUrl = "https://guideme-8o9f.onrender.com";
 
   const qr = await QRcode.toDataURL(`${baseUrl}/scanqr?id=${id}`);
-  qrs[id] = false;
+
+  // Initialize the payment as not scanned yet (optional tracking)
   res.send({ qr, id });
 });
 
-app.get("/scanqr", (req, res) => {
-  const { id }: any = req.query;
-  qrs[id] = true;
-
-  const client = clients[id];
-  if (client && client.readyState === WebSocket.OPEN) {
-    client.send(JSON.stringify({ status: true }));
+// Endpoint called when QR code is scanned
+app.get("/scanqr", (req, res: any) => {
+  const { id } = req.query;
+  if (typeof id !== "string") {
+    return res.status(400).send("Missing or invalid id");
   }
 
-  res.send("qr scanned");
-});
-
-////////////////////////////////////////////////////////////////
-// Use a single HTTP server
-const httpServer = createServer(app);
-
-// WebSocket for QR scan
-const ws = new WebSocketServer({ server: httpServer });
-
-ws.on("connection", (socket: WebSocket) => {
-  socket.on("message", (value) => {
-    const str = value.toString();
-
-    try {
-      const message = JSON.parse(str);
-      if (message.type === "watch" && message.paymentId) {
-        clients[message.paymentId] = socket;
+  // Notify all watchers of this paymentId via Socket.IO
+  const watchers = paymentWatchers[id];
+  if (watchers) {
+    watchers.forEach((socketId) => {
+      const socket = io.sockets.sockets.get(socketId);
+      if (socket) {
+        socket.emit("paymentStatus", { paymentId: id, status: true });
       }
-    } catch (err) {
-      console.log("Received non-JSON message:", str);
-    }
-  });
+    });
+  }
+
+  res.send("QR scanned, watchers notified");
 });
 
 ////////////////////////////////////////////////////////////////
-// Socket.IO for Chat
+// Create HTTP server and initialize Socket.IO
+const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
   cors: {
     origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
+  transports: ["websocket", "polling"],
 });
 
 const openai = new OpenAI({
@@ -122,8 +123,36 @@ const openai = new OpenAI({
 
 io.on("connection", (socket) => {
   let chatHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
+  console.log(`🔌 Socket connected: ${socket.id}`);
 
-  // 1. AI Chatbot
+  // --- QR payment watch handling ---
+
+  // Client asks to watch a payment by id
+  socket.on("watchPayment", (paymentId: string) => {
+    if (!paymentWatchers[paymentId]) paymentWatchers[paymentId] = new Set();
+    paymentWatchers[paymentId].add(socket.id);
+    console.log(`Socket ${socket.id} is watching payment ${paymentId}`);
+  });
+
+  // When socket disconnects, remove from all payment watchers
+  socket.on("disconnect", () => {
+    chatHistory = [];
+
+    for (const [paymentId, watchers] of Object.entries(paymentWatchers)) {
+      if (watchers.has(socket.id)) {
+        watchers.delete(socket.id);
+        console.log(
+          `Socket ${socket.id} removed from watching payment ${paymentId}`
+        );
+        if (watchers.size === 0) {
+          delete paymentWatchers[paymentId];
+        }
+      }
+    }
+  });
+
+  // --- AI Chatbot ---
+
   socket.on("ai chatbot", async (msg: string) => {
     chatHistory.push({ role: "user", content: msg });
 
@@ -153,47 +182,111 @@ If a question is unrelated (like programming, celebrities, or personal advice), 
     }
   });
 
-  // 2. User-to-User Chat
-  socket.on("chat message", (msg: string) => {
-    io.emit("chat message", msg);
+  // --- Chat room join ---
+  socket.on("identify", (userId) => {
+    socket.data.userId = userId;
+    socket.join(userId); // Optional: join a personal room by userId
+    console.log(`✅ Socket ${socket.id} identified as user ${userId}`);
   });
 
-  socket.on("joinResetRoom", (userId: string) => {
-    socket.join(`reset_${userId}`);
-    console.log(`🛎️ Socket ${socket.id} joined room: reset_${userId}`);
+  // Join notification room
+  socket.on("joinNotificationRoom", (userId: string) => {
+    socket.join(`notify_${userId}`);
+    console.log(`🔔 User ${userId} joined notify_${userId}`);
+
+    // Debug: List all socket rooms
+    setTimeout(() => {
+      console.log(`🧠 Socket ${socket.id} rooms:`, [...socket.rooms]);
+    }, 1000); // wait a sec to allow join
   });
 
-  socket.on("approveReset", async (data: { token: string }) => {
+  // Join chat room
+  socket.on("joinRoom", (roomId) => {
+    socket.join(roomId);
+    socket.data.currentRoom = roomId;
+    console.log(`👥 Socket ${socket.id} joined room ${roomId}`);
+  });
+
+  // Leave chat room
+  socket.on("leaveRoom", (roomId) => {
+    socket.leave(roomId);
+    console.log(`🚪 Socket ${socket.id} left room ${roomId}`);
+  });
+  socket.on("markNotificationsSeen", ({ senderId, receiverId }) => {
+    if (!senderId || !receiverId) return; // avoid undefined values
+    io.to(`notify_${receiverId}`).emit("notificationsSeen", { senderId });
+  });
+
+  // Handle incoming chat message
+  socket.on("chat message", async (msg) => {
+    console.log("📩 Message received:", msg);
+
     try {
-      const payload = jwt.verify(
-        data.token,
-        process.env.JWT_SECRET!
-      ) as JwtPayload & { id: string };
-
-      // Emit event to this user's private room to notify approval
-      io.to(`reset_${payload.id}`).emit("resetApproved", {
-        message: "Password reset approved!",
-        userId: payload.id,
+      // Save message to DB (replace with your DB code)
+      const savedMessage = await ChatMessageModel.create({
+        user: msg.user,
+        userId: msg.userId,
+        text: msg.text,
+        profileimage: msg.profileimage,
+        roomId: msg.roomId,
+        // timestamp will be added automatically
       });
 
-      // Optionally, update DB to mark token as used or approved
+      if (!savedMessage) {
+        throw new Error("Failed to save message");
+      }
 
-      socket.emit("approveResult", {
-        success: true,
-        message: "Reset approved.",
+      // Emit message to the chat room
+      io.to(msg.roomId).emit("chat message", savedMessage);
+
+      // Determine recipient userId
+      const [userA, userB] = msg.roomId.split("-");
+      const recipientId = msg.userId === userA ? userB : userA;
+
+      // Save notification in DB (replace with your DB code)
+      await Notification.create({
+        sender: msg.userId,
+        receiver: recipientId,
+        messageId: savedMessage._id,
+        roomId: msg.roomId,
+        seen: false,
       });
+
+      // Find recipient's socket to check current room
+      const recipientSocket = [...io.sockets.sockets.values()].find(
+        (s) => s.data?.userId === recipientId
+      );
+
+      const isViewingChat = recipientSocket?.data?.currentRoom === msg.roomId;
+
+      console.log(`Checking if should notify recipient ${recipientId}`);
+      console.log(`Is viewing chat: ${isViewingChat}`);
+      console.log(`Is sender: ${recipientId === msg.userId}`);
+
+      if (!isViewingChat && recipientId !== msg.userId) {
+        console.log(`📣 Emitting to notify_${recipientId}`);
+        io.to(`notify_${recipientId}`).emit("notify", {
+          title: "New Message",
+          message: `${msg.user} sent you a message`,
+          roomId: msg.roomId,
+          senderId: msg.userId,
+          type: "message",
+        });
+      } else {
+        console.log("🔕 No notification sent (user is in room or is sender)");
+      }
     } catch (err) {
-      socket.emit("approveResult", {
-        success: false,
-        message: "Invalid or expired token.",
-      });
+      console.error("❌ Failed to process chat message:", err);
     }
   });
 
+  // Handle disconnect cleanup if needed
   socket.on("disconnect", () => {
-    chatHistory = [];
+    console.log(`❌ Socket disconnected: ${socket.id}`);
+    // You can remove socket from any tracking str
   });
 });
+
 export { io };
 
 ////////////////////////////////////////////////////////////////

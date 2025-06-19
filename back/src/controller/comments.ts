@@ -7,6 +7,8 @@ export const createComment = async (
   res: Response
 ): Promise<void> => {
   const { userId, rating, review, recommend, reviewerId } = req.body;
+  console.log("Received body:", req.body);
+
   try {
     const comment = await Commentmodel.create({
       reviewerId,
@@ -15,19 +17,29 @@ export const createComment = async (
       review,
       recommend,
     });
-    const guide = await Guidemodel.findById(userId);
-    if (!guide) {
-      console.error("Guide not found with ID:", userId);
-    } else {
-      guide.comments.push(comment._id);
-      await guide.save();
-      console.log("Comment pushed and guide saved:", guide);
-    }
+    const allRatings = await Commentmodel.find({ userId });
+    const validRatings = allRatings
+      .map((c) => c.rating ?? 0)
+      .filter((r) => typeof r === "number");
+    const totalRating = validRatings.reduce((sum, r) => sum + r, 0);
+    const averageRating =
+      validRatings.length > 0 ? totalRating / validRatings.length : 0;
+
+    const updatedGuide = await Guidemodel.findByIdAndUpdate(
+      userId,
+      {
+        $push: { reviewedBy: comment._id },
+        $set: { rating: parseFloat(averageRating.toFixed(1)) },
+      },
+      { new: true }
+    );
+
+    console.log("✅ Guide updated with new comment and rating:", updatedGuide);
 
     res.status(200).send({
       success: true,
       comment,
-      guide,
+      updatedGuide,
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -56,11 +68,7 @@ export const getCommentsByuserId = async (
       select: "username _id role",
     });
 
-    if (!comments || comments.length === 0) {
-      res.status(404).send({ message: "No comments found for this user" });
-      return;
-    }
-
+    // Always respond with success and comments array, even if empty
     res.status(200).send({ success: true, comments });
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -79,3 +87,4 @@ export const getCommentsByuserId = async (
     }
   }
 };
+

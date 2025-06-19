@@ -203,7 +203,8 @@ export const updateUserById = async (
   res: Response
 ): Promise<void> => {
   const { id } = req.params;
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body;
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     res.status(400).json({
       success: false,
@@ -211,12 +212,14 @@ export const updateUserById = async (
     });
     return;
   }
+
   try {
-    const updates: { [key: string]: string } = {};
+    const updates: { [key: string]: any } = {};
 
     if (username) updates.username = username;
     if (email) updates.email = email;
     if (password) updates.password = await bcrypt.hash(password, 10);
+    if (role) updates.role = role; 
 
     const user = await UserModel.findByIdAndUpdate(id, updates, {
       new: true,
