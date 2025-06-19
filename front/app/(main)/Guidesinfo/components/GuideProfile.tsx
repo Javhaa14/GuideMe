@@ -11,6 +11,8 @@ import {
   Star,
   ThumbsUp,
 } from "lucide-react";
+import { BiSolidQuoteLeft } from "react-icons/bi";
+import { BiSolidQuoteRight } from "react-icons/bi";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@/app/context/Usercontext";
@@ -91,7 +93,13 @@ export const GuideProfile = ({
             >
               {name}
             </h2>
-            <span className="text-sm text-gray-600">{slogan}</span>
+            <div className="flex gap-1 items-end">
+              <span className="flex gap-1 text-sm text-gray-600">
+                <BiSolidQuoteLeft className="size-3 stroke-gray-400 fill-gray-400" />
+                {slogan}
+              </span>
+              <BiSolidQuoteRight className="size-3 stroke-gray-400 fill-gray-400" />
+            </div>
           </div>
           <span
             className={`text-xs font-medium px-2 py-1 rounded-full ${
