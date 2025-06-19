@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Globe, MapPin, Users, Calendar, X, Edit2 } from "lucide-react";
+import { Globe, MapPin, Users, Calendar } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import {
   Dialog,
@@ -15,17 +15,19 @@ import {
 import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
 
+interface Participants {
+  adult: number;
+  child: number;
+}
+
 interface CheckingProps {
   data: {
-    participants: {
-      adult: number;
-      child: number;
-    };
+    participants: Participants;
     totalParticipants: number;
     language: string;
     totalPrice: number;
   };
-  trip: any;
+  trip: any; // Ideally, replace with proper type like TripItem
   onBookingConfirmed: () => void;
   onCancel: () => void;
   onEdit: () => void;
@@ -44,17 +46,16 @@ export const Checking: React.FC<CheckingProps> = ({
 }) => {
   const { participants, totalParticipants, language, totalPrice } = data;
   const { user } = useUser();
+
   const [qr, setQr] = useState<string>("");
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [loadingQr, setLoadingQr] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editParticipants, setEditParticipants] = useState(totalParticipants);
-  const [editLanguage, setEditLanguage] = useState(language);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [userPeopleCount, setUserPeopleCount] = useState<number>(1); // default 1
 
-  // Fetch QR code when dialog opens
+  // Fetch QR code on demand
   const fetchQr = async () => {
     setLoadingQr(true);
     try {
@@ -68,18 +69,18 @@ export const Checking: React.FC<CheckingProps> = ({
     setLoadingQr(false);
   };
 
-  // Initialize socket once on mount
+  // Initialize socket once
   useEffect(() => {
     const newSocket = io("https://guideme-8o9f.onrender.com", {
       transports: ["websocket"],
     });
 
     newSocket.on("connect", () => {
-      console.log("Socket connected with id:", newSocket.id);
+      console.log("Socket connected:", newSocket.id);
     });
 
     newSocket.on("connect_error", (err) => {
-      console.error("Socket connect error:", err);
+      console.error("Socket connection error:", err);
     });
 
     setSocket(newSocket);
@@ -89,18 +90,18 @@ export const Checking: React.FC<CheckingProps> = ({
     };
   }, []);
 
-  // Watch payment status when paymentId & socket are ready
+  // Listen to paymentStatus events for the current paymentId
   useEffect(() => {
     if (!socket || !paymentId) return;
 
     socket.emit("watchPayment", paymentId);
 
-    socket.on("paymentStatus", async (message: { status: boolean }) => {
+    const handler = async (message: { status: boolean }) => {
       if (message.status === true) {
         setBookingStatus("payment success");
 
         try {
-          // Check for existing booking or create one
+          // Check for existing booking or create/update it
           const checkRes = await axiosInstance.get("/bookings", {
             params: {
               tripPlanId: trip._id,
@@ -108,11 +109,7 @@ export const Checking: React.FC<CheckingProps> = ({
             },
           });
 
-          if (
-            checkRes.data &&
-            checkRes.data.bookings &&
-            checkRes.data.bookings.length > 0
-          ) {
+          if (checkRes.data?.bookings && checkRes.data.bookings.length > 0) {
             const existingBooking = checkRes.data.bookings[0];
             await axiosInstance.put(`/bookings/${existingBooking._id}`, {
               numberOfPeople: totalParticipants,
@@ -132,21 +129,23 @@ export const Checking: React.FC<CheckingProps> = ({
             });
           }
 
-          onBookingConfirmed(); // Notify parent about successful booking
-        } catch (err) {
-          console.error("Booking creation/updation failed:", err);
-        }
+          onBookingConfirmed();
 
-        setTimeout(() => {
-          setIsDialogOpen(false);
-          setQr("");
-          setPaymentId(null);
-        }, 3000);
+          setTimeout(() => {
+            setIsDialogOpen(false);
+            setQr("");
+            setPaymentId(null);
+          }, 3000);
+        } catch (err) {
+          console.error("Booking create/update error:", err);
+        }
       }
-    });
+    };
+
+    socket.on("paymentStatus", handler);
 
     return () => {
-      socket.off("paymentStatus");
+      socket.off("paymentStatus", handler);
     };
   }, [
     socket,
@@ -158,11 +157,9 @@ export const Checking: React.FC<CheckingProps> = ({
     onBookingConfirmed,
   ]);
 
-  // On mount check existing booking payment status
-
+  // Check existing booking on mount or when user/trip changes
   const checkExistingBooking = async () => {
     if (!user?.id) {
-      console.warn("Cannot check bookings: user ID missing");
       setBookingStatus("no booking");
       setBookingId(null);
       return;
@@ -175,18 +172,20 @@ export const Checking: React.FC<CheckingProps> = ({
       if (paidBooking) {
         setBookingStatus("payment success");
         setBookingId(paidBooking._id);
+        setUserPeopleCount(paidBooking.numberOfPeople); // ✅ Save number of people
       } else {
         setBookingStatus("no booking");
         setBookingId(null);
+        setUserPeopleCount(1);
       }
     } catch (err) {
-      console.error("Failed to check booking status:", err);
+      console.error("Failed to check booking:", err);
       setBookingStatus("no booking");
       setBookingId(null);
+      setUserPeopleCount(1);
     }
   };
 
-  // useEffect calls the above on mount or when user/trip changes
   useEffect(() => {
     if (!user?.id) {
       setBookingStatus("no booking");
@@ -197,19 +196,19 @@ export const Checking: React.FC<CheckingProps> = ({
       checkExistingBooking();
     }
   }, [user, trip, setBookingStatus]);
-  // Cancel Booking Handler
+
+  // Cancel Booking
   const handleCancelBooking = async (bookingId: string) => {
     try {
       await axiosInstance.put(`/bookings/${bookingId}`, {
         cancelTouristId: user.id,
+        numberOfPeople: userPeopleCount, // ✅ Use dynamic count
       });
-
       alert("Your booking has been cancelled successfully.");
-
-      // refetch or update local booking info here
-      await checkExistingBooking(); // your function to get fresh booking state
-    } catch (error: any) {
-      // error handling
+      await checkExistingBooking();
+    } catch (error) {
+      alert("Failed to cancel booking. Please try again.");
+      console.error(error);
     }
   };
 
@@ -286,7 +285,7 @@ export const Checking: React.FC<CheckingProps> = ({
 
           <div className="space-y-3">
             {["adult", "child"].map((type) => {
-              const count = participants[type as keyof typeof participants];
+              const count = participants[type as keyof Participants] || 0;
               return (
                 <div
                   key={type}
@@ -354,7 +353,7 @@ export const Checking: React.FC<CheckingProps> = ({
             <DialogTitle className="text-xl font-bold">
               {trip.title} - Payment
             </DialogTitle>
-            <DialogClose></DialogClose>
+            <DialogClose />
           </DialogHeader>
 
           <div className="flex flex-col items-center gap-6 mt-4">
