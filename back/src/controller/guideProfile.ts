@@ -105,7 +105,6 @@ export const getGuideByuserId = async (
   }
 };
 
-
 export const getGuides = async (_: Request, res: Response): Promise<void> => {
   try {
     const guides = await Guidemodel.find().lean();
@@ -177,6 +176,7 @@ export const updateGuideProfile = async (
     });
   }
 };
+
 export const saveAvailability = async (
   req: Request,
   res: Response

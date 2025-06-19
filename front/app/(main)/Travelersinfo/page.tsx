@@ -21,6 +21,8 @@ import { useSearchLocation } from "@/app/context/SearchLocationContext";
 import { date, number } from "zod";
 import { Newsreader } from "next/font/google";
 import Tpost from "../components/tpost";
+import Tpostvertical from "../components/tpostvertical";
+import TpostCard from "../components/tpostvertical";
 
 export interface PostType {
   _id: string;
@@ -220,10 +222,10 @@ export default function Home() {
 
   return (
     <div className="flex w-screen h-full items-start justify-between bg-white gap-5 py-[40px] px-[50px]">
-      <div className="flex gap-5 w-[800px] h-fit">
+      <div className="flex flex-wrap gap-5 w-full h-fit">
         {filteredPost.map((v, i) => {
           return (
-            <Tpost
+            <TpostCard
               onclick={() => {
                 todetail(v.userId);
               }}
@@ -303,14 +305,6 @@ export default function Home() {
             <Button onClick={handleClearButton} className="w-[150px]">
               Clear Filters
             </Button>
-            {/* <Button
-              onClick={() => {
-                // Trigger filter logic here
-                console.log(value);
-              }}
-            >
-              Apply filters
-            </Button> */}
           </div>
         </div>
       </div>
