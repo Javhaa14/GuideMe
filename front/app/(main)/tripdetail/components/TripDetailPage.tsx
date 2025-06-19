@@ -10,6 +10,7 @@ import { Activity } from "./Activity";
 import { TripItem } from "./Booking";
 import Rout from "./Rout";
 import { useUser } from "@/app/context/Usercontext";
+import TourBookingPage from "./TourBookingPage";
 
 export const TripDetailPage = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -177,7 +178,7 @@ export const TripDetailPage = () => {
 
       {/* Additional Components */}
       <Activity />
-      {/* <TourBookingPage trip={trip!} setBookingStatus={setBookingStatus} /> */}
+      <TourBookingPage trip={trip!} />
       <Rout />
     </div>
   );
