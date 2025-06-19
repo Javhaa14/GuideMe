@@ -71,6 +71,15 @@ export default function Home() {
       <StatsSection />
     </motion.div>,
   ];
+  const [scrollMessage, setScrollMessage] = useState("Welcome to GuideMe");
+
+  const sectionMessages = [
+    "Welcome to GuideMe",
+    "Welcome to Mongolia",
+    "Discover your next adventure",
+    "Book your guide today",
+  ];
+
   useEffect(() => {
     const fetchGuides = async () => {
       try {
@@ -92,6 +101,7 @@ export default function Home() {
           );
           if (entry.isIntersecting && index !== -1) {
             setScrollIndex(index);
+            setScrollMessage(sectionMessages[index]);
           }
         });
       },

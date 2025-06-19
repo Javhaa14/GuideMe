@@ -4,6 +4,16 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
 import { StatsSection } from "./Stats";
+import {
+  Star,
+  Heart,
+  MapPin,
+  Clock,
+  DollarSign,
+  Phone,
+  Shield,
+  Award,
+} from "lucide-react";
 
 export type GuideProfile = {
   profileimage: string;
