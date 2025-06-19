@@ -30,7 +30,7 @@ const initilaFilters = {
   language: [],
 };
 
-export const Filters = ({ guides }: { guides: Guide[] }) => {
+export const FilterTest = ({ guides }: { guides: Guide[] }) => {
   const { filteredData, setFilteredData } = useFilteredData();
   const { priceRange, setPriceRange } = usePriceRange();
   const { searchedValue, setSearchedValue } = useSearchLocation();
