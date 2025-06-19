@@ -9,6 +9,7 @@ import { axiosInstance } from "@/lib/utils";
 import { Activity } from "./Activity";
 import { TripItem } from "./Booking";
 import Rout from "./Rout";
+import { useUser } from "@/app/context/Usercontext";
 
 export const TripDetailPage = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -17,7 +18,7 @@ export const TripDetailPage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const params = useParams();
   const router = useRouter();
-
+  const { user } = useUser();
   // Зураг дэлгэц дээр томруулж харах
   const openDialog = (index: number) => {
     setCurrentIndex(index);
@@ -41,7 +42,8 @@ export const TripDetailPage = () => {
       }
 
       const res = await axiosInstance.post("/wishlist", {
-        tripId: trip._id,
+        userId: user.id,
+        tripPlanId: trip._id,
       });
 
       if (res.data.success) {
@@ -94,8 +96,7 @@ export const TripDetailPage = () => {
         <h1 className="text-3xl font-bold">{trip?.title || "Loading..."}</h1>
         <button
           onClick={handleAddToWishlist}
-          className="flex items-center gap-1 px-3 py-1 transition-all border border-gray-300 rounded-lg hover:bg-red-50 active:scale-95"
-        >
+          className="flex items-center gap-1 px-3 py-1 transition-all border border-gray-300 rounded-lg hover:bg-red-50 active:scale-95">
           <Heart size={16} className="text-red-500" />
           <span className="text-sm font-medium text-gray-700">
             Add to wishlist
@@ -145,20 +146,17 @@ export const TripDetailPage = () => {
         ref={dialogRef}
         aria-modal="true"
         role="dialog"
-        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]"
-      >
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 backdrop:bg-black/80 bg-transparent rounded-xl p-0 border-0 max-w-6xl w-[95vw] h-[85vh]">
         <div className="relative flex items-center justify-center w-full h-full px-12">
           <button
             onClick={closeDialog}
-            className="absolute z-20 flex items-center justify-center w-12 h-12 text-4xl text-white transition duration-200 rounded-full top-4 right-6 hover:text-gray-300 bg-black/40 hover:bg-black/60 backdrop-blur"
-          >
+            className="absolute z-20 flex items-center justify-center w-12 h-12 text-4xl text-white transition duration-200 rounded-full top-4 right-6 hover:text-gray-300 bg-black/40 hover:bg-black/60 backdrop-blur">
             ×
           </button>
           <button
             onClick={prevImage}
             className="absolute left-0 z-30 px-3 py-2 text-3xl text-white transition duration-200 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur"
-            aria-label="Previous Image"
-          >
+            aria-label="Previous Image">
             ‹
           </button>
           {images.length > 0 && (
@@ -171,8 +169,7 @@ export const TripDetailPage = () => {
           <button
             onClick={nextImage}
             className="absolute right-0 z-30 px-3 py-2 text-3xl text-white transition duration-200 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur"
-            aria-label="Next Image"
-          >
+            aria-label="Next Image">
             ›
           </button>
         </div>
