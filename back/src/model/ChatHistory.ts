@@ -1,25 +1,27 @@
-// models/ChatMessage.ts
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose from "mongoose";
 
-interface IChatMessage extends Document {
-  user: string;
-  text: string;
-  profileimage?: string;
-  timestamp: Date;
-  roomId?: string;
-}
-
-const ChatMessageSchema = new mongoose.Schema(
+const messageSchema = new mongoose.Schema(
   {
-    user: String,
-    userId: String,
-    text: String,
-    profileimage: String,
-    roomId: String,
+    chat: { type: mongoose.Schema.Types.ObjectId, ref: "Chat", required: true },
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    text: { type: String, trim: true },
+    // Optionally support attachments (images, files, etc)
+    attachments: [
+      {
+        url: String,
+        type: String, // "image", "video", "file", etc
+      },
+    ],
+    readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // users who read this message
+    deletedFor: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // optional: soft-delete per user
   },
-  { timestamps: true }
+  {
+    timestamps: true, // createdAt & updatedAt
+  }
 );
 
-export const ChatMessageModel =
-  mongoose.models.ChatMessage ||
-  mongoose.model("ChatMessage", ChatMessageSchema);
+export const ChathistoryModel = mongoose.model("Message", messageSchema);
