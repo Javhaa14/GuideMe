@@ -5,7 +5,6 @@ import { Heart, HeartPlus, Pencil, Save, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
-
 import { Activity } from "./Activity";
 import { TripItem } from "./Booking";
 import Rout from "./Rout";
@@ -108,23 +107,40 @@ export const TripDetailPage = () => {
   };
 
   const handleAddImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    const formData = new FormData();
-    formData.append("image", file);
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "guideme");
 
-    try {
-      const res = await axiosInstance.post("/tripPlan/upload-image", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      try {
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
-      const uploadedUrl = res.data.imageUrl;
-      setEditedImages((prev) => [...prev, uploadedUrl]);
-    } catch (error: any) {
-      toast.error(
-        "Зураг хадгалахад алдаа: " + (error.message || "Тодорхойгүй")
-      );
+        const data = await res.json();
+
+        if (data.secure_url) {
+          setEditedImages((prev) => [...prev, data.secure_url]);
+          toast.success("Зураг амжилттай нэмэгдлээ");
+        } else {
+          console.error("Upload failed:", data);
+          toast.error("Зураг илгээхэд алдаа гарлаа");
+        }
+      } catch (err) {
+        console.error("Cloudinary upload error:", err);
+        toast.error("Серверийн алдаа: Cloudinary");
+      }
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -220,6 +236,7 @@ export const TripDetailPage = () => {
             <input
               type="file"
               accept="image/*"
+              multiple
               ref={fileInputRef}
               onChange={handleAddImage}
               className="hidden"

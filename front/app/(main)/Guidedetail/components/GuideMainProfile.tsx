@@ -19,7 +19,7 @@ type TourPost = {
 };
 
 export type GuideProfile = {
-  _id: number;
+  _id: string;
   username: string;
   firstName: string;
   lastName: string;
@@ -94,7 +94,7 @@ export default function GuideMainProfile() {
       <div className="container max-w-6xl px-4 py-8 mx-auto">
         <GuideCard
           guide={guide}
-          guideId={guide._id.toString()}
+          guideId={guide._id}
           chat={chat}
           setChat={setChat}
           onlineStatus={!!onlineUsers[profileId]?.isOnline}

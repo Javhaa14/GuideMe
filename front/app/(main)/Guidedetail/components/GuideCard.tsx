@@ -25,10 +25,11 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { axiosInstance } from "@/lib/utils";
 
 interface GuideCardProps {
   guide: GuideProfile;
-  guideId: string;
+  guideId: { _id: string };
   chat: boolean;
   setChat: (value: boolean) => void;
   onlineStatus: boolean;
@@ -41,6 +42,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({
   setChat,
   onlineStatus,
 }) => {
+  console.log(guideId._id);
+
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
@@ -100,9 +103,11 @@ export const GuideCard: React.FC<GuideCardProps> = ({
           .map((lang: string) => lang.trim())
           .filter((lang: string) => lang.length > 0),
       };
-      console.log("Sending to backend:", dataToSend); // 🧪 debug
-      const response = await axios.put(`/gprofile/edit/${guideId}`, dataToSend);
-      console.log("Updated:", response.data); // 🧪 debug
+      const response = await axiosInstance.put(
+        `/gprofile/edit/${guideId._id}`,
+        dataToSend
+      );
+      console.log("Updated:", response.data);
       alert("Profile saved successfully!");
       setIsEditing(false);
     } catch (err: any) {
@@ -259,13 +264,10 @@ export const GuideCard: React.FC<GuideCardProps> = ({
         </div>
 
         <div className="flex justify-center gap-4 mt-4">
-          <Button
-            onClick={() => setChat(!chat)}
-            className="bg-green-500 text-white hover:brightness-110"
-          >
+          <Button onClick={() => setChat(!chat)}>
             <MessageCircle className="mr-2" /> Chat
           </Button>
-          <Review userId={guideId} />
+          <Review userId={guideId._id} />
           <Subscription />
           <Ebooking />
         </div>

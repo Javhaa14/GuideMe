@@ -93,10 +93,9 @@ export const Review = ({ userId }: ReviewProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Toaster />
+
       <DialogTrigger>
-        <span className="cursor-pointer flex justify-center items-center rounded-2xl w-[120px] h-[35px] text-white bg-blue-500">
-          Review Guide
-        </span>
+        <Button>Review Guide</Button>
       </DialogTrigger>
       <DialogContent className="w-full max-w-md">
         <DialogHeader>
