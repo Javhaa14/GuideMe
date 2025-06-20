@@ -185,7 +185,7 @@ export default function Home() {
 
   return (
     <div className="flex w-screen h-full items-start justify-between bg-white gap-5 py-[40px] px-[50px]">
-      <div className="flex flex-wrap gap-5 w-full h-fit">
+      <div className="flex flex-wrap gap-5 w-full h-fit overflow-y-scroll">
         {filteredPost.map((v, i) => {
           return (
             <TpostCard
@@ -201,7 +201,7 @@ export default function Home() {
       </div>
 
       <div className="flex flex-col border-[3px] border-gray-200 rounded-md p-4 gap-6 w-fit">
-        <h2 className="text-sky-700 text-xl font-semibold">Filters</h2>
+        <h2 className="text-gray-800 text-xl font-semibold">Filters</h2>
         {/* Location Filter */}
         <div className="flex flex-col gap-2 items-start justify-center">
           <span className="text-sm font-medium text-gray-700">Location:</span>
@@ -227,7 +227,8 @@ export default function Home() {
                 selected
                   ? "bg-black text-white border-black"
                   : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
-              }`}>
+              }`}
+                >
                   <span>{act.icon}</span>
                   <span className="text-sm font-medium">{act.activity}</span>
                   {selected && (
@@ -236,7 +237,8 @@ export default function Home() {
                       className="w-4 h-4"
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke="currentColor">
+                      stroke="currentColor"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -266,7 +268,8 @@ export default function Home() {
             <Button
               onClick={handleClearButton}
               variant="ghost"
-              className="text-sky-700 bg-white font-semibold flex items-center gap-1 hover:bg-blue-100">
+              className="text-sky-700 bg-white font-semibold flex items-center gap-1 hover:bg-blue-100"
+            >
               <RefreshCcw className="w-4 h-4" />
               Clear Filters
             </Button>

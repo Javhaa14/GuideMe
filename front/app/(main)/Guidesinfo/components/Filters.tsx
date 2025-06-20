@@ -116,7 +116,7 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
 
   return (
     <div className="flex flex-col border-[3px] border-gray-200 rounded-md p-4 gap-6 w-fit">
-      <h2 className="text-amber-800 text-xl font-semibold">Filters</h2>
+      <h2 className="text-gray-800 text-xl font-semibold">Filters</h2>
 
       {/* Location Filter */}
       <div className="border rounded-lg p-4 shadow-sm">
@@ -142,7 +142,8 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
           {filters.experience.map((exp) => (
             <span
               key={exp}
-              className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center gap-1">
+              className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+            >
               {experience.map((el) => {
                 if (el.experienceNumber === exp) {
                   return el.experience;
@@ -177,7 +178,8 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
           {filters.language.map((lang) => (
             <span
               key={lang}
-              className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center gap-1">
+              className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+            >
               {lang}
               <button onClick={() => removeTag("language", lang)}>×</button>
             </span>
@@ -205,7 +207,8 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
           collapsible
           className="w-full"
           value={isExpanded ? "more-languages" : ""}
-          onValueChange={(value) => setIsExpanded(value === "more-languages")}>
+          onValueChange={(value) => setIsExpanded(value === "more-languages")}
+        >
           <AccordionItem value="more-languages">
             <AccordionTrigger className="flex items-center gap-1 text-sm text-amber-900 hover:underline px-0 group">
               {isExpanded ? "Show Less Languages" : "Show More Languages"}
@@ -239,7 +242,8 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
         <Button
           variant="ghost"
           className="text-amber-800 font-semibold flex items-center gap-1"
-          onClick={handleAllClearButton}>
+          onClick={handleAllClearButton}
+        >
           <RefreshCw className="w-4 h-4" />
           Clear Filters
         </Button>
