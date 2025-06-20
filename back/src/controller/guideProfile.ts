@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { Guidemodel } from "../model/Guide";
 import mongoose from "mongoose";
-
+import { io } from "..";
+import { NotificationModel } from "../model/Notif";
 export const createGuideProfile = async (
   req: Request,
   res: Response
@@ -140,7 +141,6 @@ export const updateGuideProfile = async (
 ): Promise<any> => {
   const { userId, guideId } = req.body;
 
-  // Validate both IDs first
   if (
     !mongoose.Types.ObjectId.isValid(userId) ||
     !mongoose.Types.ObjectId.isValid(guideId)
@@ -164,18 +164,34 @@ export const updateGuideProfile = async (
       );
     } else {
       guideProfile.likedBy.push(new mongoose.Types.ObjectId(userId));
+
+      // ✅ 1. Notification model-д хадгалах
+      await NotificationModel.create({
+        toUserId: guideProfile._id,
+        fromUserId: userId,
+        postId: guideId,
+        type: "like",
+        message: "Someone liked your guide profile!",
+        read: false,
+      });
+
+      // ✅ 2. Socket.io ашиглан мэдэгдэл real-time илгээх
+      io.to(`notify_${guideProfile._id.toString()}`).emit("notify", {
+        type: "like",
+        fromUserId: userId,
+        postId: guideId,
+        message: "Someone liked your guide profile!",
+      });
     }
 
     await guideProfile.save();
-    res.status(200).json({
-      message: "Post updated successfully",
+
+    return res.status(200).json({
+      message: "Profile updated",
       likedBy: guideProfile.likedBy,
     });
   } catch (error) {
-    res.status(400).send({
-      error,
-      success: false,
-    });
+    return res.status(500).json({ success: false, error });
   }
 };
 

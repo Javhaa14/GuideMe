@@ -25,6 +25,7 @@ import { Notifrouter } from "./routes/notificationSMS";
 import { Notification } from "./model/notification";
 import { Bookingrouter } from "./routes/tripbook";
 import { wishlistRouter } from "./routes/wish";
+import { NotificationRouter } from "./routes/Notif";
 
 // Extend Socket.IO with custom data
 declare module "socket.io" {
@@ -72,6 +73,7 @@ app.use("/api", Onlinerouter);
 app.use("/notif", Notifrouter);
 app.use("/bookings", Bookingrouter);
 app.use("/wishlist", wishlistRouter);
+app.use("/notification", NotificationRouter);
 
 // QR Payment system
 const paymentWatchers: Record<string, Set<string>> = {};
@@ -246,7 +248,14 @@ io.on("connection", (socket) => {
     console.log(`❌ Socket disconnected: ${socket.id}`);
   });
 });
+io.on("connection", (socket) => {
+  console.log("🔌 New client connected");
 
+  socket.on("joinNotificationRoom", (userId: string) => {
+    socket.join(`notify_${userId}`);
+    console.log(`✅ User ${userId} joined notify_${userId}`);
+  });
+});
 // Start the server
 const PORT = process.env.PORT || 4000;
 httpServer.listen(PORT, () => {
