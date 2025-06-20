@@ -200,25 +200,6 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
             </CardFooter>
           </form>
         </Form>
-
-        <div className="px-6 pb-6 pt-2 text-center">
-          <p className="mb-3 text-white/70">Or sign up with</p>
-          <div className="flex justify-center gap-4">
-            <Button
-              variant="outline"
-              className="flex items-center gap-2"
-              onClick={() => handleSocialSignIn("google")}>
-              {/* Use an icon if you have */}
-              <img
-                src="/icons/google.svg"
-                alt="Google"
-                className="w-5 h-5"
-                loading="lazy"
-              />
-              Google
-            </Button>
-          </div>
-        </div>
       </Card>
     </div>
   );

@@ -10,15 +10,12 @@ import { FilteredDataProvider } from "./context/FilteredDataContext";
 import OnlineTracker from "@/components/OnlineTracker";
 import { SocketProvider } from "./context/SocketContext";
 import { NotificationProvider } from "./context/NotificationContext";
+import { LanguageProvider } from "./context/LanguageContext";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem={true}
-      disableTransitionOnChange>
-      <SessionProvider>
+    <SessionProvider>
+      <LanguageProvider>
         <OnlineStatusProvider>
           <OnlineTracker />
           <FilteredDataProvider>
@@ -33,7 +30,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             </SearchLocationProvider>
           </FilteredDataProvider>
         </OnlineStatusProvider>
-      </SessionProvider>
-    </ThemeProvider>
+      </LanguageProvider>
+    </SessionProvider>
   );
 }

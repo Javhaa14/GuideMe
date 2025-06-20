@@ -17,6 +17,7 @@ import {
   FileText,
   Settings,
   Star,
+  TentTree,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { JSX } from "react/jsx-runtime";
@@ -123,8 +124,8 @@ export default function Footer() {
         {/* Branding */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-lg flex items-center justify-center">
-              <Globe className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center">
+              <TentTree className="text-gray-900 dark:text-white" size={24} />
             </div>
             <h4 className="text-2xl font-bold">GuideMe</h4>
           </div>
