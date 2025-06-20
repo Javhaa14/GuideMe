@@ -227,8 +227,7 @@ export default function Home() {
                 selected
                   ? "bg-black text-white border-black"
                   : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
-              }`}
-                >
+              }`}>
                   <span>{act.icon}</span>
                   <span className="text-sm font-medium">{act.activity}</span>
                   {selected && (
@@ -237,8 +236,7 @@ export default function Home() {
                       className="w-4 h-4"
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
+                      stroke="currentColor">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -257,7 +255,7 @@ export default function Home() {
           <span className="text-sm font-medium text-gray-700">Date:</span>
           <div className="p-3 flex flex-col items-center">
             <DateRange
-              ranges={[value]}
+              ranges={[value] as any}
               onChange={(item) => setValue(item.selection)}
               moveRangeOnFirstSelection={false}
               editableDateInputs={true}
@@ -268,8 +266,7 @@ export default function Home() {
             <Button
               onClick={handleClearButton}
               variant="ghost"
-              className="text-sky-700 bg-white font-semibold flex items-center gap-1 hover:bg-blue-100"
-            >
+              className="text-sky-700 bg-white font-semibold flex items-center gap-1 hover:bg-blue-100">
               <RefreshCcw className="w-4 h-4" />
               Clear Filters
             </Button>

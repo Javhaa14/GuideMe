@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { MapPin, CalendarDays, Users } from "lucide-react";
-import { selectActivites } from "@/app/utils/FilterData";
+import { selectActivities } from "@/app/utils/FilterData";
 
 export default function Tpost({ post, onclick, user }: any) {
   console.log(post, "tpos");
@@ -29,7 +29,7 @@ export default function Tpost({ post, onclick, user }: any) {
                   <button
                     // onClick={item.onClick}
                     className="flex flex-col items-center justify-center bg-white shadow-md rounded-2xl min-w-[100px] py-4 px-2 transition-all hover:scale-105 active:scale-95">
-                    {selectActivites.map((act, i) => {
+                    {selectActivities.map((act, i) => {
                       if (act.activity === el) {
                         return <p key={i}>{act.icon}</p>;
                       }

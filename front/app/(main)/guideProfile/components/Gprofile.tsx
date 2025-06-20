@@ -78,6 +78,7 @@ const formSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
   lastName: z.string().min(2, "Last name is required"),
   gender: z.string().min(1, "Gender is required"),
+  location: z.string().min(1, "Location is required"),
   languages: z
     .array(z.string())
     .min(1, { message: "Select at least one language" }),
@@ -136,6 +137,7 @@ export function GProfile() {
       firstName: "",
       lastName: "",
       gender: "",
+      location: "",
       languages: [],
       socialAddress: "",
       profileimage: "",
@@ -203,6 +205,7 @@ export function GProfile() {
         firstName: tourist.firstName || "",
         lastName: tourist.lastName || "",
         gender: tourist.gender || "",
+        location: tourist.location || "",
         languages: tourist.languages || [],
         socialAddress: tourist.socialAddress || "",
         profileimage: tourist.profileimage || "",
@@ -311,8 +314,7 @@ export function GProfile() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {/* Profile Images Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Profile Image */}
+            <div className="flex justify-center">
               <div className="space-y-4">
                 <FormField
                   control={form.control}
@@ -349,39 +351,131 @@ export function GProfile() {
                   )}
                 />
               </div>
+            </div>
 
-              {/* Background Image */}
-              <div className="space-y-4">
+            {/* Background Image */}
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="backgroundimage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2 text-lg font-semibold">
+                      <Globe className="h-5 w-5" />
+                      Background Image
+                    </FormLabel>
+                    <div className="relative">
+                      <div className="w-full h-32 rounded-lg overflow-hidden border-2 border-gray-200 shadow-lg">
+                        {backgroundPreviewUrl ? (
+                          <img
+                            src={backgroundPreviewUrl}
+                            alt="Background preview"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                            <Upload className="h-8 w-8 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleBackgroundImageChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <Separator />
+
+            {/* Location & Languages */}
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Location & Languages
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="backgroundimage"
+                  name="location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-lg font-semibold">
-                        <Globe className="h-5 w-5" />
-                        Background Image
+                      <FormLabel>Location</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-colors">
+                            <SelectValue placeholder="Select your location" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {countryOptions.map((country) => (
+                            <SelectItem
+                              key={country.value}
+                              value={country.value}>
+                              {country.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="languages"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Languages className="h-4 w-4" />
+                        Languages
                       </FormLabel>
-                      <div className="relative">
-                        <div className="w-full h-32 rounded-lg overflow-hidden border-2 border-gray-200 shadow-lg">
-                          {backgroundPreviewUrl ? (
-                            <img
-                              src={backgroundPreviewUrl}
-                              alt="Background preview"
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                              <Upload className="h-8 w-8 text-gray-400" />
-                            </div>
-                          )}
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleBackgroundImageChange}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        />
+                      <Select
+                        onValueChange={(value) => {
+                          const current = field.value || [];
+                          if (!current.includes(value)) {
+                            field.onChange([...current, value]);
+                          }
+                        }}>
+                        <FormControl>
+                          <SelectTrigger className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-colors">
+                            <SelectValue placeholder="Select languages" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {languageOptions.map((language) => (
+                            <SelectItem
+                              key={language.value}
+                              value={language.value}>
+                              {language.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {field.value?.map((lang) => (
+                          <Badge
+                            key={lang}
+                            variant="secondary"
+                            className="cursor-pointer hover:bg-red-100"
+                            onClick={() => {
+                              field.onChange(
+                                field.value?.filter((l) => l !== lang)
+                              );
+                            }}>
+                            {lang} ×
+                          </Badge>
+                        ))}
                       </div>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -454,57 +548,6 @@ export function GProfile() {
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="languages"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Languages className="h-4 w-4" />
-                        Languages
-                      </FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          const current = field.value || [];
-                          if (!current.includes(value)) {
-                            field.onChange([...current, value]);
-                          }
-                        }}>
-                        <FormControl>
-                          <SelectTrigger className="h-12 border-2 border-gray-200 focus:border-blue-500 transition-colors">
-                            <SelectValue placeholder="Select languages" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {languageOptions.map((language) => (
-                            <SelectItem
-                              key={language.value}
-                              value={language.value}>
-                              {language.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {field.value?.map((lang) => (
-                          <Badge
-                            key={lang}
-                            variant="secondary"
-                            className="cursor-pointer hover:bg-red-100"
-                            onClick={() => {
-                              field.onChange(
-                                field.value?.filter((l) => l !== lang)
-                              );
-                            }}>
-                            {lang} ×
-                          </Badge>
-                        ))}
-                      </div>
                       <FormMessage />
                     </FormItem>
                   )}

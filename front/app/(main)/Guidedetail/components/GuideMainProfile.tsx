@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import Chat from "../../components/Chat";
+import Chat from "@/app/(main)/components/Chat";
 import { useParams } from "next/navigation";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { useOnlineStatus } from "@/app/context/Onlinestatus";
-import { GuideCard } from "./GuideCard";
-import { NewTrip } from "./NewTrip";
-import { GuideTrips } from "./GuideTrips";
+import { NewTrip } from "../components/NewTrip";
+import { GuideTrips } from "../components/GuideTrips";
+import { GuideCard } from "./GuideCards";
 
 type TourPost = {
   id: number;
@@ -80,8 +79,7 @@ export default function GuideMainProfile() {
               <h3 className="font-semibold">Chat with {guide.username}</h3>
               <button
                 onClick={() => setChat(false)}
-                className="hover:text-gray-200"
-              >
+                className="hover:text-gray-200">
                 x
               </button>
             </div>
@@ -90,7 +88,7 @@ export default function GuideMainProfile() {
         </div>
       )}
 
-      {/* Profile Card */}
+      {/* Profile Content */}
       <div className="container max-w-6xl px-4 py-8 mx-auto">
         <GuideCard
           guide={guide}
@@ -100,7 +98,7 @@ export default function GuideMainProfile() {
           onlineStatus={!!onlineUsers[profileId]?.isOnline}
         />
 
-        <div className="pb-4">
+        <div className="pb-4 mt-8">
           <NewTrip />
         </div>
 

@@ -6,6 +6,7 @@ import Chat from "../../components/Chat";
 import { MapPin, Globe, MessageCircle, User } from "lucide-react";
 import { useUser } from "@/app/context/Usercontext";
 import { useOnlineStatus } from "@/app/context/Onlinestatus";
+import { useParams } from "next/navigation";
 
 type TripMemory = {
   id: number;
@@ -58,12 +59,24 @@ export default function TravelerMainProfile() {
   const [chat, setChat] = useState(false);
   const { user } = useUser();
   const { onlineUsers, fetchOnlineUsers } = useOnlineStatus();
+  const params = useParams();
 
+  let profileId = params?.id;
+
+  // If profileId is an array, take the first element
+  if (Array.isArray(profileId)) {
+    profileId = profileId[0];
+  }
+
+  // Optionally check for undefined and handle it
+  if (!profileId) {
+    return <div>Loading...</div>; // or handle the error
+  }
   return (
     <div className="w-screen px-4 md:px-20 pt-4 pb-20">
       {chat && (
         <div className="w-fit h-fit mx-5 rounded-md bg-green-500 absolute z-10 right-5 bottom-5">
-          <Chat onlineUsers={onlineUsers} user={user!} />
+          <Chat user={user} onlineUsers={onlineUsers} profileId={profileId} />
         </div>
       )}
 
@@ -106,8 +119,7 @@ export default function TravelerMainProfile() {
             <div className="flex flex-wrap items-center gap-6 mt-6 justify-end">
               <button
                 onClick={() => setChat(!chat)}
-                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105"
-              >
+                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-300 text-lg font-semibold shadow-md hover:shadow-2xl hover:scale-105">
                 <MessageCircle className="w-5 h-5" />
                 Chat
               </button>
@@ -123,8 +135,7 @@ export default function TravelerMainProfile() {
           {traveler.TripMemories.map((trip) => (
             <div
               key={trip.id}
-              className="rounded-xl overflow-hidden shadow-lg border bg-white"
-            >
+              className="rounded-xl overflow-hidden shadow-lg border bg-white">
               <div className="relative h-48 w-full">
                 <Image
                   src={trip.image}
