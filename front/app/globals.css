@@ -228,6 +228,9 @@
 .sheet-close {
   display: none !important;
 }
+<<<<<<< HEAD
+
+=======
 /* Ensures smooth GPU scrolling */
 .will-change-scroll {
   will-change: scroll-position;
@@ -247,6 +250,7 @@
     }
   }
 }
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 @layer base {
   * {
     @apply border-border;

@@ -7,7 +7,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
+<<<<<<< HEAD
+=======
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 import {
   Select,
   SelectContent,
@@ -28,6 +31,8 @@ import {
   Mountain,
   Sun,
   Calendar,
+<<<<<<< HEAD
+=======
   MapPlus,
   Flag,
   Map,
@@ -36,11 +41,15 @@ import {
   Utensils,
   Telescope,
   ShoppingBag,
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+<<<<<<< HEAD
+=======
 import { selectActivities } from "@/app/utils/FilterData";
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 
 // Updated Zod schema with optional fields
 const postSchema = z.object({
@@ -147,7 +156,11 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
     for (const file of Array.from(files)) {
       const formData = new FormData();
       formData.append("file", file);
+<<<<<<< HEAD
       formData.append("upload_preset", "guideme"); // Change this to your actual unsigned preset
+=======
+      formData.append("upload_preset", "guideme");
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 
       try {
         const res = await fetch(
@@ -170,7 +183,10 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       }
     }
 
+<<<<<<< HEAD
     // Update form state with uploaded image URLs
+=======
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     setValue("images", [...(watchImages || []), ...uploadedUrls]);
     console.log("Updated images in form:", [
       ...(watchImages || []),
@@ -209,10 +225,13 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
     ]);
   };
 
+<<<<<<< HEAD
+=======
   const removeActivites = () => {
     selectedActivities.pop();
   };
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   return (
     <div className="relative">
       {/* Background decoration */}
@@ -472,6 +491,14 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
 
               <div className="space-y-4">
                 {/* Activities */}
+<<<<<<< HEAD
+                <div>
+                  {selectedActivities.map((el, index) => (
+                    <Button key={index} variant="ghost">
+                      {el}
+                    </Button>
+                  ))}
+=======
                 <div className="bg-gradient-to-br from-red-50 to-rose-50 rounded-2xl p-6 border border-rose-200">
                   <div className="flex items-center gap-2 mb-4">
                     <Flag className="w-5 h-5 text-rose-600" />
@@ -498,20 +525,40 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                     ))}
                   </div>
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                   <Select
                     // {...register("activities")}
                     // value={activity}
                     onValueChange={(value) => handleSelectedActivities(value)}
                   >
+<<<<<<< HEAD
+                    <SelectTrigger className="w-full p-3 border border-green-200 rounded-xl focus:ring-2 focus:ring-green-300 focus:border-green-400 bg-white/80 transition-all duration-200">
+=======
                     <SelectTrigger className="w-full p-3 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-300 focus:border-rose-400 bg-white/80 transition-all duration-200">
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                       <SelectValue placeholder="Select a activity" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
+<<<<<<< HEAD
+                        {[
+                          "City tour",
+                          "Eat & Drink",
+                          "Horse riding",
+                          "Stargazing",
+                          "Hiking",
+                          "Festivals",
+                          "Sightseeing",
+                          "Shopping",
+                        ].map((act, index) => (
+                          <SelectItem key={index} value={act}>
+                            {act}
+=======
                         {selectActivities.map((act, index) => (
                           <SelectItem key={index} value={act.activity}>
                             {act.icon}
                             {act.activity}
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                           </SelectItem>
                         ))}
                       </SelectGroup>

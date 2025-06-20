@@ -1,7 +1,14 @@
 "use client";
+
 import { socket } from "@/lib/socket";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import { useTheme } from "next-themes";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { motion } from "framer-motion";
@@ -12,9 +19,10 @@ import {
   LogOut,
   TentTree,
   MessageCircle,
+  Users,
+  MapPin,
+  Settings,
 } from "lucide-react";
-
-import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,26 +38,59 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { MessengerButton } from "./Messenger";
-import { axiosInstance, cn } from "@/lib/utils";
-import { useLanguage } from "@/app/context/LanguageContext";
-import { useUser } from "@/app/context/Usercontext";
-import NotificationList from "./NotificationList";
 
+import { Switch } from "@/components/ui/switch";
+import { axiosInstance } from "@/lib/utils";
+import { useUser } from "@/app/context/Usercontext";
+import { fetchGProfile, fetchTProfile } from "@/app/utils/fetchProfile";
+import { TouristProfile } from "../Touristdetail/components/MainProfile";
+import { GuideProfile } from "../Guidedetail/components/GuideMainProfile";
+import { MessengerButton } from "./Messenger";
+import NotificationList from "./NotificationList";
+import { useProfile } from "@/app/context/ProfileContext";
+const translations = {
+  en: {
+    guides: "Guides",
+    tourists: "Tourists",
+    settings: "Settings",
+    logout: "Log out",
+    welcome: "Welcome",
+    darkMode: "Dark Mode",
+    notifications: "Notifications",
+    role: "Switch Role",
+    language: "Language",
+    admin: "Admin",
+    guide: "Guide",
+    tourist: "Tourist",
+    login: "Log In",
+  },
+  mn: {
+    guides: "Гайдууд",
+    tourists: "Аялагчид",
+    settings: "Тохиргоо",
+    logout: "Гарах",
+    welcome: "Тавтай морил",
+    darkMode: "Харанхуй горим",
+    notifications: "Мэдэгдлүүд",
+    role: "Үүрэг солих",
+    language: "Хэл",
+    admin: "Админ",
+    guide: "Гайд",
+    tourist: "Аялагч",
+    login: "Нэвтрэх",
+  },
 type Tab = {
   name: TabName;
   href: string;
 };
+
 type notifDataProps = {
   fromUserId: string;
   message: string;
   postId: string;
   type: string;
 };
-type TabName = "Guides" | "Travelers" | "Trips";
+type TabName = "Guides" | "Travelers" | "Trips" | "";
 
 const getInitials = (name: string) => {
   if (!name) return "";
@@ -63,6 +104,7 @@ const getInitials = (name: string) => {
 
 export const Navigation = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = useSession();
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
@@ -114,19 +156,38 @@ export const Navigation = () => {
     setCurrentPath(window.location.pathname);
   }, []);
 
+  const {
+    currentRole,
+    setCurrentRole,
+    profileData,
+    hasGuideProfile,
+    hasTouristProfile,
+    isLoading,
+    requireAuth,
+  } = useProfile();
+
   const getActiveTab = (): TabName => {
-    if (currentPath.includes("/Guidesinfo")) return "Guides";
-    if (currentPath.includes("/Travelersinfo")) return "Travelers";
-    if (currentPath.includes("/Tripsinfo")) return "Trips";
-    return "Guides"; // default
+    // Remove query parameters and get the base path
+    const basePath = pathname.split("?")[0];
+
+    // Check for exact matches or paths that start with the tab path
+    if (basePath === "/Guidesinfo" || basePath.startsWith("/Guidesinfo/"))
+      return "Guides";
+    if (basePath === "/Travelersinfo" || basePath.startsWith("/Travelersinfo/"))
+      return "Travelers";
+    if (basePath === "/Tripsinfo" || basePath.startsWith("/Tripsinfo/"))
+      return "Trips";
+
+    // If not on any of the main tab pages, return empty string to show no active tab
+    return "";
   };
 
   const [activeTab, setActiveTab] = useState<TabName>(getActiveTab());
 
-  // Update active tab when path changes
+  // Update active tab when pathname changes
   useEffect(() => {
     setActiveTab(getActiveTab());
-  }, [currentPath]);
+  }, [pathname]);
 
   // Dynamic tabs with translations
   const tabs: Tab[] = [
@@ -145,7 +206,11 @@ export const Navigation = () => {
               <TentTree className="text-white" size={24} />
               <span className="text-lg font-bold text-white">GuideMe</span>
             </Link>
-            <Button onClick={() => router.push("/log-in")}>{t("logIn")}</Button>
+            <Button
+              onClick={() => router.push("/log-in")}
+              className="h-10 px-6 text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+              {t("logIn")}
+            </Button>
           </div>
         </div>
       </nav>
@@ -160,6 +225,46 @@ export const Navigation = () => {
     setActiveTab(tab.name);
     router.push(tab.href);
   };
+
+  const handleRoleChange = (role: "Guide" | "Tourist") => {
+    setCurrentRole(role);
+
+    // Navigate based on profile existence
+    if (role === "Guide") {
+      if (hasGuideProfile) {
+        router.push(`/Guidedetail/${session?.user?.id}`);
+      } else {
+        router.push("/guideProfile");
+      }
+    } else {
+      if (hasTouristProfile) {
+        router.push(`/Touristdetail/${session?.user?.id}`);
+      } else {
+        router.push("/touristProfile");
+      }
+    }
+  };
+
+  const handleProfileClick = () => {
+    // Navigate based on current role and profile existence
+    if (currentRole === "Guide") {
+      if (hasGuideProfile) {
+        router.push(`/Guidedetail/${session?.user?.id}`);
+      } else {
+        router.push("/guideProfile");
+      }
+    } else {
+      if (hasTouristProfile) {
+        router.push(`/Touristdetail/${session?.user?.id}`);
+      } else {
+        router.push("/touristProfile");
+      }
+    }
+  };
+
+  // Get profile image from current profile data
+  const profileImage = profileData?.profileimage || session.user.image;
+  const displayName = profileData?.username || session.user.name;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-xl">
@@ -184,10 +289,10 @@ export const Navigation = () => {
                       "focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2",
                       "hover:scale-105 active:scale-95"
                     )}
-                    style={{ WebkitTapHighlightColor: "transparent" }}
-                  >
-                    {activeTab === tab.name && (
-                      <motion.span
+
+                    style={{ WebkitTapHighlightColor: "transparent" }}>
+                    {activeTab === tab.name && activeTab !== "" && (
+         <motion.span
                         layoutId="bubble"
                         className="absolute inset-0 z-10 bg-white/20 rounded-full"
                         transition={{
@@ -200,7 +305,7 @@ export const Navigation = () => {
                     <span
                       className={cn(
                         "relative z-20 transition-colors duration-200",
-                        activeTab === tab.name
+                        activeTab === tab.name && activeTab !== ""
                           ? "text-white font-semibold"
                           : "text-neutral-300 hover:text-white"
                       )}
@@ -214,15 +319,75 @@ export const Navigation = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
+            {/* Role Selector */}
+            <div className="relative">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-white/10 transition-all duration-200 hover:scale-105 text-white">
+                    {currentRole === "Guide" ? (
+                      <MapPin className="h-4 w-4" />
+                    ) : (
+                      <Users className="h-4 w-4" />
+                    )}
+                    <span className="text-sm font-medium">{currentRole}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-40 bg-black/40 backdrop-blur-xl border-white/10 text-gray-200 shadow-2xl">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (requireAuth("switch to Guide role")) {
+                        handleRoleChange("Guide");
+                      }
+                    }}
+                    className={cn(
+                      "focus:bg-white/10 focus:text-white transition-colors duration-200",
+                      currentRole === "Guide" && "bg-white/10 text-white"
+                    )}>
+                    <MapPin className="mr-2 h-4 w-4" />
+                    <span>Guide</span>
+                    {hasGuideProfile && (
+                      <span className="ml-auto text-xs text-green-400">✓</span>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (requireAuth("switch to Tourist role")) {
+                        handleRoleChange("Tourist");
+                      }
+                    }}
+                    className={cn(
+                      "focus:bg-white/10 focus:text-white transition-colors duration-200",
+                      currentRole === "Tourist" && "bg-white/10 text-white"
+                    )}>
+                    <Users className="mr-2 h-4 w-4" />
+                    <span>Tourist</span>
+                    {hasTouristProfile && (
+                      <span className="ml-auto text-xs text-green-400">✓</span>
+                    )}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
             <Button
               variant="ghost"
               className="p-2 rounded-full hover:bg-white/10 transition-all duration-200 hover:scale-105"
-              onClick={() => router.push("/wish")}
-            >
+
+              onClick={() => {
+                if (requireAuth("access wishlist")) {
+                  router.push("/wish");
+                }
+              }}>
+
               <Heart className="h-6 w-6 text-white" />
             </Button>
             <Button
               variant="ghost"
+
               size="icon"
               className="relative"
               onClick={async () => {
@@ -244,6 +409,7 @@ export const Navigation = () => {
                   {unreadCount}
                 </span>
               ) : null}
+
             </Button>
             <MessengerButton />
             {handleClick ? (
@@ -258,11 +424,11 @@ export const Navigation = () => {
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarImage
-                        src={session.user.image ?? ""}
-                        alt={session.user.name ?? "User"}
+                        src={profileImage ?? ""}
+                        alt={displayName ?? "User"}
                       />
                       <AvatarFallback className="bg-white/30 text-white">
-                        {getInitials(session.user.name || "")}
+                        {getInitials(displayName || "")}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -272,17 +438,18 @@ export const Navigation = () => {
                   className="w-60 bg-black/40 backdrop-blur-xl border-white/10 text-gray-200 shadow-2xl"
                 >
                   <DropdownMenuLabel className="flex items-center gap-2 text-white">
-                    <span className="font-medium">{session.user.name}</span>
+                    <span className="font-medium">{displayName}</span>
+                    <span className="text-xs text-gray-400">
+                      ({currentRole})
+                    </span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-white/10" />
 
                   {/* Profile Links */}
                   <DropdownMenuItem
                     onClick={() => {
-                      if (session.user.email === "admin@gmail.com") {
-                        router.push("/admin");
-                      } else {
-                        router.push(`/touristProfile`);
+                      if (requireAuth("access profile")) {
+                        handleProfileClick();
                       }
                     }}
                     className="focus:bg-white/10 focus:text-white transition-colors duration-200"
@@ -293,6 +460,17 @@ export const Navigation = () => {
                         ? t("adminPage")
                         : t("myProfile")}
                     </span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (requireAuth("access settings")) {
+                        router.push("/Settings");
+                      }
+                    }}
+                    className="focus:bg-white/10 focus:text-white transition-colors duration-200">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>{t("settings")}</span>
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator className="bg-white/10" />

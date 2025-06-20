@@ -10,6 +10,13 @@ import {
   Globe,
   DollarSign,
   FileText,
+<<<<<<< HEAD
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { MultiSelect } from "./Multi-selsect";
+import ImageUpload from "./Image-upload";
+import { languageOptions } from "@/lib/options";
+=======
   Camera,
   X,
 } from "lucide-react";
@@ -25,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 
 interface BasicInfoStepProps {
   formData: any;
@@ -50,6 +58,8 @@ export default function BasicInfoStep({
   formData,
   updateFormData,
 }: BasicInfoStepProps) {
+<<<<<<< HEAD
+=======
   const [uploading, setUploading] = useState(false);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,11 +106,135 @@ export default function BasicInfoStep({
     updateFormData({ images: updated });
   };
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   return (
     <motion.div
       className="space-y-8"
       variants={container}
       initial="hidden"
+<<<<<<< HEAD
+      animate="show">
+      <div className="space-y-2">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Basic Information
+        </h2>
+        <p className="text-gray-500 dark:text-gray-400">
+          Let's start with the essential details of your trip plan.
+        </p>
+      </div>
+
+      <motion.div variants={item}>
+        <div className="space-y-2">
+          <Label className="text-base">Trip Title</Label>
+          <Input
+            placeholder="Enter a catchy title for your trip"
+            className="py-6 text-lg"
+            value={formData.title}
+            onChange={(e) => updateFormData({ title: e.target.value })}
+          />
+        </div>
+      </motion.div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <motion.div variants={item}>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-primary" />
+              Date
+            </Label>
+            <Input
+              placeholder="e.g., June 15, 2024"
+              value={formData.date}
+              onChange={(e) => updateFormData({ date: e.target.value })}
+            />
+          </div>
+        </motion.div>
+
+        <motion.div variants={item}>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-primary" />
+              Duration
+            </Label>
+            <Input
+              placeholder="e.g., 3 days"
+              value={formData.duration}
+              onChange={(e) => updateFormData({ duration: e.target.value })}
+            />
+          </div>
+        </motion.div>
+
+        <motion.div variants={item}>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" />
+              Group Size
+            </Label>
+            <Input
+              placeholder="e.g., 2-8 people"
+              value={formData.groupSize}
+              onChange={(e) => updateFormData({ groupSize: e.target.value })}
+            />
+          </div>
+        </motion.div>
+
+        <motion.div variants={item}>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-primary" />
+              Price
+            </Label>
+            <Input
+              type="number"
+              placeholder="0.00"
+              value={formData.price}
+              onChange={(e) =>
+                updateFormData({ price: Number(e.target.value) })
+              }
+            />
+          </div>
+        </motion.div>
+      </div>
+
+      <motion.div variants={item}>
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-primary" />
+            Languages
+          </Label>
+          <MultiSelect
+            placeholder="Select languages"
+            options={languageOptions}
+            selected={formData.languages}
+            onChange={(values) => updateFormData({ languages: values })}
+          />
+        </div>
+      </motion.div>
+
+      <motion.div variants={item}>
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <FileText className="w-4 h-4 text-primary" />
+            About This Trip
+          </Label>
+          <Textarea
+            placeholder="Describe what makes this trip special..."
+            className="resize-none min-h-32"
+            value={formData.about}
+            onChange={(e) => updateFormData({ about: e.target.value })}
+          />
+        </div>
+      </motion.div>
+
+      <motion.div variants={item}>
+        <div className="space-y-2">
+          <Label>Trip Images</Label>
+          <ImageUpload
+            value={formData.images}
+            onChange={(images) => updateFormData({ images })}
+            maxFiles={5}
+          />
+=======
       animate="show"
     >
       <div className="space-y-2">
@@ -229,7 +363,7 @@ export default function BasicInfoStep({
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border">
           <div className="flex justify-between mb-4">
             <span className="font-semibold text-gray-700">
-              Photos (You need 4 images)
+              Photos (You need 3 images)
             </span>
             <label className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl cursor-pointer hover:scale-105 transition">
               <Camera size={18} />
@@ -271,6 +405,7 @@ export default function BasicInfoStep({
               ))}
             </div>
           )}
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
         </div>
       </motion.div>
     </motion.div>

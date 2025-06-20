@@ -1,4 +1,25 @@
 "use client";
+<<<<<<< HEAD
+
+import { Guides } from "./components/Guides";
+import { ImageCarousel } from "./components/ImageCarousel";
+import { Videos } from "./components/Videos";
+import { useState } from "react";
+import FloatingChatButton from "./components/FloatingChatButton";
+
+export default function Home() {
+  const [open, setOpen] = useState(false);
+
+  const handleClick = () => {
+    setOpen(!open);
+  };
+
+  return (
+    <div className="flex flex-col relative min-h-screen">
+      <ImageCarousel />
+      <Guides />
+      <Videos />
+=======
 import { useEffect, useRef, useState } from "react";
 import FloatingChatButton from "./components/FloatingChatButton 2";
 import { Guides } from "./components/Guides";
@@ -10,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Footer from "./components/Footer";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { useProfile } from "@/app/context/ProfileContext";
 
 export default function Home() {
   const [guides, setGuides] = useState<GuideProfile[]>();
@@ -18,6 +40,7 @@ export default function Home() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const router = useRouter();
   const { t } = useLanguage();
+  const { requireAuth } = useProfile();
 
   useEffect(() => {
     const onScroll = () => {
@@ -198,7 +221,11 @@ export default function Home() {
                 knowledge and excellent safety records
               </p>
               <Button
-                onClick={() => router.push("/become-guide")}
+                onClick={() => {
+                  if (requireAuth("become a guide")) {
+                    router.push("/become-guide");
+                  }
+                }}
                 className="bg-gradient-to-r from-yellow-500/80 to-orange-500/80 backdrop-blur-sm border border-yellow-400/50 text-white hover:from-yellow-500 hover:to-orange-500 px-8 py-3 text-lg font-bold">
                 Become a Guide
               </Button>
@@ -223,6 +250,7 @@ export default function Home() {
           </button>
         )}
       </div>
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
       <FloatingChatButton />
     </div>
   );

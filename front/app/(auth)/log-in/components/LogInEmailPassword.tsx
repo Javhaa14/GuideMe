@@ -29,9 +29,15 @@ import {
 } from "@/components/ui/form";
 
 import { useSession } from "next-auth/react";
+<<<<<<< HEAD
+
+const FloatingStars = ({ count = 20 }: { count?: number }) => {
+  // ... your existing FloatingStars code unchanged
+=======
 import { io } from "socket.io-client";
 
 const FloatingStars = ({ count = 20 }: { count?: number }) => {
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   const stars = useMemo(
     () =>
       Array.from({ length: count }).map((_, i) => ({
@@ -81,6 +87,8 @@ export function LogInEmailPassword() {
       password: "",
     },
   });
+<<<<<<< HEAD
+=======
   const socket = useMemo(() => {
     if (!process.env.NEXT_PUBLIC_BACKEND_URL) {
       throw new Error("NEXT_PUBLIC_BACKEND_URL is not defined");
@@ -104,6 +112,7 @@ export function LogInEmailPassword() {
       socket.off("connect", onConnect);
     };
   }, [status, session?.user?.id, socket]);
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -111,6 +120,8 @@ export function LogInEmailPassword() {
     }
   }, [status, router]);
 
+<<<<<<< HEAD
+=======
   // Clean up socket connection when component unmounts
   useEffect(() => {
     return () => {
@@ -118,6 +129,7 @@ export function LogInEmailPassword() {
       console.log("Socket disconnected");
     };
   }, [socket]);
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     const result = await signIn("credentials", {
       redirect: false,

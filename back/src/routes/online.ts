@@ -4,13 +4,24 @@ import mongoose from "mongoose";
 import {
   getChatHistory,
   getConversations,
+<<<<<<< HEAD
+  markMessagesAsRead,
+=======
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   saveChatMessage,
 } from "../controller/chat";
 
 export const Onlinerouter = express.Router();
 Onlinerouter.post("/chat", saveChatMessage)
+<<<<<<< HEAD
+  .put("/chat/read", markMessagesAsRead)
   .get("/chat/:roomId", getChatHistory)
   .get("/chat/conversations/:userId", getConversations);
+
+=======
+  .get("/chat/:roomId", getChatHistory)
+  .get("/chat/conversations/:userId", getConversations);
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 // Helper: build filter based on userId
 function buildUserFilter(userId: string) {
   // If userId looks like a valid Mongo ObjectId, filter by _id

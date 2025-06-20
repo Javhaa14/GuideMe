@@ -1,4 +1,13 @@
 "use client";
+<<<<<<< HEAD
+import Image from "next/image";
+import { Filter } from "./components/Filter";
+import Travelerspost from "../components/Travelerpost";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { axiosInstance } from "@/lib/utils";
+import { useUser } from "@/app/context/Usercontext";
+=======
 
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
@@ -13,16 +22,24 @@ import { LocationFilterCard } from "../Guidesinfo/components/SearchLocation";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
 import TpostCard from "../components/tpostvertical";
 import { RefreshCcw } from "lucide-react";
+import { useProfile } from "@/app/context/ProfileContext";
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 export interface PostType {
   _id: string;
   userId: string;
   content: string;
+<<<<<<< HEAD
+  country: string;
+  city: string;
+  images: string[];
+=======
   location: string;
   country: string;
   city: string;
   images: string[];
   activities: string[];
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   people: number;
   likes: number;
   likedBy: string[];
@@ -46,6 +63,20 @@ export interface PostType {
   };
 }
 
+<<<<<<< HEAD
+export default function Home() {
+  const filters = [
+    "Most Recent",
+    "For you",
+    "Date",
+    "Languages",
+    "Gender",
+    "Location",
+    "Activites",
+  ];
+  const [posts, setPosts] = useState<PostType[]>([]);
+  const { user, status } = useUser();
+=======
 type Value = {
   startDate?: Date | null;
   endDate?: Date | null;
@@ -61,6 +92,7 @@ export default function Home() {
   const [filteredPost, setFileterdPost] = useState<PostType[]>(posts);
   const { user, status } = useUser();
   const { searchedValue, setSearchedValue } = useSearchLocation();
+  const { requireAuth } = useProfile();
   const [value, setValue] = useState<Value>({
     startDate: null,
     endDate: null,
@@ -72,15 +104,21 @@ export default function Home() {
 
   const router = useRouter();
   const todetail = (id: string) => {
-    router.push(`/Touristdetail/${id}`);
+    if (requireAuth("view tourist details")) {
+      router.push(`/Touristdetail/${id}`);
+    }
   };
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const res = await axiosInstance.get<PostType[]>(`/post`);
         setPosts(res.data);
+<<<<<<< HEAD
+=======
         console.log(res.data, "post");
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
       } catch (err) {
         console.error("❌ Post fetch failed:", err);
       }
@@ -89,6 +127,23 @@ export default function Home() {
     fetchPosts();
   }, []);
 
+<<<<<<< HEAD
+  const router = useRouter();
+  const todetail = (id: string) => {
+    router.push(`/Touristdetail/${id}`);
+  };
+  return (
+    <div className="flex flex-col w-screen h-full items-center bg-white gap-10 pt-[40px] px-[20px]">
+      <div className="flex border-black border-[3px] gap-4 w-fit h-fit rounded-md p-4">
+        {filters.map((v, i) => {
+          return <Filter key={i} name={v} />;
+        })}
+      </div>
+      <div className="flex flex-col gap-5 w-[800px] h-fit">
+        {posts.map((v, i) => {
+          return (
+            <Travelerspost
+=======
   const handleSelectedActivites = (activity: string) => {
     setFilters((prevFilters) => {
       const isSelected = prevFilters.activities.includes(activity);
@@ -185,6 +240,7 @@ export default function Home() {
         {filteredPost.map((v, i) => {
           return (
             <TpostCard
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
               onclick={() => {
                 todetail(v.userId);
               }}
@@ -195,6 +251,8 @@ export default function Home() {
           );
         })}
       </div>
+<<<<<<< HEAD
+=======
 
       <div className="flex flex-col border-[3px] border-gray-200 rounded-md p-4 gap-6 w-fit">
         <h2 className="text-sky-700 text-xl font-semibold">Filters</h2>
@@ -223,8 +281,7 @@ export default function Home() {
                 selected
                   ? "bg-black text-white border-black"
                   : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
-              }`}
-                >
+              }`}>
                   <span>{act.icon}</span>
                   <span className="text-sm font-medium">{act.activity}</span>
                   {selected && (
@@ -233,8 +290,7 @@ export default function Home() {
                       className="w-4 h-4"
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
+                      stroke="currentColor">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -264,14 +320,14 @@ export default function Home() {
             <Button
               onClick={handleClearButton}
               variant="ghost"
-              className="text-sky-700 bg-white font-semibold flex items-center gap-1 hover:bg-blue-100"
-            >
+              className="text-sky-700 bg-white font-semibold flex items-center gap-1 hover:bg-blue-100">
               <RefreshCcw className="w-4 h-4" />
               Clear Filters
             </Button>
           </div>
         </div>
       </div>
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     </div>
   );
 }

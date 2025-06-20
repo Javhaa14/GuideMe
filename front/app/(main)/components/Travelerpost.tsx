@@ -4,7 +4,10 @@ import Image from "next/image";
 import { CalendarDays, MapPin, UsersRound, Heart } from "lucide-react";
 import { axiosInstance } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+<<<<<<< HEAD
+=======
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 export default function Travelerpost({ post, onclick, user }: any) {
   const [likes, setLikes] = useState<number>(post.likedBy.length);
   const [liked, setLiked] = useState<boolean>(post.likedBy.includes(user?.id));
@@ -33,7 +36,11 @@ export default function Travelerpost({ post, onclick, user }: any) {
       <div className="flex items-center space-x-4 mb-5">
         <Image
           onClick={onclick}
+<<<<<<< HEAD
+          src={post.tprofileInfo.profileimage}
+=======
           src={post.tprofileInfo?.profileimage || undefined}
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
           alt="User"
           width={50}
           height={50}
@@ -42,9 +49,14 @@ export default function Travelerpost({ post, onclick, user }: any) {
         <div>
           <h4
             onClick={onclick}
+<<<<<<< HEAD
+            className="cursor-pointer font-semibold text-gray-900 hover:text-blue-400 text-lg">
+            {post.userInfo.username}
+=======
             className="cursor-pointer font-semibold text-gray-900 hover:text-blue-400 text-lg"
           >
             {post.userInfo?.username}
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
           </h4>
           <div className="flex gap-10">
             <p className="text-gray-500 text-sm">
@@ -94,8 +106,12 @@ export default function Travelerpost({ post, onclick, user }: any) {
           post.images.map((val: any, i: number) => (
             <div
               key={i}
+<<<<<<< HEAD
+              className="relative w-48 h-28 flex-shrink-0 rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform cursor-pointer">
+=======
               className="relative w-48 h-28 flex-shrink-0 rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform cursor-pointer"
             >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
               <Image
                 src={val}
                 alt={`Post image ${i + 1}`}
@@ -115,8 +131,12 @@ export default function Travelerpost({ post, onclick, user }: any) {
           className={`flex items-center gap-2 font-semibold ${
             liked ? "text-red-500" : "text-blue-500"
           } transition-colors hover:text-red-500`}
+<<<<<<< HEAD
+          aria-label="Like button">
+=======
           aria-label="Like button"
         >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
           <Heart
             size={22}
             className={`transition-transform ${
@@ -147,8 +167,12 @@ export default function Travelerpost({ post, onclick, user }: any) {
                     ease: "easeOut",
                   }}
                   exit={{ opacity: 0 }}
+<<<<<<< HEAD
+                  className="absolute  text-red-400 pointer-events-none">
+=======
                   className="absolute  text-red-400 pointer-events-none"
                 >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                   ❤️
                 </motion.span>
               ))}

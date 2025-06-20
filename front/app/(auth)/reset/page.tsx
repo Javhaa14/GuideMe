@@ -1,6 +1,26 @@
 "use client";
 
 import { axiosInstance } from "@/lib/utils";
+<<<<<<< HEAD
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
+
+const socket = io("https://guideme-8o9f.onrender.com"); // Your backend URL here
+
+export default function PasswordReset() {
+  const [email, setEmail] = useState("");
+  const [step, setStep] = useState<
+    "enterEmail" | "waitingApproval" | "resetPassword"
+  >("enterEmail");
+  const [message, setMessage] = useState("");
+
+  // Listen for reset approval from server via Socket.IO
+  useEffect(() => {
+    console.log("🔌 Connecting to socket...");
+    socket.on("resetApproved", (data) => {
+      console.log("✅ resetApproved received:", data);
+      setMessage(data.message);
+=======
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
@@ -26,12 +46,17 @@ export default function PasswordReset() {
     socket.on("resetApproved", (data) => {
       console.log("✅ resetApproved received:", data);
       setMessage(data.message || "You may now reset your password.");
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
       setStep("resetPassword");
     });
 
     return () => {
+<<<<<<< HEAD
+      socket.off("resetApproved");
+=======
       console.log("🔌 Disconnecting socket...");
       socket.disconnect();
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     };
   }, []);
 
@@ -54,6 +79,8 @@ export default function PasswordReset() {
     }
   };
 
+<<<<<<< HEAD
+=======
   const handleSubmitNewPassword = async () => {
     if (!newPassword) return setMessage("Password cannot be empty");
 
@@ -75,6 +102,7 @@ export default function PasswordReset() {
     }
   };
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   return (
     <div style={{ maxWidth: 400, margin: "auto", padding: 20 }}>
       {step === "enterEmail" && (
@@ -105,6 +133,15 @@ export default function PasswordReset() {
         <>
           <h2>Reset Password</h2>
           <p>{message}</p>
+<<<<<<< HEAD
+          {/* Here you can add your new password form */}
+          <input
+            type="password"
+            placeholder="New password"
+            style={{ width: "100%", padding: 8, marginBottom: 12 }}
+          />
+          <button>Submit New Password</button>
+=======
           <input
             type="password"
             placeholder="New password"
@@ -113,6 +150,7 @@ export default function PasswordReset() {
             style={{ width: "100%", padding: 8, marginBottom: 12 }}
           />
           <button onClick={handleSubmitNewPassword}>Submit New Password</button>
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
         </>
       )}
 

@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { Star, Heart, MapPin, DollarSign, MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "./button";
+import Link from "next/link";
 
 export const InfiniteMovingCards = ({
   guides,
@@ -88,21 +89,24 @@ export const InfiniteMovingCards = ({
       className={cn(
         "scroller relative z-20 max-w-8xl overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]",
         className
-      )}>
+      )}
+    >
       <ul
         ref={scrollerRef}
         className={cn(
           "flex w-max min-w-full shrink-0 flex-nowrap gap-4 py-4",
           start && "animate-scroll",
           pauseOnHover && "hover:[animation-play-state:paused]"
-        )}>
+        )}
+      >
         {guides.map((guide, i) => {
           const keyIndex = i % guides.length;
           return (
             <div
               key={`guide-${keyIndex}-${Math.floor(i / guides.length)}`}
               className="flex-shrink-0 w-96 group cursor-pointer"
-              onClick={() => router.push(`/guide/${keyIndex}`)}>
+              // onClick={() => router.push(`/Guidedetail/${guide._id}`)}
+            >
               {/* Card with Glassmorphism */}
               <div className="bg-white/15 max-h-[530px] h-[530px] flex flex-col justify-between backdrop-blur-2xl rounded-3xl border border-white/20 hover:border-white/40 transition-all duration-500 hover:scale-100  hover:bg-white/20 shadow-2xl hover:shadow-3xl overflow-hidden ">
                 {/* Card Header */}
@@ -135,9 +139,11 @@ export const InfiniteMovingCards = ({
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-3">
                           <div className="h-[100px]">
-                            <h3 className="text-2xl font-bold text-white drop-shadow-lg group-hover:text-green-400 transition-colors duration-300">
-                              {guide.firstName} {guide.lastName}
-                            </h3>
+                            <Link href={`/Guidedetail/${guide._id}`}>
+                              <h3 className="text-2xl font-bold text-white drop-shadow-lg group-hover:text-green-400 transition-colors duration-300">
+                                {guide.firstName} {guide.lastName}
+                              </h3>
+                            </Link>
                             <div className="flex items-center gap-2 text-white/80 text-sm mt-1">
                               <MapPin size={16} className="text-red-400" />
                               <span className="drop-shadow">
@@ -149,7 +155,8 @@ export const InfiniteMovingCards = ({
                           {/* Enhanced Like Button */}
                           <button
                             onClick={(e) => handleLike(i, e)}
-                            className="p-3 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-300 hover:scale-110">
+                            className="p-3 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-300 hover:scale-110"
+                          >
                             <Heart
                               size={20}
                               className={`transition-all duration-300 ${
@@ -217,7 +224,8 @@ export const InfiniteMovingCards = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         // Handle contact action
-                      }}>
+                      }}
+                    >
                       <MessageCircle size={16} className="mr-2" />
                       Chat with {guide.firstName}
                     </Button>

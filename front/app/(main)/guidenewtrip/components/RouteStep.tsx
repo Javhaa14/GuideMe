@@ -1,6 +1,9 @@
 "use client";
 
+<<<<<<< HEAD
+=======
 import { useState } from "react";
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -13,6 +16,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+<<<<<<< HEAD
+import { Plus, Trash2, MapPin, Utensils, Tent, Hotel, Bus } from "lucide-react";
+
+import { motion } from "framer-motion";
+import MapSearch from "./Map-search";
+import ImageUpload from "./Image-upload";
+
+interface RouteStepProps {
+  formData: any;
+  updateFormData: (data: any) => void;
+=======
 import {
   Plus,
   Trash2,
@@ -40,13 +54,20 @@ interface RouteStepProps {
     route: RouteItem[];
   };
   updateFormData: (data: { route: RouteItem[] }) => void;
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 }
 
 const container = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
+<<<<<<< HEAD
+    transition: {
+      staggerChildren: 0.1,
+    },
+=======
     transition: { staggerChildren: 0.1 },
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   },
 };
 
@@ -67,8 +88,11 @@ export default function RouteStep({
   formData,
   updateFormData,
 }: RouteStepProps) {
+<<<<<<< HEAD
+=======
   const [uploading, setUploading] = useState(false);
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   const handleLocationSelect = (location: any) => {
     const newRoute = [
       ...formData.route,
@@ -82,11 +106,15 @@ export default function RouteStep({
     updateFormData({ route: newRoute });
   };
 
+<<<<<<< HEAD
+  const updateRouteItem = (index: number, field: string, value: any) => {
+=======
   const updateRouteItem = (
     index: number,
     field: keyof RouteItem,
     value: any
   ) => {
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     const newRoute = [...formData.route];
     newRoute[index] = { ...newRoute[index], [field]: value };
     updateFormData({ route: newRoute });
@@ -116,6 +144,18 @@ export default function RouteStep({
     }
   };
 
+<<<<<<< HEAD
+  return (
+    <motion.div
+      className="space-y-8"
+      variants={container}
+      initial="hidden"
+      animate="show">
+      <div className="space-y-2">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Trip Route
+        </h2>
+=======
   const handleImageUploadForRoute = async (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
@@ -165,14 +205,24 @@ export default function RouteStep({
     >
       <div className="space-y-2">
         <h2 className="text-2xl font-bold">Trip Route</h2>
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
         <p className="text-gray-500 dark:text-gray-400">
           Add locations to your trip route. Search for locations or enter them
           manually.
         </p>
       </div>
 
+<<<<<<< HEAD
+      <motion.div variants={item}>
+        <MapSearch onLocationSelect={handleLocationSelect} />
+      </motion.div>
+
+      <div className="space-y-6">
+        {formData.route.map((route: any, index: number) => {
+=======
       <div className="space-y-6">
         {formData.route.map((route, index) => {
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
           const IconComponent =
             iconComponents[route.iconType as keyof typeof iconComponents] ||
             MapPin;
@@ -181,6 +231,18 @@ export default function RouteStep({
             <motion.div
               key={index}
               variants={item}
+<<<<<<< HEAD
+              className="location-card"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}>
+              <Card className="overflow-hidden border-l-4 border-l-primary">
+                <CardContent className="p-6">
+                  <div className="grid gap-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+=======
               className="flex flex-col gap-1.5"
             >
               <Card className="overflow-hidden border-l-4 border-l-primary">
@@ -189,12 +251,62 @@ export default function RouteStep({
                     <div className="flex justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 flex items-center justify-center rounded-full bg-primary/10 text-primary">
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                           <IconComponent className="w-4 h-4" />
                         </div>
                         <h3 className="text-lg font-medium">
                           Stop {index + 1}
                         </h3>
                       </div>
+<<<<<<< HEAD
+                      <div className="flex items-center gap-2">
+                        {index > 0 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => moveRouteItem(index, index - 1)}
+                            className="w-8 h-8">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="lucide lucide-arrow-up">
+                              <path d="m5 12 7-7 7 7" />
+                              <path d="M12 19V5" />
+                            </svg>
+                          </Button>
+                        )}
+                        {index < formData.route.length - 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => moveRouteItem(index, index + 1)}
+                            className="w-8 h-8">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="lucide lucide-arrow-down">
+                              <path d="M12 5v14" />
+                              <path d="m19 12-7 7-7-7" />
+                            </svg>
+                          </Button>
+                        )}
+=======
                       <div className="flex gap-2">
                         <Button
                           type="button"
@@ -216,43 +328,95 @@ export default function RouteStep({
                         >
                           <ArrowDown className="w-4 h-4" />
                         </Button>
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon"
                           onClick={() => removeRouteItem(index)}
+<<<<<<< HEAD
+                          disabled={formData.route.length === 1}
+                          className="w-8 h-8 text-red-500 hover:text-red-600 hover:bg-red-50">
+=======
                           className="w-8 h-8 text-red-500 hover:text-red-600 hover:bg-red-50"
                         >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
 
+<<<<<<< HEAD
+                    <div className="grid gap-6 md:grid-cols-2">
+                      <div className="space-y-2">
+=======
                     <div className="grid md:grid-cols-2 gap-6">
                       <div className="flex flex-col gap-1.5">
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                         <Label>Location Name</Label>
                         <Input
                           value={route.title}
                           onChange={(e) =>
                             updateRouteItem(index, "title", e.target.value)
                           }
+<<<<<<< HEAD
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+=======
                           placeholder="e.g. Gobi Desert"
                         />
                       </div>
 
                       <div className="flex flex-col gap-1.5">
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                         <Label>Location Type</Label>
                         <Select
                           value={route.iconType}
                           onValueChange={(value) =>
                             updateRouteItem(index, "iconType", value)
+<<<<<<< HEAD
+                          }>
+=======
                           }
                         >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                           <SelectTrigger>
                             <SelectValue placeholder="Select type" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="location">
+<<<<<<< HEAD
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4" />
+                                <span>Location</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="food">
+                              <div className="flex items-center gap-2">
+                                <Utensils className="w-4 h-4" />
+                                <span>Food</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="activity">
+                              <div className="flex items-center gap-2">
+                                <Tent className="w-4 h-4" />
+                                <span>Activity</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="hotel">
+                              <div className="flex items-center gap-2">
+                                <Hotel className="w-4 h-4" />
+                                <span>Hotel</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="transport">
+                              <div className="flex items-center gap-2">
+                                <Bus className="w-4 h-4" />
+                                <span>Transport</span>
+                              </div>
+=======
                               <MapPin className="w-4 h-4 mr-2" />
                               Location
                             </SelectItem>
@@ -271,19 +435,38 @@ export default function RouteStep({
                             <SelectItem value="transport">
                               <Bus className="w-4 h-4 mr-2" />
                               Transport
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                             </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
 
+<<<<<<< HEAD
+                    <div className="space-y-2">
+=======
                     <div className="flex flex-col gap-1.5">
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                       <Label>Description</Label>
                       <Textarea
                         value={route.about}
                         onChange={(e) =>
                           updateRouteItem(index, "about", e.target.value)
                         }
+<<<<<<< HEAD
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Image</Label>
+                      <ImageUpload
+                        value={route.image ? [route.image] : []}
+                        onChange={(urls) =>
+                          updateRouteItem(index, "image", urls[0] || "")
+                        }
+                        maxFiles={1}
+                      />
+=======
                         placeholder="Write a short description about this stop..."
                       />
                     </div>
@@ -324,6 +507,7 @@ export default function RouteStep({
                           </div>
                         )}
                       </div>
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                     </div>
                   </div>
                 </CardContent>
@@ -332,6 +516,15 @@ export default function RouteStep({
           );
         })}
 
+<<<<<<< HEAD
+        <motion.div variants={item}>
+          <Button
+            type="button"
+            variant="outline"
+            className="relative w-full h-16 overflow-hidden border-dashed group"
+            onClick={addRouteItem}>
+            <span className="absolute inset-0 w-full h-full transition-all duration-300 ease-out transform translate-x-0 -skew-x-12 opacity-0 bg-primary group-hover:opacity-10 group-hover:-skew-x-0 group-hover:translate-x-0"></span>
+=======
         <motion.div variants={item} className="flex flex-col gap-1.5">
           <Button
             type="button"
@@ -340,6 +533,7 @@ export default function RouteStep({
             className="w-full h-16 border-dashed relative group"
           >
             <span className="absolute inset-0 transition-all duration-300 ease-out transform -skew-x-12 opacity-0 bg-primary group-hover:opacity-10 group-hover:skew-x-0 group-hover:translate-x-0" />
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
             <Plus className="w-5 h-5 mr-2 text-primary" />
             <span className="relative">Add New Location</span>
           </Button>

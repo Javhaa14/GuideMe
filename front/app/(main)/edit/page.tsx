@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { MainEdit, MainEditRef } from "../components/Main";
-import { RoudEdit, RoudEditRef } from "../components/RoudEdit";
-import { TipsEdit, TipsEditRef } from "../components/TipsEdit";
+import { RoudEdit, RoudEditRef } from "./components/RoudEdit";
+import { TipsEdit, TipsEditRef } from "./components/TipsEdit";
+import { MainEdit, MainEditRef } from "./components/Main";
 
 export default function Home() {
   const mainRef = useRef<MainEditRef>(null);
@@ -39,8 +39,7 @@ export default function Home() {
       <div className="flex justify-end">
         <button
           onClick={handleSave}
-          className="px-6 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
-        >
+          className="px-6 py-2 text-white bg-blue-600 rounded hover:bg-blue-700">
           Save
         </button>
       </div>

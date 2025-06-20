@@ -1,8 +1,10 @@
+
 import { Request, Response } from "express";
 import { Guidemodel } from "../model/Guide";
 import mongoose from "mongoose";
 import { io } from "..";
 import { NotificationModel } from "../model/Notif";
+
 export const createGuideProfile = async (
   req: Request,
   res: Response
@@ -56,18 +58,19 @@ export const createGuideProfile = async (
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("❌ Error creating guide profile:", error.message);
+
+      console.error('❌ Error creating guide profile:', error.message);
 
       res.status(400).send({
         success: false,
         message: error.message,
       });
     } else {
-      console.error("❌ Unknown error creating guide profile");
-
+      console.error('❌ Unknown error creating guide profile');
       res.status(400).send({
         success: false,
-        message: "Unknown error occurred",
+        message: 'Unknown error occurred',
+
       });
     }
   }
@@ -81,6 +84,7 @@ export const getGuideByuserId = async (
 
   try {
     const guide = await Guidemodel.findOne({ _id }).populate({
+
       path: "_id",
       select: "username email role",
     });
@@ -92,18 +96,20 @@ export const getGuideByuserId = async (
     res.status(200).send(guide);
   } catch (error: unknown) {
     if (error instanceof Error) {
+
       console.error("ERROR in getGuideByuserId:", {
         message: error.message,
         stack: error.stack,
       });
 
       res.status(500).send({
-        error: "Internal Server Error",
+
+        error: 'Internal Server Error',
         details:
-          process.env.NODE_ENV === "development" ? error.message : undefined,
+          process.env.NODE_ENV === 'development' ? error.message : undefined,
       });
     } else {
-      res.status(500).send({ error: "Unexpected error occurred" });
+      res.status(500).send({ error: 'Unexpected error occurred' });
     }
   }
 };
@@ -113,7 +119,7 @@ export const getGuides = async (_: Request, res: Response): Promise<void> => {
     const guides = await Guidemodel.find().lean();
 
     if (!guides.length) {
-      console.warn("No guides found");
+      console.warn('No guides found');
     }
 
     res.status(200).send(guides);
@@ -125,12 +131,13 @@ export const getGuides = async (_: Request, res: Response): Promise<void> => {
       });
 
       res.status(500).send({
-        error: "Internal Server Error",
+
+        error: 'Internal Server Error',
         details:
-          process.env.NODE_ENV === "development" ? error.message : undefined,
+          process.env.NODE_ENV === 'development' ? error.message : undefined,
       });
     } else {
-      res.status(500).send({ error: "Unexpected error occurred" });
+      res.status(500).send({ error: 'Unexpected error occurred' });
     }
   }
 };
@@ -145,13 +152,16 @@ export const updateGuideProfile = async (
     !mongoose.Types.ObjectId.isValid(userId) ||
     !mongoose.Types.ObjectId.isValid(guideId)
   ) {
-    return res.status(400).json({ message: "Invalid userId or guideId" });
+    return res.status(400).json({ message: 'Invalid userId or guideId' });
+
   }
 
   try {
     const guideProfile = await Guidemodel.findById(guideId);
     if (!guideProfile) {
-      return res.status(404).json({ message: "Guide profile not found" });
+
+      return res.status(404).json({ message: 'Guide profile not found' });
+
     }
 
     const alreadyLiked = guideProfile.likedBy.some(
@@ -185,15 +195,52 @@ export const updateGuideProfile = async (
     }
 
     await guideProfile.save();
-
     return res.status(200).json({
       message: "Profile updated",
+      message: "Post updated successfully",
+
       likedBy: guideProfile.likedBy,
     });
   } catch (error) {
     return res.status(500).json({ success: false, error });
   }
 };
+
+import { Request, Response } from "express";
+import mongoose from "mongoose";
+import { Guidemodel } from "../models/GuideModel"; // өөрийн замаа шалгаарай
+
+export const editGuideProfile = async (req: Request, res: Response) => {
+  const { guideId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(guideId)) {
+    return res.status(400).json({ message: "Invalid guideId" });
+  }
+
+  try {
+    const updateData = req.body;
+
+    if (updateData.languages && !Array.isArray(updateData.languages)) {
+      return res.status(400).json({ message: "Languages must be an array" });
+    }
+
+    const updatedGuide = await Guidemodel.findByIdAndUpdate(
+      guideId,
+      updateData,
+      { new: true }
+    );
+
+    if (!updatedGuide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    return res.status(200).json(updatedGuide);
+  } catch (error) {
+    console.error("Update error:", error);
+    return res.status(500).json({ message: "Failed to update guide", error });
+  }
+};
+
 
 export const saveAvailability = async (
   req: Request,
@@ -202,7 +249,9 @@ export const saveAvailability = async (
   const { userId, availability } = req.body;
 
   if (!userId || !Array.isArray(availability)) {
-    res.status(400).json({ message: "Invalid request body" });
+
+    res.status(400).json({ message: 'Invalid request body' });
+
   }
 
   try {
@@ -223,9 +272,10 @@ export const getAvailability = async (
 ): Promise<void> => {
   const { userId } = req.params;
 
-  if (!userId || typeof userId !== "string") {
-    res.status(400).json({ message: "userId is required" });
-    return;
+
+  if (!userId || typeof userId !== 'string') {
+    res.status(400).json({ message: 'userId is required' });
+
   }
 
   try {

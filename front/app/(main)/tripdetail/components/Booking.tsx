@@ -1,13 +1,34 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+<<<<<<< HEAD
+import React, { useState } from "react";
 import { Globe, Users } from "lucide-react";
+=======
+import React, { useEffect, useState } from "react";
+import { Globe, Users, Pencil, Save } from "lucide-react";
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+<<<<<<< HEAD
+
+interface BookingProps {
+  onCheck: (data: any) => void;
+}
+
+export const Booking: React.FC<BookingProps> = ({ onCheck }) => {
+  const [participants, setParticipants] = useState({
+    adult: 1,
+    youth: 0,
+    child: 0,
+  });
+  const [language, setLanguage] = useState("English");
+=======
 import { GuideProfile } from "../../Guidedetail/components/GuideMainProfile";
+import { axiosInstance } from "@/lib/utils";
+import { toast } from "react-hot-toast";
 
 interface RouteItem {
   image?: string;
@@ -42,7 +63,7 @@ interface BookingProps {
   checkingOpen: boolean;
   setCheckingOpen: (open: boolean) => void;
   bookingStatus: string;
-  refreshBooking: () => void; // ✅ ADDED
+  refreshBooking: () => void;
 }
 
 export const Booking: React.FC<BookingProps> = ({
@@ -52,14 +73,13 @@ export const Booking: React.FC<BookingProps> = ({
   setCheckingOpen,
   checkingOpen,
   bookingStatus,
-  refreshBooking, // ✅
+  refreshBooking,
 }) => {
-  const [participants, setParticipants] = useState({
-    adult: 1,
-    child: 0,
-  });
-
+  const [participants, setParticipants] = useState({ adult: 1, child: 0 });
   const [language, setLanguage] = useState("English");
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [newPrice, setNewPrice] = useState<number>(trip?.price || 0);
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 
   const adjustParticipant = (
     type: keyof typeof participants,
@@ -71,69 +91,147 @@ export const Booking: React.FC<BookingProps> = ({
     }));
   };
 
+<<<<<<< HEAD
+  const totalParticipants =
+    participants.adult + participants.youth + participants.child;
+
+  const participantOptions = [
+    { label: "Adult", range: "Age 18-99", key: "adult" },
+    { label: "Youth", range: "Age 13-17", key: "youth" },
+    { label: "Child", range: "Age 12 and younger", key: "child" },
+  ] as const;
+
+  const languages = ["English", "Mongolian", "Korean", "Japanese"];
+
+  const totalPrice = totalParticipants * 100;
+
+  const handleCheckClick = () => {
+=======
   const totalParticipants = participants.adult + participants.child;
-  const totalPrice = trip ? trip.price * totalParticipants : 0;
+  const totalPrice = newPrice * totalParticipants;
 
   useEffect(() => {
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     const data = {
       participants,
       totalParticipants,
       language,
       totalPrice,
     };
-
-    // Only call onCheck if booking is not already confirmed
-    if (!alreadyBooked) {
-      onCheck(data);
-    }
-  }, [participants, language, totalPrice, alreadyBooked]);
+<<<<<<< HEAD
+    onCheck(data);
+=======
+    if (!alreadyBooked) onCheck(data);
+  }, [participants, language, newPrice]);
 
   useEffect(() => {
     if (bookingStatus === "" || bookingStatus === "no booking") {
       setParticipants({ adult: 1, child: 0 });
       setLanguage("English");
-      refreshBooking(); // ✅ Re-check booking after cancel
+      refreshBooking();
     }
-  }, [bookingStatus, refreshBooking]); // ✅ added refreshBooking to deps
+  }, [bookingStatus]);
 
-  const participantOptions = [
-    { label: "Adult", range: "Age 18-99", key: "adult" },
-    { label: "Child", range: "Age 12 and younger", key: "child" },
-  ] as const;
+  const handleSavePrice = async () => {
+    if (!trip) return;
+    try {
+      const res = await axiosInstance.put(`/tripPlan/${trip._id}`, {
+        price: newPrice,
+      });
 
-  const languages = ["English", "Mongolian", "Korean", "Japanese"];
+      if (res.data.success) {
+        toast.success("Үнэ амжилттай хадгалагдлаа");
+        setIsEditingPrice(false);
+        refreshBooking();
+      } else {
+        toast.error("Хадгалах үед алдаа гарлаа");
+      }
+    } catch (error) {
+      toast.error("Серверийн алдаа: " + error);
+    }
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
+  };
 
   return (
     <div className="bg-[#453C67] mt-6 text-white rounded-2xl p-6 max-w-5xl mx-auto shadow-lg">
       <h2 className="mb-6 text-2xl font-bold">
+<<<<<<< HEAD
+        Select participants and language
+      </h2>
+
+      <div className="flex flex-wrap items-center gap-4">
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow">
+=======
         {alreadyBooked
           ? "You have successfully joined this trip"
           : "Select participants and language"}
       </h2>
 
       <div className="flex flex-wrap items-center gap-4">
+        {/* Participants Selector */}
         <Popover>
           <PopoverTrigger asChild>
             <button
               disabled={alreadyBooked}
-              className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow disabled:opacity-50"
+            >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
               <Users className="text-[#453C67]" />
               <span>{`Person x ${totalParticipants}`}</span>
             </button>
           </PopoverTrigger>
+<<<<<<< HEAD
+          <PopoverContent className="z-50 w-72">
+            {participantOptions.map(({ label, range, key }) => (
+              <div key={key} className="mb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold">{label}</p>
+                    <p className="text-sm text-gray-500">{range}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => adjustParticipant(key, -1)}
+                      className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300">
+                      −
+                    </button>
+                    <span className="w-6 font-medium text-center">
+                      {participants[key]}
+                    </span>
+                    <button
+                      onClick={() => adjustParticipant(key, 1)}
+                      className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300">
+                      ＋
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </PopoverContent>
+        </Popover>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow">
+=======
           {!alreadyBooked && (
             <PopoverContent className="z-50 w-72">
-              {participantOptions.map(({ label, range, key }) => (
+              {(["adult", "child"] as const).map((key) => (
                 <div key={key} className="mb-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold">{label}</p>
-                      <p className="text-sm text-gray-500">{range}</p>
+                      <p className="font-semibold capitalize">{key}</p>
+                      <p className="text-sm text-gray-500">
+                        {key === "adult" ? "Age 18-99" : "Age 12 and younger"}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => adjustParticipant(key, -1)}
-                        className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300">
+                        className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300"
+                      >
                         −
                       </button>
                       <span className="w-6 font-medium text-center">
@@ -141,7 +239,8 @@ export const Booking: React.FC<BookingProps> = ({
                       </span>
                       <button
                         onClick={() => adjustParticipant(key, 1)}
-                        className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300">
+                        className="w-8 h-8 text-xl transition bg-gray-200 rounded-full hover:bg-gray-300"
+                      >
                         ＋
                       </button>
                     </div>
@@ -152,27 +251,29 @@ export const Booking: React.FC<BookingProps> = ({
           )}
         </Popover>
 
+        {/* Language Selector */}
         <Popover>
           <PopoverTrigger asChild>
             <button
               disabled={alreadyBooked}
-              className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2 text-black transition bg-white rounded-full w-52 hover:shadow disabled:opacity-50"
+            >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
               <Globe className="text-[#453C67]" />
               <span>{language}</span>
             </button>
           </PopoverTrigger>
-          {!alreadyBooked && (
-            <PopoverContent className="w-44">
-              {languages.map((lang) => (
-                <div
-                  key={lang}
-                  onClick={() => setLanguage(lang)}
-                  className="p-2 transition rounded cursor-pointer hover:bg-gray-100">
-                  {lang}
-                </div>
-              ))}
-            </PopoverContent>
-          )}
+<<<<<<< HEAD
+          <PopoverContent className="w-44">
+            {languages.map((lang) => (
+              <div
+                key={lang}
+                onClick={() => setLanguage(lang)}
+                className="p-2 transition rounded cursor-pointer hover:bg-gray-100">
+                {lang}
+              </div>
+            ))}
+          </PopoverContent>
         </Popover>
 
         <div className="flex items-center gap-3 px-4 py-2 ml-auto text-black bg-white rounded-full shadow">
@@ -181,12 +282,62 @@ export const Booking: React.FC<BookingProps> = ({
         </div>
 
         <button
+          onClick={handleCheckClick}
+          className="bg-[#6D67E4] hover:bg-[#46C2CB] transition text-white font-semibold px-6 py-3 rounded-full shadow-md">
+          Check availability
+=======
+          {!alreadyBooked && (
+            <PopoverContent className="w-44">
+              {["English", "Mongolian", "Korean", "Japanese"].map((lang) => (
+                <div
+                  key={lang}
+                  onClick={() => setLanguage(lang)}
+                  className="p-2 transition rounded cursor-pointer hover:bg-gray-100"
+                >
+                  {lang}
+                </div>
+              ))}
+            </PopoverContent>
+          )}
+        </Popover>
+
+        {/* Price Display / Edit */}
+        <div className="flex items-center gap-2 px-4 py-2 ml-auto text-black bg-white rounded-full shadow">
+          <span className="text-sm text-gray-600">Total Price:</span>
+          <span className="text-lg font-bold">${totalPrice}</span>
+
+          {!alreadyBooked &&
+            (isEditingPrice ? (
+              <>
+                <input
+                  type="number"
+                  value={newPrice}
+                  onChange={(e) => setNewPrice(Number(e.target.value))}
+                  onKeyDown={(e) => e.key === "Enter" && handleSavePrice()}
+                  className="w-20 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-violet-300 bg-gray-100"
+                />
+                <Save
+                  onClick={handleSavePrice}
+                  className="w-5 h-5 text-green-500 cursor-pointer hover:text-green-600"
+                />
+              </>
+            ) : (
+              <Pencil
+                onClick={() => setIsEditingPrice(true)}
+                className="w-5 h-5 text-blue-500 cursor-pointer hover:text-blue-600"
+              />
+            ))}
+        </div>
+
+        {/* Check / Cancel Button */}
+        <button
           onClick={() => setCheckingOpen(!checkingOpen)}
           className={`${
             alreadyBooked
               ? "bg-red-400 hover:bg-red-500"
               : "bg-[#6D67E4] hover:bg-[#46C2CB]"
-          } transition text-white font-semibold px-6 py-3 rounded-full shadow-md`}>
+          } transition text-white font-semibold px-6 py-3 rounded-full shadow-md`}
+        >
           {alreadyBooked
             ? checkingOpen
               ? "Close Edit"
@@ -194,6 +345,7 @@ export const Booking: React.FC<BookingProps> = ({
             : checkingOpen
             ? "Close Availability"
             : "Check availability"}
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
         </button>
       </div>
     </div>

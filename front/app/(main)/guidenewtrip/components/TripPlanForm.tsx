@@ -14,7 +14,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
+=======
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 const steps = [
   { id: "basic-info", title: "Basic Info" },
   { id: "route", title: "Route" },
@@ -27,8 +30,11 @@ export default function TripPlanForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const { user } = useUser();
+<<<<<<< HEAD
+=======
   const router = useRouter();
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   const [formData, setFormData] = useState({
     title: "",
     about: "",
@@ -84,6 +90,17 @@ export default function TripPlanForm() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
+<<<<<<< HEAD
+  const router = useRouter();
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    setIsSubmitting(true);
+    console.log(formData, "lol");
+
+    try {
+      if (user.id == null) return;
+=======
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -92,6 +109,7 @@ export default function TripPlanForm() {
     try {
       if (!user?.id) return;
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
       const res = await axiosInstance.post(`/tripPlan`, {
         guideId: user.id,
         ...formData,
@@ -100,6 +118,12 @@ export default function TripPlanForm() {
       console.log("Form submitted:", res.data);
 
       toast("Success", {
+<<<<<<< HEAD
+        description: "Trip plan created successfully!",
+        className: "bg-green-100 text-green-800 border border-green-300",
+      });
+      router.push(`/Guidedetail/${user.id}`);
+=======
         description: "Trip plan created successfully! Redirecting...",
         className: "bg-green-100 text-green-800 border border-green-300",
         duration: 2000,
@@ -107,7 +131,8 @@ export default function TripPlanForm() {
 
       setTimeout(() => {
         router.push(`/Guidedetail/${user.id}`);
-      }, 2000);
+      }, 5000);
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     } catch (error) {
       console.error("Error creating trip plan:", error);
       toast("Error", {
@@ -118,7 +143,10 @@ export default function TripPlanForm() {
       setIsSubmitting(false);
     }
   };
+<<<<<<< HEAD
+=======
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   return (
     <div className="space-y-8">
       <Toaster />
@@ -144,8 +172,12 @@ export default function TripPlanForm() {
                       : isCompleted
                       ? "bg-green-500 text-white"
                       : "bg-white dark:bg-gray-800 text-gray-400 border border-gray-300 dark:border-gray-600"
+<<<<<<< HEAD
+                  }`}>
+=======
                   }`}
                 >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                   {isCompleted ? (
                     <CheckCircle className="w-6 h-6" />
                   ) : (
@@ -162,8 +194,12 @@ export default function TripPlanForm() {
                       : isCompleted
                       ? "text-green-500"
                       : "text-gray-500 dark:text-gray-400"
+<<<<<<< HEAD
+                  }`}>
+=======
                   }`}
                 >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                   {step.title}
                 </span>
               </div>
@@ -171,7 +207,10 @@ export default function TripPlanForm() {
           })}
         </div>
       </div>
+<<<<<<< HEAD
+=======
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
       <Card className="overflow-hidden border-none shadow-xl bg-white/90 backdrop-blur-sm dark:bg-gray-800/90">
         <CardContent className="p-0">
           <form className="space-y-8" onSubmit={handleSubmit}>
@@ -181,8 +220,12 @@ export default function TripPlanForm() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
+<<<<<<< HEAD
+                transition={{ duration: 0.3 }}>
+=======
                 transition={{ duration: 0.3 }}
               >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                 {activeStep === "basic-info" && (
                   <BasicInfoStep
                     formData={formData}
@@ -211,8 +254,12 @@ export default function TripPlanForm() {
                 variant="outline"
                 onClick={prevStep}
                 disabled={activeStepIndex === 0}
+<<<<<<< HEAD
+                className="gap-2">
+=======
                 className="gap-2"
               >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                 <ArrowLeft className="w-4 h-4" />
                 Back
               </Button>
@@ -221,22 +268,37 @@ export default function TripPlanForm() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
+<<<<<<< HEAD
+                  className="px-8 text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+=======
                   className="px-8 text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                 >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                   {isSubmitting ? (
                     <>
                       <svg
                         className="w-4 h-4 mr-2 -ml-1 text-white animate-spin"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
+<<<<<<< HEAD
+                        viewBox="0 0 24 24">
+=======
                         viewBox="0 0 24 24"
                       >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                         <circle
                           className="opacity-25"
                           cx="12"
                           cy="12"
                           r="10"
                           stroke="currentColor"
+<<<<<<< HEAD
+                          strokeWidth="4"></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+=======
                           strokeWidth="4"
                         ></circle>
                         <path
@@ -244,6 +306,7 @@ export default function TripPlanForm() {
                           fill="currentColor"
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                       </svg>
                       Creating...
                     </>
@@ -255,8 +318,12 @@ export default function TripPlanForm() {
                 <Button
                   type="button"
                   onClick={nextStep}
+<<<<<<< HEAD
+                  className="gap-2 px-8 text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+=======
                   className="gap-2 px-8 text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                 >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                   Continue
                   <ArrowRight className="w-4 h-4" />
                 </Button>

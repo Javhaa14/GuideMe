@@ -12,11 +12,133 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { ChatList } from "./Chatlist";
+<<<<<<< HEAD
+import { io, Socket } from "socket.io-client";
+import { axiosInstance } from "@/lib/utils";
+
+let socket: Socket | null = null;
+
+export const MessengerButton = () => {
+  const [open, setOpen] = useState(false);
+  const [unreadTotal, setUnreadTotal] = useState(0);
+  const [conversations, setConversations] = useState<
+    {
+      roomId: string;
+      user: {
+        id: string;
+        name: string;
+        profileimage?: string;
+      };
+      lastMessage: {
+        text: string;
+        createdAt: string;
+        senderId?: string;
+      };
+      unreadCount: number;
+    }[]
+  >([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+
+  // Fetch conversations & unread count
+  const fetchConversations = () => {
+    if (!userId) return;
+    setLoading(true);
+
+    axiosInstance
+      .get(`/api/chat/conversations/${userId}`)
+      .then((res) => {
+        if (res.data.success) {
+          const convs = res.data.conversations;
+          setConversations(convs);
+          const totalUnread = convs.reduce(
+            (sum: any, conv: any) => sum + (conv.unreadCount || 0),
+            0
+          );
+          setUnreadTotal(totalUnread);
+          setError(null);
+        } else {
+          setError("Failed to load conversations");
+        }
+      })
+      .catch(() => setError("Failed to load conversations"))
+      .finally(() => setLoading(false));
+  };
+
+  // Connect socket and listen
+  useEffect(() => {
+    if (!userId) return;
+
+    if (!socket) {
+      socket = io("https://guideme-8o9f.onrender.com", {
+        transports: ["websocket"],
+        withCredentials: true,
+      });
+
+      socket.on("connect", () => {
+        socket?.emit("identify", userId);
+        socket?.emit("joinNotificationRoom", userId);
+        console.log(`🟢 Socket connected as ${userId}`);
+      });
+
+      socket.on("notify", (data) => {
+        if (!open) {
+          fetchConversations(); // ✅ Keep this accurate
+          if (
+            "Notification" in window &&
+            Notification.permission === "granted"
+          ) {
+            new Notification(data.title, {
+              body: data.message,
+            });
+          }
+        }
+      });
+    }
+
+    return () => {
+      socket?.off("notify");
+    };
+  }, [userId, open]);
+
+  // Ask for browser notification permission
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // Initial + whenever messenger opens
+  useEffect(() => {
+    if (userId) {
+      fetchConversations();
+    }
+  }, [userId, open]);
+
+  // Mark messages as read when opening messenger
+  useEffect(() => {
+    if (open && userId && conversations.length > 0) {
+      Promise.all(
+        conversations.map((conv) =>
+          axiosInstance.post("/api/chat/mark-read", {
+            roomId: conv.roomId,
+            userId,
+          })
+        )
+      ).then(() => fetchConversations());
+    }
+  }, [open]);
+=======
 import { axiosInstance } from "@/lib/utils";
 import { useSocket } from "@/app/context/SocketContext";
+import { useProfile } from "@/app/context/ProfileContext";
 
 export const MessengerButton = () => {
   const { data: session } = useSession();
+  const { requireAuth } = useProfile();
   const userId = session?.user?.id;
 
   const { socket, isConnected } = useSocket();
@@ -33,6 +155,12 @@ export const MessengerButton = () => {
     (acc, val) => acc + val,
     0
   );
+
+  const handleMessengerClick = () => {
+    if (requireAuth("access messenger")) {
+      setOpen(true);
+    }
+  };
 
   useEffect(() => {
     if (!socket || !isConnected || !userId) return;
@@ -127,30 +255,52 @@ export const MessengerButton = () => {
       console.error("Failed to mark notifications as seen:", error);
     }
   };
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"
+<<<<<<< HEAD
+          className="relative rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+          aria-label="Open Messenger"
+        >
+          <MessageCircleMore className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+          {unreadTotal > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+              {unreadTotal}
+=======
           className="relative rounded-full p-2 hover:bg-white/10 transition-all duration-200 hover:scale-105"
-          aria-label="Open Messenger">
+          aria-label="Open Messenger"
+          onClick={handleMessengerClick}>
           <MessageCircleMore className="h-6 w-6 text-white" />
           {notificationCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full animate-bounce shadow-lg">
               {notificationCount}
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
             </span>
           )}
         </Button>
       </SheetTrigger>
 
+<<<<<<< HEAD
+      <SheetContent side="right" className="w-[300px] top-15 [&>button]:hidden">
+=======
       <SheetContent
         side="right"
         className="w-[300px] top-15 [&>button]:hidden bg-black/30 backdrop-blur-xl border-white/10">
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
         <SheetHeader>
           <SheetTitle>Chat</SheetTitle>
         </SheetHeader>
         <ChatList
+<<<<<<< HEAD
+          conversations={conversations}
+          loading={loading}
+          error={error}
+        />
+=======
           onConversationOpen={onConversationOpen}
           conversations={conversations}
           loading={loading}
@@ -169,6 +319,7 @@ export const MessengerButton = () => {
           }}>
           Debug Socket
         </Button>
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
       </SheetContent>
     </Sheet>
   );

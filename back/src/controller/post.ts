@@ -1,7 +1,13 @@
 import { Request, Response } from "express";
 import { Postmodel } from "../model/Post";
+<<<<<<< HEAD
+import { Touristmodel } from "../model/Tourist";
+import mongoose from "mongoose";
+import { error } from "console";
+=======
 import mongoose from "mongoose";
 import { UserModel } from "../model/User";
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 
 type UpdatePostBody = {
   postId: string;
@@ -85,7 +91,10 @@ export const getPosts = async (_: Request, res: Response): Promise<void> => {
           country: 1,
           city: 1,
           images: 1,
+<<<<<<< HEAD
+=======
           activities: 1,
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
           people: 1,
           likes: 1,
           likedBy: 1,
@@ -107,7 +116,11 @@ export const getPosts = async (_: Request, res: Response): Promise<void> => {
       },
     ]);
 
+<<<<<<< HEAD
+    // Always return posts, even if empty array
+=======
     // Always  posts, even if empty array
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     res.status(200).json(posts);
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -175,7 +188,10 @@ export const getPostsByUserId = async (
           country: 1,
           city: 1,
           images: 1,
+<<<<<<< HEAD
+=======
           activities: 1,
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
           people: 1,
           likes: 1,
           likedBy: 1,
@@ -198,7 +214,11 @@ export const getPostsByUserId = async (
       },
     ]);
 
+<<<<<<< HEAD
+    // Return empty array if no posts found (instead of 404)
+=======
     //  empty array if no posts found (instead of 404)
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     res.status(200).json(posts);
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -217,13 +237,36 @@ export const getPostsByUserId = async (
 export const updatePost = async (
   req: Request<{}, {}, UpdatePostBody>,
   res: Response
+<<<<<<< HEAD
+): Promise<void> => {
+=======
 ): Promise<any> => {
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   const { postId, userId } = req.body;
 
   try {
     const post = await Postmodel.findById(postId);
 
     if (!post) {
+<<<<<<< HEAD
+      res.status(404).json({ message: "Post not found" });
+    } else {
+      const alreadyLiked = post.likedBy.some((id) => id.toString() === userId);
+
+      if (alreadyLiked) {
+        post.likedBy = post.likedBy.filter((id) => id.toString() !== userId);
+      } else {
+        post.likedBy.push(new mongoose.Types.ObjectId(userId));
+      }
+
+      await post.save();
+      res.status(200).json({
+        message: "Post updated successfully",
+        likedBy: post.likedBy,
+        likesCount: post.likedBy.length,
+      });
+    }
+=======
       return res.status(404).json({ message: "Post not found" });
     }
 
@@ -250,6 +293,7 @@ export const updatePost = async (
       likedBy: post.likedBy,
       likesCount: post.likedBy.length,
     });
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   } catch (error) {
     console.error("Error updating post:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -279,6 +323,8 @@ export const getPostById = async (
     });
   }
 };
+<<<<<<< HEAD
+=======
 export const getLikedUsers = async (
   req: Request,
   res: Response
@@ -339,3 +385,4 @@ export const getLikedUsers = async (
     res.status(500).send({ error: err.message || err, success: false });
   }
 };
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a

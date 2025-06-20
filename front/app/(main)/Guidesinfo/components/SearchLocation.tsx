@@ -4,13 +4,19 @@ import { useState, useEffect, ChangeEvent } from "react";
 import { BiSearchAlt } from "react-icons/bi";
 import axios from "axios";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
+<<<<<<< HEAD
+=======
 import { Input } from "@/components/ui/input";
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 
 type dataTypes = {
   name: string;
   description: string;
 };
 
+<<<<<<< HEAD
+export const LocationFilterCard = () => {
+=======
 export const LocationFilterCard = ({
   isFilter,
   className,
@@ -20,6 +26,7 @@ export const LocationFilterCard = ({
   className: string;
   placeholder: string;
 }) => {
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   const { searchedValue, setSearchedValue } = useSearchLocation();
   const [inputValue, setInputValue] = useState("");
   const [results, setResults] = useState<dataTypes[]>([]);
@@ -59,6 +66,29 @@ export const LocationFilterCard = ({
   };
 
   return (
+<<<<<<< HEAD
+    <div className="w-[400px] max-w-md">
+      <div className="flex gap-1 justify-center items-center border-1 p-3 w-full h-[50px]">
+        <BiSearchAlt className="size-[20px]" />
+        <input
+          type="search"
+          placeholder="Start typing a city..."
+          value={inputValue}
+          onChange={handleValueChange}
+          className="w-full px-3 py-2 rounded border-none outline-none hover:outline-none hover:border:none"
+        />
+      </div>
+
+      {isShown ? (
+        <ul>
+          {results.map((item, index) => (
+            <div key={index} className="flex flex-col border p-3">
+              <p onClick={() => handleOnClick(item)}>{item.description}</p>
+            </div>
+          ))}
+        </ul>
+      ) : null}
+=======
     <div>
       {isFilter ? (
         <div className="w-full max-w-md">
@@ -113,6 +143,7 @@ export const LocationFilterCard = ({
           ) : null}
         </div>
       )}
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     </div>
   );
 };

@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { TripPlanModel } from "../model/TripPlan";
 import { Guidemodel } from "../model/Guide";
+<<<<<<< HEAD
+=======
 import { WishlistModel } from "../model/Wish";
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 
 export const createTripPlan = async (req: Request, res: Response) => {
   try {
@@ -12,7 +15,10 @@ export const createTripPlan = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
 };
+<<<<<<< HEAD
+=======
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 export const getAllTripPlans = async (_req: Request, res: Response) => {
   try {
     const tripPlans = await TripPlanModel.find().populate("guideId");
@@ -22,6 +28,8 @@ export const getAllTripPlans = async (_req: Request, res: Response) => {
   }
 };
 
+<<<<<<< HEAD
+=======
 export const getTripPlanById = async (
   req: Request,
   res: Response
@@ -72,6 +80,7 @@ export const getTripPlanById = async (
   }
 };
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 export const getTripPlansByGuideId = async (
   req: Request,
   res: Response
@@ -99,7 +108,10 @@ export const getTripPlansByGuideId = async (
     res.status(500).json({ success: false, message: (error as Error).message });
   }
 };
+<<<<<<< HEAD
+=======
 
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 export const updateTripPlan = async (
   req: Request,
   res: Response
