@@ -257,7 +257,7 @@ io.on("connection", (socket) => {
   });
 });
 // Start the server
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 4000;
 httpServer.listen(PORT, () => {
   console.log(`🚀 Server is running on`);
 });

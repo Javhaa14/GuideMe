@@ -133,9 +133,9 @@ export const MessengerButton = () => {
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="relative rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+          className="relative rounded-full p-2 hover:bg-white/10 transition-all duration-200 hover:scale-105"
           aria-label="Open Messenger">
-          <MessageCircleMore className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+          <MessageCircleMore className="h-6 w-6 text-white" />
           {notificationCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full animate-bounce shadow-lg">
               {notificationCount}
@@ -144,7 +144,9 @@ export const MessengerButton = () => {
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="right" className="w-[300px] top-15 [&>button]:hidden">
+      <SheetContent
+        side="right"
+        className="w-[300px] top-15 [&>button]:hidden bg-black/30 backdrop-blur-xl border-white/10">
         <SheetHeader>
           <SheetTitle>Chat</SheetTitle>
         </SheetHeader>

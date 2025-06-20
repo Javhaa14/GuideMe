@@ -1,10 +1,8 @@
 import { Request, Response } from "express";
 import { Guidemodel } from "../model/Guide";
 import mongoose from "mongoose";
-
 import { io } from "..";
 import { NotificationModel } from "../model/Notif";
-
 export const createGuideProfile = async (
   req: Request,
   res: Response
