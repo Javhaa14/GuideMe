@@ -24,8 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import ReactSelect from "react-select";
-
 import axios from "axios";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
@@ -62,6 +60,7 @@ const formSchema = z.object({
     message: "Please enter info about yourself",
   }),
   profileimage: z.string({ required_error: "Must upload image" }),
+
   social: z.string().min(2, {
     message: "Please enter a social link",
   }),
@@ -78,6 +77,10 @@ export const TouristProfile = () => {
   if (!user) {
     return <p>Loading user...</p>; // or a spinner
   }
+  const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
+  const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const { searchedValue, setSearchedValue } = useSearchLocation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -91,11 +94,6 @@ export const TouristProfile = () => {
       profileimage: "",
     },
   });
-
-  const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
-  const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const { searchedValue, setSearchedValue } = useSearchLocation();
 
   // Fetch countries for country select
   // Fetch unique languages for language select
@@ -162,6 +160,7 @@ export const TouristProfile = () => {
 
   const handlePreview = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    console.log(file);
     if (!file) return;
 
     const objectUrl = URL.createObjectURL(file);
@@ -424,7 +423,7 @@ export const TouristProfile = () => {
 
             <FormField
               control={form.control}
-              name="social"
+              name="about"
               render={({ field }) => (
                 <FormItem className="relative">
                   <FormLabel>About</FormLabel>
@@ -442,7 +441,7 @@ export const TouristProfile = () => {
 
             <FormField
               control={form.control}
-              name="about"
+              name="social"
               render={({ field }) => (
                 <FormItem className="relative">
                   <FormLabel>Social media URL</FormLabel>
