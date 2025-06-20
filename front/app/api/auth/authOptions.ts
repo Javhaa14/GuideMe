@@ -105,7 +105,11 @@ export const authOptions: NextAuthOptions = {
 
         const data = await res.json();
 
+<<<<<<< HEAD
         // Attach Mongo _id to user.id
+=======
+        // Attach Mongo _id and role to user
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
         if (data?.id) {
           user.id = data.id;
           (user as any).role = data.role;
@@ -120,17 +124,25 @@ export const authOptions: NextAuthOptions = {
 
     async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
+<<<<<<< HEAD
         token.user = {
           id: (user as any).id,
           name: user.name ?? undefined,
           email: user.email ?? undefined,
           role: (user as any).role,
         };
+=======
+        token.id = (user as any).id;
+        token.name = user.name ?? undefined;
+        token.email = user.email ?? undefined;
+        token.role = (user as any).role; // ✅ Set top-level role
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
       }
       return token;
     },
 
     async session({ session, token }: { session: Session; token: JWT }) {
+<<<<<<< HEAD
       if (token.user) {
         session.user = {
           id: (token.user as any).id,
@@ -139,6 +151,14 @@ export const authOptions: NextAuthOptions = {
           role: (token.user as any).role,
         };
       }
+=======
+      session.user = {
+        id: token.id as string,
+        name: token.name,
+        email: token.email,
+        role: token.role as string, // ✅ Directly from token
+      };
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
       return session;
     },
   },

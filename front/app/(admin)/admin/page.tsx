@@ -1,6 +1,6 @@
 "use client";
 
-import Admin from "./dashboard/Admin";
+import Admin from "../components/Admin";
 
 export default function Page() {
   return (

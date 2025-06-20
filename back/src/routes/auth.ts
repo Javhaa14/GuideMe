@@ -14,5 +14,9 @@ authRouter
   .post("/signup", signup)
   .post("/signin", signin)
   .post("/check-or-create-user", checkOrCreateUser)
+<<<<<<< HEAD
   .post("/request-reset", requestReset)
+=======
+  .post("/request-reset", requestReset as any)
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   .post("/verify-reset-token", verifyResetToken);

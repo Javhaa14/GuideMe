@@ -7,7 +7,7 @@ import {
   UserCheck,
   Users,
 } from "lucide-react";
-import { Sidebar, Statscard, ActivityItem, UserGrid } from "../components";
+import { Sidebar, Statscard, ActivityItem, UserGrid } from ".";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -179,17 +179,16 @@ export default function AdminDashboard() {
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                   {activeTab === "overview"
                     ? "Dashboard Overview"
+                    : activeTab === "bookings"
+                    ? "Bookings"
                     : activeTab === "tourists"
                     ? "Tourist Management"
                     : activeTab === "guides"
                     ? "Guide Management"
+                    : activeTab === "reports"
+                    ? "Reports"
                     : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  {activeTab === "overview"
-                    ? "Welcome back! Here's what's happening with your platform."
-                    : `Manage and monitor ${activeTab} on your platform.`}
-                </p>
               </div>
               <div className="flex items-center gap-3">
                 <Button
@@ -231,6 +230,28 @@ export default function AdminDashboard() {
           )}
 
           {(activeTab === "tourists" || activeTab === "guides") && (
+            <UserGrid
+              users={mockUsers}
+              activeTab={activeTab}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              filterStatus={filterStatus}
+              setFilterStatus={setFilterStatus}
+              getStatusColor={getStatusColor}
+            />
+          )}
+          {activeTab === "bookings" && (
+            <UserGrid
+              users={mockUsers}
+              activeTab={activeTab}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              filterStatus={filterStatus}
+              setFilterStatus={setFilterStatus}
+              getStatusColor={getStatusColor}
+            />
+          )}
+          {activeTab === "reports" && (
             <UserGrid
               users={mockUsers}
               activeTab={activeTab}

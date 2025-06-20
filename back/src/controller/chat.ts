@@ -1,5 +1,10 @@
 // routes/chat.ts or controller
 import { Request, Response } from "express";
+<<<<<<< HEAD
+=======
+import { Notification } from "../model/notification";
+import { Types } from "mongoose";
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 import { ChatMessageModel } from "../model/ChatHistory";
 import { UserModel } from "../model/User";
 import { Touristmodel } from "../model/Tourist";
@@ -14,10 +19,13 @@ export const saveChatMessage = async (req: Request, res: Response) => {
       profileimage,
       roomId,
     });
+<<<<<<< HEAD
 
     // Optionally emit via Socket.IO here if you want server to broadcast
     // io.emit("chat message", newMessage);
 
+=======
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     res.status(201).json({ success: true, message: newMessage });
   } catch (err) {
     console.error("Failed to save chat message", err);
@@ -25,12 +33,20 @@ export const saveChatMessage = async (req: Request, res: Response) => {
   }
 };
 // Get chat history for a room
+<<<<<<< HEAD
+=======
+
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 export const getChatHistory = async (req: Request, res: Response) => {
   try {
     const { roomId } = req.params;
     const history = await ChatMessageModel.find({ roomId }).sort({
       timestamp: 1,
     });
+<<<<<<< HEAD
+=======
+
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     res.json({ success: true, messages: history });
   } catch (err) {
     console.error("Error fetching chat history", err);
@@ -52,13 +68,17 @@ export const getConversations = async (req: Request, res: Response) => {
       const partnerId = id1 === userId ? id2 : id1;
 
       if (!conversationsMap.has(partnerId)) {
+<<<<<<< HEAD
         // Fetch user to get username and role
+=======
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
         const userInfo = await UserModel.findById(partnerId).select(
           "username profileimage role"
         );
 
         let profileimage = userInfo?.profileimage || null;
 
+<<<<<<< HEAD
         // Depending on role, fetch profile image from the right profile collection
         if (userInfo?.role === "tourist") {
           const touristProfile = await Touristmodel.findOne({
@@ -70,10 +90,24 @@ export const getConversations = async (req: Request, res: Response) => {
           const guideProfile = await Guidemodel.findOne({
             _id: partnerId,
           }).select("profileimage");
+=======
+        // Check role and fetch profile image
+        if (userInfo?.role === "tourist") {
+          const touristProfile = await Touristmodel.findById(partnerId).select(
+            "profileimage"
+          );
+          if (touristProfile?.profileimage)
+            profileimage = touristProfile.profileimage;
+        } else if (userInfo?.role === "guide") {
+          const guideProfile = await Guidemodel.findById(partnerId).select(
+            "profileimage"
+          );
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
           if (guideProfile?.profileimage)
             profileimage = guideProfile.profileimage;
         }
 
+<<<<<<< HEAD
         // Count unread messages
         const unreadCount = await ChatMessageModel.countDocuments({
           roomId: msg.roomId,
@@ -81,6 +115,8 @@ export const getConversations = async (req: Request, res: Response) => {
           readBy: { $ne: userId }, // Not read yet
         });
 
+=======
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
         conversationsMap.set(partnerId, {
           roomId: msg.roomId,
           user: {
@@ -93,8 +129,11 @@ export const getConversations = async (req: Request, res: Response) => {
             createdAt: msg.createdAt,
             userId: msg.user,
           },
+<<<<<<< HEAD
 
           unreadCount,
+=======
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
         });
       }
     }
@@ -108,6 +147,7 @@ export const getConversations = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
+<<<<<<< HEAD
 
 // controller/chat.ts
 export const markMessagesAsRead = async (req: Request, res: Response) => {
@@ -129,3 +169,5 @@ export const markMessagesAsRead = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
+=======
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a

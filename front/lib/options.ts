@@ -1,4 +1,9 @@
 export const languageOptions = [
+<<<<<<< HEAD
+=======
+  { label: "Mongolian", value: "mongolian" },
+  { label: "Kazakh", value: "kazakh" },
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   { label: "English", value: "english" },
   { label: "Spanish", value: "spanish" },
   { label: "French", value: "french" },

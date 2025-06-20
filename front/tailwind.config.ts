@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 plugins: [require("tailwind-scrollbar-hide")];
 import type { Config } from "tailwindcss"
 
 const config: Config = {
 darkMode: "class",
+=======
+import type { Config } from "tailwindcss";
+import scrollbarHide from "tailwind-scrollbar-hide";
+
+const config: Config = {
+  darkMode: "class",
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -70,6 +78,7 @@ darkMode: "class",
       },
       keyframes: {
         "accordion-down": {
+<<<<<<< HEAD
           from: {
             height: "0",
           },
@@ -84,6 +93,14 @@ darkMode: "class",
           to: {
             height: "0",
           },
+=======
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
         },
       },
       animation: {
@@ -92,6 +109,13 @@ darkMode: "class",
       },
     },
   },
+<<<<<<< HEAD
   plugins: [],
 }
 export default config
+=======
+  plugins: [scrollbarHide],
+};
+
+export default config;
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a

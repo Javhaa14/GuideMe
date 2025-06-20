@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+import { Building2, ShoppingBag, Telescope, Utensils } from "lucide-react";
+import { LiaHorseHeadSolid } from "react-icons/lia";
+import { MdOutlineHiking } from "react-icons/md";
+import { MdFestival } from "react-icons/md";
+import { PiMountainsBold } from "react-icons/pi";
+
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 const mocData = [
   {
     id: "1",
@@ -174,4 +183,45 @@ const topLanguages = [
   },
 ];
 
+<<<<<<< HEAD
 export { mocData, languages, experience, topLanguages };
+=======
+const selectActivities = [
+  {
+    icon: <Building2 className="size-4 stroke-gray-800 text-gray-800" />,
+    activity: "City tour",
+  },
+  {
+    icon: <Utensils className="size-4 stroke-gray-800 text-gray-800" />,
+    activity: "Eat & Drink",
+  },
+  {
+    icon: <ShoppingBag className="size-4 stroke-gray-800 text-gray-800" />,
+    activity: "Shopping",
+  },
+  {
+    icon: (
+      <LiaHorseHeadSolid className="size-4 stroke-gray-800 text-gray-800" />
+    ),
+    activity: "Horse riding",
+  },
+  {
+    icon: <MdOutlineHiking className="size-4 stroke-gray-800 text-gray-800" />,
+    activity: "Hiking",
+  },
+  {
+    icon: <Telescope className="size-4 stroke-gray-800 text-gray-800" />,
+    activity: "Stargazing",
+  },
+  {
+    icon: <MdFestival className="size-4 stroke-gray-800 text-gray-800" />,
+    activity: "Festivals",
+  },
+  {
+    icon: <PiMountainsBold className="size-4 stroke-gray-800 text-gray-800" />,
+    activity: "Sightseeing",
+  },
+];
+
+export { mocData, languages, experience, topLanguages, selectActivities };
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a

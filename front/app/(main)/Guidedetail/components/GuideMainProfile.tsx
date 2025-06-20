@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Chat from "../../components/Chat";
+<<<<<<< HEAD
 import { Review } from "./Review";
 import { Subscription } from "./Subscription";
 import { Globe, MapPin, MessageCircle, VenusAndMars } from "lucide-react";
@@ -12,6 +13,14 @@ import Ebooking from "./Ebooking";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
 import { useOnlineStatus } from "@/app/context/Onlinestatus";
+=======
+import { useParams } from "next/navigation";
+import { useUser } from "@/app/context/Usercontext";
+import { axiosInstance } from "@/lib/utils";
+import { useOnlineStatus } from "@/app/context/Onlinestatus";
+import { GuideCard } from "./GuideCard";
+import { NewTrip } from "./NewTrip";
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 import { GuideTrips } from "./GuideTrips";
 
 type TourPost = {
@@ -22,7 +31,11 @@ type TourPost = {
 };
 
 export type GuideProfile = {
+<<<<<<< HEAD
   id: number;
+=======
+  _id: string;
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
   username: string;
   firstName: string;
   lastName: string;
@@ -42,6 +55,7 @@ export type GuideProfile = {
 
 export default function GuideMainProfile() {
   const params = useParams();
+<<<<<<< HEAD
   if (!params.id) return <p>Missing guide ID</p>;
 
   const guideId = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -72,11 +86,44 @@ export default function GuideMainProfile() {
   if (!user || status === "loading") {
     return <p>Loading user...</p>;
   }
+=======
+  const profileId =
+    typeof params?.id === "string"
+      ? params.id
+      : Array.isArray(params?.id)
+      ? params.id[0]
+      : "";
+
+  const [guide, setGuide] = useState<GuideProfile>();
+  const [chat, setChat] = useState(false);
+  const { onlineUsers } = useOnlineStatus();
+  const { user, status } = useUser();
+
+  useEffect(() => {
+    if (!profileId) return;
+
+    const fetchProfile = async () => {
+      try {
+        const res = await axiosInstance.get(`/gprofile/${profileId}`);
+        setGuide(res.data);
+      } catch (err) {
+        console.error("❌ Post fetch failed:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [profileId]);
+
+  if (!profileId) return <p>Invalid profile ID</p>;
+  if (!user || status === "loading") return <p>Loading user...</p>;
+  if (!guide) return <p>Loading guide profile...</p>;
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
       {/* Chat Box */}
       {chat && user && (
+<<<<<<< HEAD
         <div className="fixed z-50 overflow-hidden bg-white border border-gray-200 shadow-2xl bottom-6 right-6 w-80 h-110 rounded-2xl animate-in slide-in-from-bottom-4">
           <div className="flex flex-col w-full h-full">
             <div className="p-4 pb-0 text-white bg-gradient-to-r from-green-500 to-emerald-600">
@@ -92,12 +139,27 @@ export default function GuideMainProfile() {
             <div className="flex w-full">
               <Chat onlineUsers={onlineUsers} user={user} />
             </div>
+=======
+        <div className="fixed z-50 bottom-6 right-6 w-80 h-[28rem] rounded-2xl shadow-2xl bg-white border border-gray-200 overflow-hidden">
+          <div className="flex flex-col h-full">
+            <div className="p-4 pb-0 text-white bg-gradient-to-r from-green-500 to-emerald-600 flex justify-between items-center">
+              <h3 className="font-semibold">Chat with {guide.username}</h3>
+              <button
+                onClick={() => setChat(false)}
+                className="hover:text-gray-200"
+              >
+                x
+              </button>
+            </div>
+            <Chat profileId={profileId} onlineUsers={onlineUsers} user={user} />
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
           </div>
         </div>
       )}
 
       {/* Profile Card */}
       <div className="container max-w-6xl px-4 py-8 mx-auto">
+<<<<<<< HEAD
         <div className="overflow-hidden bg-white border shadow-2xl rounded-3xl">
           <div className="relative w-full h-72 md:h-96">
             {guide?.backgroundimage && (
@@ -164,6 +226,21 @@ export default function GuideMainProfile() {
           {user.id === params.id && <NewTrip />}
           <GuideTrips />
         </div>
+=======
+        <GuideCard
+          guide={guide}
+          guideId={guide._id}
+          chat={chat}
+          setChat={setChat}
+          onlineStatus={!!onlineUsers[profileId]?.isOnline}
+        />
+
+        <div className="pb-4">
+          <NewTrip />
+        </div>
+
+        <GuideTrips />
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
       </div>
     </div>
   );

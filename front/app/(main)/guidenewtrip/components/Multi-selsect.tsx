@@ -44,7 +44,12 @@ export function MultiSelect({
           "flex min-h-10 w-full flex-wrap items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
           className
         )}
+<<<<<<< HEAD
         onClick={() => setOpen(true)}>
+=======
+        onClick={() => setOpen(true)}
+      >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
         {selected.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {selected.map((item) => {
@@ -62,7 +67,12 @@ export function MultiSelect({
                       e.preventDefault();
                       e.stopPropagation();
                       handleUnselect(item);
+<<<<<<< HEAD
                     }}>
+=======
+                    }}
+                  >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                     <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
                   </button>
                 </Badge>
@@ -96,7 +106,12 @@ export function MultiSelect({
                       onChange([...selected, option.value]);
                       setInputValue("");
                     }}
+<<<<<<< HEAD
                     className="cursor-pointer">
+=======
+                    className="cursor-pointer"
+                  >
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
                     {option.label}
                   </CommandItem>
                 ))}

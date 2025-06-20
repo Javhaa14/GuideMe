@@ -26,6 +26,10 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "socket.io": "^4.8.1",
+<<<<<<< HEAD
+=======
+    "stripe": "^18.2.1",
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
     "tsx": "^4.19.4",
     "uuid": "^11.1.0",
     "websocket": "^1.0.35",

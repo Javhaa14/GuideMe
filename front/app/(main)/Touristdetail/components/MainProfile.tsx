@@ -106,12 +106,20 @@ export const MainProfile = ({
               <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
                 <Users className="w-6 h-6 text-green-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-green-900">{2}</div>
+<<<<<<< HEAD
                 <div className="text-sm text-green-700">Followers</div>
+=======
+                <div className="text-sm text-green-700">Liked by</div>
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
               </div>
               <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
                 <Users className="w-6 h-6 text-purple-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-purple-900">{1}</div>
+<<<<<<< HEAD
                 <div className="text-sm text-purple-700">Following</div>
+=======
+                <div className="text-sm text-purple-700">Liked</div>
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
               </div>
             </div>
 
@@ -170,6 +178,7 @@ export const MainProfile = ({
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
               <button
                 onClick={() => setChat(!chat)}
+<<<<<<< HEAD
                 className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
                 <MessageCircle className="w-6 h-6" />
                 Start Conversation
@@ -179,6 +188,13 @@ export const MainProfile = ({
                 <Users className="w-6 h-6" />
                 Follow
               </button>
+=======
+                className="flex-1 inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <MessageCircle className="w-6 h-6" />
+                Start Conversation
+              </button>
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
             </div>
           </div>
         </div>

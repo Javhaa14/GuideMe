@@ -10,5 +10,9 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["node"]
   },
+<<<<<<< HEAD
   "include": ["src"]
+=======
+  "include": ["src", "pages/pages"]
+>>>>>>> 610eaba0bbbbdad64c4fbe0fdae458b6d91bf28a
 }
