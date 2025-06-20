@@ -147,7 +147,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
     for (const file of Array.from(files)) {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", "guideme"); // Change this to your actual unsigned preset
+      formData.append("upload_preset", "guideme");
 
       try {
         const res = await fetch(
@@ -170,7 +170,6 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       }
     }
 
-    // Update form state with uploaded image URLs
     setValue("images", [...(watchImages || []), ...uploadedUrls]);
     console.log("Updated images in form:", [
       ...(watchImages || []),

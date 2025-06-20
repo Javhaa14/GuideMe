@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { experience, languages, topLanguages } from "@/app/utils/FilterData";
 import { LocationFilterCard } from "./SearchLocation";
 import PriceFilterCard from "./PriceRangeSlider";
-import { StarRatingFilter } from "./StarRating";
 import { useFilteredData } from "@/app/context/FilteredDataContext";
 import { usePriceRange } from "@/app/context/PriceRangeContext";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";

@@ -1,4 +1,6 @@
 export const languageOptions = [
+  { label: "Mongolian", value: "mongolian" },
+  { label: "Kazakh", value: "kazakh" },
   { label: "English", value: "english" },
   { label: "Spanish", value: "spanish" },
   { label: "French", value: "french" },

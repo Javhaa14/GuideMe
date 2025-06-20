@@ -179,6 +179,42 @@ export const updateGuideProfile = async (
   }
 };
 
+import { Request, Response } from "express";
+import mongoose from "mongoose";
+import { Guidemodel } from "../models/GuideModel"; // өөрийн замаа шалгаарай
+
+export const editGuideProfile = async (req: Request, res: Response) => {
+  const { guideId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(guideId)) {
+    return res.status(400).json({ message: "Invalid guideId" });
+  }
+
+  try {
+    const updateData = req.body;
+
+    if (updateData.languages && !Array.isArray(updateData.languages)) {
+      return res.status(400).json({ message: "Languages must be an array" });
+    }
+
+    const updatedGuide = await Guidemodel.findByIdAndUpdate(
+      guideId,
+      updateData,
+      { new: true }
+    );
+
+    if (!updatedGuide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    return res.status(200).json(updatedGuide);
+  } catch (error) {
+    console.error("Update error:", error);
+    return res.status(500).json({ message: "Failed to update guide", error });
+  }
+};
+
+
 export const saveAvailability = async (
   req: Request,
   res: Response

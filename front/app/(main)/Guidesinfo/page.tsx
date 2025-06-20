@@ -63,7 +63,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex w-screen h-screen items-start justify-center bg-white gap-10 py-[50px] px-[20px]">
+    <div className="flex w-fit h-screen items-start justify-center bg-white gap-10 py-[50px] px-[80px]">
       <div className=" flex flex-wrap gap-5 p-4 h-fit">
         {filteredData.length !== 0 ? (
           filteredData

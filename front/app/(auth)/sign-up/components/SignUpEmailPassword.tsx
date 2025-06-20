@@ -25,7 +25,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { signIn } from "next-auth/react";
 
 const signUpSchema = z.object({
@@ -65,7 +64,8 @@ const FloatingStars = ({ count = 20 }: { count?: number }) => {
             top: star.top,
             animationDelay: star.delay,
             animationDuration: star.duration,
-          }}>
+          }}
+        >
           <Star className="w-2 h-2 text-white/20" />
         </div>
       ))}
@@ -122,7 +122,6 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
     "h-12 text-white bg-white/10 border-white/20 placeholder:text-white/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-xl hover:bg-white/15";
 
   const handleSocialSignIn = (provider: string) => {
-    // Pass username along as a callback param or use sessionStorage/localStorage if preferred
     signIn(provider, {
       callbackUrl: `/welcome?username=${encodeURIComponent(username)}`,
     });
@@ -142,7 +141,8 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-6">
+            className="flex flex-col gap-6"
+          >
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-white">
                 Welcome, {username}
@@ -194,12 +194,33 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Create Account
               </Button>
             </CardFooter>
           </form>
         </Form>
+
+        {/* Social sign up */}
+        <div className="px-6 pb-6 pt-2 text-center">
+          <p className="mb-3 text-white/70">Or sign up with</p>
+          <div className="flex justify-center gap-4">
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => handleSocialSignIn("google")}
+            >
+              <img
+                src="/google.png"
+                alt="Google"
+                className="w-5 h-5"
+                loading="lazy"
+              />
+              Google
+            </Button>
+          </div>
+        </div>
       </Card>
     </div>
   );

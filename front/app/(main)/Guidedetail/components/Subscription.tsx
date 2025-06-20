@@ -9,6 +9,7 @@ import { Card } from "./Card";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/utils";
 import { io, Socket } from "socket.io-client";
+import { Button } from "@/components/ui/button";
 
 export const Subscription = () => {
   const [step, setStep] = useState(1);
@@ -75,9 +76,7 @@ export const Subscription = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <span className="cursor-pointer flex justify-center items-center rounded-2xl w-[100px] h-[30px] text-white bg-blue-400">
-          Subscription
-        </span>
+        <Button>Subscription</Button>
       </DialogTrigger>
       <DialogContent className="w-fit flex justify-center">
         <DialogHeader>
