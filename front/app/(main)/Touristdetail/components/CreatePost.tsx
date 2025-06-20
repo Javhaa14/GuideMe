@@ -40,7 +40,7 @@ import {
 import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { selectActivites } from "@/app/utils/FilterData";
+import { selectActivities } from "@/app/utils/FilterData";
 
 // Updated Zod schema with optional fields
 const postSchema = z.object({
@@ -507,7 +507,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        {selectActivites.map((act, index) => (
+                        {selectActivities.map((act, index) => (
                           <SelectItem key={index} value={act.activity}>
                             {act.icon}
                             {act.activity}

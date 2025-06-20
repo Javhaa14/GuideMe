@@ -4,6 +4,7 @@ import Image from "next/image";
 import { CalendarDays, MapPin, UsersRound, Heart } from "lucide-react";
 import { axiosInstance } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+
 export default function Travelerpost({ post, onclick, user }: any) {
   const [likes, setLikes] = useState<number>(post.likedBy.length);
   const [liked, setLiked] = useState<boolean>(post.likedBy.includes(user?.id));
@@ -32,7 +33,7 @@ export default function Travelerpost({ post, onclick, user }: any) {
       <div className="flex items-center space-x-4 mb-5">
         <Image
           onClick={onclick}
-          src={post.tprofileInfo.profileimage}
+          src={post.tprofileInfo?.profileimage || undefined}
           alt="User"
           width={50}
           height={50}
@@ -43,7 +44,7 @@ export default function Travelerpost({ post, onclick, user }: any) {
             onClick={onclick}
             className="cursor-pointer font-semibold text-gray-900 hover:text-blue-400 text-lg"
           >
-            {post.userInfo.username}
+            {post.userInfo?.username}
           </h4>
           <div className="flex gap-10">
             <p className="text-gray-500 text-sm">

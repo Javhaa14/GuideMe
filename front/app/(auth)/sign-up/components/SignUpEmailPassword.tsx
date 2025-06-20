@@ -25,7 +25,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { signIn } from "next-auth/react";
 
 const signUpSchema = z.object({
@@ -123,7 +122,6 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
     "h-12 text-white bg-white/10 border-white/20 placeholder:text-white/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-xl hover:bg-white/15";
 
   const handleSocialSignIn = (provider: string) => {
-    // Pass username along as a callback param or use sessionStorage/localStorage if preferred
     signIn(provider, {
       callbackUrl: `/welcome?username=${encodeURIComponent(username)}`,
     });
@@ -204,6 +202,7 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
           </form>
         </Form>
 
+        {/* Social sign up */}
         <div className="px-6 pb-6 pt-2 text-center">
           <p className="mb-3 text-white/70">Or sign up with</p>
           <div className="flex justify-center gap-4">
@@ -212,7 +211,6 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
               className="flex items-center gap-2"
               onClick={() => handleSocialSignIn("google")}
             >
-              {/* Use an icon if you have */}
               <img
                 src="/google.png"
                 alt="Google"

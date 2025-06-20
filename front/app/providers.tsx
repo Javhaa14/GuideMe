@@ -3,6 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { UserProvider } from "./context/Usercontext";
+import { ProfileProvider } from "./context/ProfileContext";
 import { OnlineStatusProvider } from "./context/Onlinestatus";
 import { PriceRangeProvider } from "./context/PriceRangeContext";
 import { SearchLocationProvider } from "./context/SearchLocationContext";
@@ -10,15 +11,12 @@ import { FilteredDataProvider } from "./context/FilteredDataContext";
 import OnlineTracker from "@/components/OnlineTracker";
 import { SocketProvider } from "./context/SocketContext";
 import { NotificationProvider } from "./context/NotificationContext";
+import { LanguageProvider } from "./context/LanguageContext";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem={true}
-      disableTransitionOnChange>
-      <SessionProvider>
+    <SessionProvider>
+      <LanguageProvider>
         <OnlineStatusProvider>
           <OnlineTracker />
           <FilteredDataProvider>
@@ -26,14 +24,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
               <PriceRangeProvider>
                 <SocketProvider>
                   <NotificationProvider>
-                    <UserProvider>{children}</UserProvider>
+                    <UserProvider>
+                      <ProfileProvider>{children}</ProfileProvider>
+                    </UserProvider>
                   </NotificationProvider>
                 </SocketProvider>
               </PriceRangeProvider>
             </SearchLocationProvider>
           </FilteredDataProvider>
         </OnlineStatusProvider>
-      </SessionProvider>
-    </ThemeProvider>
+      </LanguageProvider>
+    </SessionProvider>
   );
 }

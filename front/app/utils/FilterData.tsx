@@ -180,39 +180,41 @@ const topLanguages = [
   },
 ];
 
-const selectActivites = [
+const selectActivities = [
   {
-    icon: <Building2 />,
+    icon: <Building2 className="size-4 stroke-gray-800 text-gray-800" />,
     activity: "City tour",
   },
   {
-    icon: <Utensils />,
+    icon: <Utensils className="size-4 stroke-gray-800 text-gray-800" />,
     activity: "Eat & Drink",
   },
   {
-    icon: <ShoppingBag />,
+    icon: <ShoppingBag className="size-4 stroke-gray-800 text-gray-800" />,
     activity: "Shopping",
   },
   {
-    icon: <LiaHorseHeadSolid />,
+    icon: (
+      <LiaHorseHeadSolid className="size-4 stroke-gray-800 text-gray-800" />
+    ),
     activity: "Horse riding",
   },
   {
-    icon: <MdOutlineHiking />,
+    icon: <MdOutlineHiking className="size-4 stroke-gray-800 text-gray-800" />,
     activity: "Hiking",
   },
   {
-    icon: <Telescope />,
+    icon: <Telescope className="size-4 stroke-gray-800 text-gray-800" />,
     activity: "Stargazing",
   },
   {
-    icon: <MdFestival />,
+    icon: <MdFestival className="size-4 stroke-gray-800 text-gray-800" />,
     activity: "Festivals",
   },
   {
-    icon: <PiMountainsBold />,
+    icon: <PiMountainsBold className="size-4 stroke-gray-800 text-gray-800" />,
     activity: "Sightseeing",
   },
 ];
 
-export { mocData, languages, experience, topLanguages, selectActivites };
+export { mocData, languages, experience, topLanguages, selectActivities };

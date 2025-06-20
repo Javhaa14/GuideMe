@@ -5,7 +5,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 import { sender } from "../../../utils/sendmail";
-import { io } from "../..";
+import { io } from "../../index";
 
 export const requestReset = async (req: Request, res: Response) => {
   const { email } = req.body;

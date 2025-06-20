@@ -27,6 +27,7 @@ export type GuideProfile = {
   isActive?: boolean;
   likes?: number;
   isLiked?: boolean;
+  _id: string;
 };
 
 interface GuidesProps {
@@ -139,7 +140,8 @@ export const Guides: React.FC<GuidesProps> = ({
           </p>
           <Button
             onClick={() => router.push("/Guidesinfo")}
-            className="mt-8 bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 hover:border-white/50 transition-all duration-300 px-8 py-3 text-lg">
+            className="mt-8 bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 hover:border-white/50 transition-all duration-300 px-8 py-3 text-lg"
+          >
             View All Guides
             <span className="ml-2">→</span>
           </Button>
@@ -148,7 +150,8 @@ export const Guides: React.FC<GuidesProps> = ({
         {/* Auto-scrolling Guide Cards */}
         <div
           ref={containerRef}
-          className="flex w-full items-center justify-center overflow-x-hidden pb-8 whitespace-nowrap will-change-scroll">
+          className="flex w-full items-center justify-center overflow-x-hidden pb-8 whitespace-nowrap will-change-scroll"
+        >
           <InfiniteMovingCards
             guides={duplicatedGuides}
             direction="right"
