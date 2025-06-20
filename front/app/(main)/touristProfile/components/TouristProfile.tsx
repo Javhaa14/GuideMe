@@ -36,6 +36,7 @@ import {
 import { LocationFilterCard } from "../../Guidesinfo/components/SearchLocation";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
 import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation";
 
 export type CountryType = {
   name: {
@@ -213,7 +214,7 @@ export const TouristProfile = () => {
       socialAddress: values.social,
       gender: values.gender,
       location: searchedValue,
-      languages: searchedValue,
+      languages: values.languages,
       about: values.about,
       profileimage: values.profileimage,
       backgroundimage: "",
@@ -233,11 +234,17 @@ export const TouristProfile = () => {
     console.log("Validation errors:", form.formState.errors);
   }, [form.formState.errors]);
 
+  const router = useRouter();
+  const handleSubmitButton = () => {
+    router.push("/");
+  };
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full h-full gap-5 p-5 justify-center items-start space-y-8">
+        className="flex flex-col w-full h-full gap-5 p-5 justify-center items-start space-y-8"
+      >
         <p className="text-[20px] font-bold">Complete your profile page</p>
 
         <div className="flex w-full h-full gap-5 ">
@@ -311,7 +318,8 @@ export const TouristProfile = () => {
                       <Select
                         {...field}
                         onValueChange={field.onChange}
-                        value={field.value || ""}>
+                        value={field.value || ""}
+                      >
                         <SelectTrigger className="w-[200px] h-[40px]">
                           <SelectValue placeholder="Select your gender" />
                         </SelectTrigger>
@@ -337,31 +345,6 @@ export const TouristProfile = () => {
                   <FormItem>
                     <FormLabel>Languages</FormLabel>
                     <FormControl className="flex w-[300px]">
-                      {/* <Controller
-                        control={form.control}
-                        name="languages"
-                        render={({ field: { onChange, value, ref } }) => (
-                          <ReactSelect
-                            ref={ref}
-                            isMulti
-                            options={languageOptions}
-                            value={languageOptions.filter((c) =>
-                              value?.includes(c.value)
-                            )}
-                            onChange={(selected) => {
-                              onChange(
-                                selected
-                                  ? selected.map((option) => option.value)
-                                  : []
-                              );
-                            }}
-                            placeholder="Select languages"
-                            className="basic-multi-select"
-                            classNamePrefix="select"
-                            instanceId="tourist-profile-languages"
-                          />
-                        )}
-                      /> */}
                       <MultiSelect
                         styles={{
                           valueContainer: (base) => ({
@@ -477,9 +460,11 @@ export const TouristProfile = () => {
 
             <div className="flex justify-end items-end">
               <Button
+                onClick={handleSubmitButton}
                 variant="outline"
                 type="submit"
-                className="w-[200px] mt-8 bg-zinc-200 hover:bg-white">
+                className="w-[200px] mt-8 bg-zinc-200 hover:bg-white"
+              >
                 Save Profile
               </Button>
             </div>

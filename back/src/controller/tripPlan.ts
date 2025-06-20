@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { TripPlanModel } from "../model/TripPlan";
 import { Guidemodel } from "../model/Guide";
+import { WishlistModel } from "../model/Wish";
 
 export const createTripPlan = async (req: Request, res: Response) => {
   try {
@@ -26,6 +27,7 @@ export const getTripPlanById = async (
   res: Response
 ): Promise<any> => {
   const { id } = req.params;
+  const { userId } = req.query;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({
@@ -44,12 +46,28 @@ export const getTripPlanById = async (
       });
     }
 
-    return res.status(200).json({ success: true, tripPlan });
+    let isWishlisted = false;
+
+    // Optional: check if userId is provided and valid
+    if (userId && mongoose.Types.ObjectId.isValid(userId as string)) {
+      const wishlistEntry = await WishlistModel.findOne({
+        userId,
+        tripPlanId: id,
+      });
+
+      isWishlisted = !!wishlistEntry;
+    }
+
+    return res.status(200).json({
+      success: true,
+      tripPlan,
+      isWishlisted,
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching trip plan:", error);
     return res.status(500).json({
       success: false,
-      message: (error as Error).message,
+      message: (error as Error).message || "Server error",
     });
   }
 };

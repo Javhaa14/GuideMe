@@ -23,7 +23,6 @@ import tripPlanRouter from "./routes/tripPlan";
 import { Notifrouter } from "./routes/notificationSMS";
 import { Notification } from "./model/notification";
 import { Bookingrouter } from "./routes/tripbook";
-import { notifRouter } from "./routes/notif";
 declare module "socket.io" {
   interface Socket {
     userId?: string;
@@ -62,7 +61,6 @@ app.use("/tprofile", touristRouter);
 app.use("/api", Onlinerouter);
 app.use("/notif", Notifrouter);
 app.use("/bookings", Bookingrouter);
-app.use("/notif", notifRouter);
 
 ////////////////////////////////////////////////////////////////
 // QR Payment system using Socket.IO
