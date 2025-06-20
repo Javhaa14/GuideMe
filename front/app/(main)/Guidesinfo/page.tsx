@@ -6,6 +6,8 @@ import { axiosInstance } from "@/lib/utils";
 import { Filters } from "./components/Filters";
 import { useFilteredData } from "@/app/context/FilteredDataContext";
 import { GuideProfile } from "./components/GuideProfile";
+import { useTranslation } from "@/lib/translationHelpers";
+import { useProfile } from "@/app/context/ProfileContext";
 
 export interface Guide {
   _id: string;
@@ -34,6 +36,8 @@ export interface Guide {
 }
 export default function Home() {
   const { filteredData, setFilteredData } = useFilteredData();
+  const { t } = useTranslation();
+  const { requireAuth } = useProfile();
 
   const [guides, setGuides] = useState<Guide[]>([]);
   const fetchGuides = async () => {
@@ -52,6 +56,12 @@ export default function Home() {
 
   const router = useRouter();
 
+  const handleGuideClick = (guideId: string) => {
+    if (requireAuth("view guide details")) {
+      router.push(`/Guidedetail/${guideId}`);
+    }
+  };
+
   return (
     <div className="flex w-screen h-screen items-start justify-center bg-white gap-10 py-[50px] px-[20px]">
       <div className=" flex flex-wrap gap-5 p-4 h-fit">
@@ -63,7 +73,7 @@ export default function Home() {
                 <GuideProfile
                   post={guide}
                   id={guide._id}
-                  onclick={() => router.push(`/Guidedetail/${guide._id}`)}
+                  onclick={() => handleGuideClick(guide._id)}
                   key={guide._id || index}
                   status={guide.status}
                   profileimage={guide.profileimage || ""}
@@ -77,7 +87,7 @@ export default function Home() {
               </div>
             ))
         ) : (
-          <p>No results found</p>
+          <p>{t("noResults")}</p>
         )}
       </div>
       <Filters guides={guides} />

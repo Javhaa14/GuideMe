@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata = {
   title: "GuideMe",
@@ -29,6 +30,7 @@ export default function RootLayout({
         style={{ cursor: "auto" }}
         cz-shortcut-listen="true">
         <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   );

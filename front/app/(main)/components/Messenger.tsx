@@ -14,9 +14,11 @@ import { useSession } from "next-auth/react";
 import { ChatList } from "./Chatlist";
 import { axiosInstance } from "@/lib/utils";
 import { useSocket } from "@/app/context/SocketContext";
+import { useProfile } from "@/app/context/ProfileContext";
 
 export const MessengerButton = () => {
   const { data: session } = useSession();
+  const { requireAuth } = useProfile();
   const userId = session?.user?.id;
 
   const { socket, isConnected } = useSocket();
@@ -33,6 +35,12 @@ export const MessengerButton = () => {
     (acc, val) => acc + val,
     0
   );
+
+  const handleMessengerClick = () => {
+    if (requireAuth("access messenger")) {
+      setOpen(true);
+    }
+  };
 
   useEffect(() => {
     if (!socket || !isConnected || !userId) return;
@@ -134,7 +142,8 @@ export const MessengerButton = () => {
         <Button
           variant="ghost"
           className="relative rounded-full p-2 hover:bg-white/10 transition-all duration-200 hover:scale-105"
-          aria-label="Open Messenger">
+          aria-label="Open Messenger"
+          onClick={handleMessengerClick}>
           <MessageCircleMore className="h-6 w-6 text-white" />
           {notificationCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full animate-bounce shadow-lg">

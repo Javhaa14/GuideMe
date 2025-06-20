@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/app/context/Usercontext";
 import { axiosInstance } from "@/lib/utils";
+import { useProfile } from "@/app/context/ProfileContext";
 
 interface TripItem {
   id: string;
@@ -23,6 +24,7 @@ export const GuideTrips = () => {
   const router = useRouter();
   const params = useParams();
   const { user, status } = useUser();
+  const { requireAuth } = useProfile();
 
   const fetchTrips = async () => {
     try {
@@ -38,6 +40,12 @@ export const GuideTrips = () => {
     fetchTrips();
   }, []);
 
+  const handleTripClick = (tripId: string) => {
+    if (requireAuth("view trip details")) {
+      router.push(`/tripdetail/${tripId}`);
+    }
+  };
+
   return (
     <div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -45,7 +53,7 @@ export const GuideTrips = () => {
           <div
             key={trip._id}
             className="relative w-full overflow-hidden transition duration-300 transform bg-white shadow rounded-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer"
-            onClick={() => router.push(`/tripdetail/${trip._id}`)}>
+            onClick={() => handleTripClick(trip._id)}>
             {user?.id?.toString() === params.id?.toString() && (
               <Button
                 size="icon"
@@ -53,7 +61,9 @@ export const GuideTrips = () => {
                 className="absolute z-10 p-2 text-gray-600 bg-white rounded-full shadow top-3 left-3 hover:bg-gray-100"
                 onClick={(e) => {
                   e.stopPropagation();
-                  router.push(`/edit/${trip._id}`);
+                  if (requireAuth("edit trip")) {
+                    router.push(`/edit/${trip._id}`);
+                  }
                 }}>
                 <PenLine size={18} />
               </Button>

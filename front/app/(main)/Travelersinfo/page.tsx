@@ -13,6 +13,7 @@ import { LocationFilterCard } from "../Guidesinfo/components/SearchLocation";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
 import TpostCard from "../components/tpostvertical";
 import { RefreshCcw } from "lucide-react";
+import { useProfile } from "@/app/context/ProfileContext";
 
 export interface PostType {
   _id: string;
@@ -61,6 +62,7 @@ export default function Home() {
   const [filteredPost, setFileterdPost] = useState<PostType[]>(posts);
   const { user, status } = useUser();
   const { searchedValue, setSearchedValue } = useSearchLocation();
+  const { requireAuth } = useProfile();
   const [value, setValue] = useState<Value>({
     startDate: null,
     endDate: null,
@@ -72,7 +74,9 @@ export default function Home() {
 
   const router = useRouter();
   const todetail = (id: string) => {
-    router.push(`/Touristdetail/${id}`);
+    if (requireAuth("view tourist details")) {
+      router.push(`/Touristdetail/${id}`);
+    }
   };
 
   useEffect(() => {
@@ -223,8 +227,7 @@ export default function Home() {
                 selected
                   ? "bg-black text-white border-black"
                   : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
-              }`}
-                >
+              }`}>
                   <span>{act.icon}</span>
                   <span className="text-sm font-medium">{act.activity}</span>
                   {selected && (
@@ -233,8 +236,7 @@ export default function Home() {
                       className="w-4 h-4"
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
+                      stroke="currentColor">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -264,8 +266,7 @@ export default function Home() {
             <Button
               onClick={handleClearButton}
               variant="ghost"
-              className="text-sky-700 bg-white font-semibold flex items-center gap-1 hover:bg-blue-100"
-            >
+              className="text-sky-700 bg-white font-semibold flex items-center gap-1 hover:bg-blue-100">
               <RefreshCcw className="w-4 h-4" />
               Clear Filters
             </Button>

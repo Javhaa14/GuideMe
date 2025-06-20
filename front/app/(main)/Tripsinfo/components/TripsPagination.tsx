@@ -16,6 +16,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { axiosInstance } from "@/lib/utils";
+import { useProfile } from "@/app/context/ProfileContext";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -24,6 +25,7 @@ export default function TripsPagination() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
+  const { requireAuth } = useProfile();
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -44,6 +46,12 @@ export default function TripsPagination() {
 
     fetchTrips();
   }, []);
+
+  const handleTripClick = (tripId: string) => {
+    if (requireAuth("view trip details")) {
+      router.push(`/tripdetail/${tripId}`);
+    }
+  };
 
   if (loading) {
     return (
@@ -85,8 +93,7 @@ export default function TripsPagination() {
           <Card
             key={trip._id}
             className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
-            onClick={() => router.push(`/tripdetail/${trip._id}`)}
-          >
+            onClick={() => handleTripClick(trip._id)}>
             <div className="relative overflow-hidden">
               <Image
                 src={
@@ -154,8 +161,7 @@ export default function TripsPagination() {
                         e.preventDefault();
                         handlePageChange(page);
                       }}
-                      isActive={currentPage === page}
-                    >
+                      isActive={currentPage === page}>
                       {page}
                     </PaginationLink>
                   </PaginationItem>

@@ -3,6 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { UserProvider } from "./context/Usercontext";
+import { ProfileProvider } from "./context/ProfileContext";
 import { OnlineStatusProvider } from "./context/Onlinestatus";
 import { PriceRangeProvider } from "./context/PriceRangeContext";
 import { SearchLocationProvider } from "./context/SearchLocationContext";
@@ -23,7 +24,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
               <PriceRangeProvider>
                 <SocketProvider>
                   <NotificationProvider>
-                    <UserProvider>{children}</UserProvider>
+                    <UserProvider>
+                      <ProfileProvider>{children}</ProfileProvider>
+                    </UserProvider>
                   </NotificationProvider>
                 </SocketProvider>
               </PriceRangeProvider>
