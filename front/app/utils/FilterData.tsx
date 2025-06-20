@@ -180,7 +180,7 @@ const topLanguages = [
   },
 ];
 
-const selectActivites = [
+const selectActivities = [
   {
     icon: <Building2 className="size-4 stroke-gray-800 text-gray-800" />,
     activity: "City tour",
@@ -217,4 +217,4 @@ const selectActivites = [
   },
 ];
 
-export { mocData, languages, experience, topLanguages, selectActivites };
+export { mocData, languages, experience, topLanguages, selectActivities };

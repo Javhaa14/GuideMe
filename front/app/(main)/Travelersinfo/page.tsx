@@ -1,6 +1,5 @@
 "use client";
-import Image from "next/image";
-import Travelerspost from "../components/Travelerpost";
+
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css"; // Theme styling
@@ -9,20 +8,11 @@ import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
 import { useUser } from "@/app/context/Usercontext";
 import { Button } from "@/components/ui/button";
-import { selectActivites } from "@/app/utils/FilterData";
+import { selectActivities } from "@/app/utils/FilterData";
 import { LocationFilterCard } from "../Guidesinfo/components/SearchLocation";
-import { format } from "date-fns";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useSearchLocation } from "@/app/context/SearchLocationContext";
-import { date, number } from "zod";
-import { Newsreader } from "next/font/google";
-import Tpost from "../components/tpost";
-import Tpostvertical from "../components/tpostvertical";
 import TpostCard from "../components/tpostvertical";
+import { RefreshCcw } from "lucide-react";
 
 export interface PostType {
   _id: string;
@@ -57,9 +47,9 @@ export interface PostType {
 }
 
 type Value = {
-  startDate: Date | null;
-  endDate: Date | null;
-  key: string;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  key?: string | null;
 };
 
 type Filters = {
@@ -79,27 +69,6 @@ export default function Home() {
   const [filters, setFilters] = useState<Filters>({
     activities: [],
   });
-
-  const formattedStartDate: string | null =
-    value.startDate &&
-    value.startDate.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-
-  const formattedEndDate: string | null =
-    value.endDate &&
-    value.endDate.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-
-  let formattedDate: (string | null)[] = [];
-  if (value.startDate !== null && value.endDate !== null) {
-    formattedDate.push(formattedStartDate, formattedEndDate);
-  }
 
   const router = useRouter();
   const todetail = (id: string) => {
@@ -167,39 +136,28 @@ export default function Home() {
   };
 
   const dateFilter = (filteredResult: PostType[], selectedDate: Value) => {
-    let newData: PostType[] = [];
-    if (selectedDate.startDate !== null && selectedDate.endDate !== null) {
-      filteredResult.map((el) => {
-        if (
-          new Date(el.startDate).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }) >=
-          selectedDate.startDate!.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })
-        )
-          if (
-            new Date(el.endDate).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            }) <=
-            selectedDate.endDate!.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })
-          )
-            newData.push(el);
-      });
-      return newData;
-    } else {
-      return filteredResult;
-    }
+    if (!selectedDate.startDate || !selectedDate.endDate) return filteredResult;
+
+    const start = new Date(selectedDate.startDate);
+    const end = new Date(selectedDate.endDate);
+
+    return filteredResult.filter((post) => {
+      const postStart = new Date(post.startDate);
+      const postEnd = new Date(post.endDate);
+      return postStart <= start && postEnd >= end;
+    });
+
+    // let newData: PostType[] = [];
+    // if (selectedDate.startDate !== null && selectedDate.endDate !== null) {
+    //   filteredResult.map((el) => {
+    //     if (new Date(el.startDate) <= new Date(selectedDate.startDate!))
+    //       if (new Date(el.endDate) >= new Date(selectedDate.endDate!))
+    //         newData.push(el);
+    //   });
+    //   return newData;
+    // } else {
+    //   return filteredResult;
+    // }
   };
 
   useEffect(() => {
@@ -207,6 +165,7 @@ export default function Home() {
     result = locationFilter(result, searchedValue);
     result = activitiesFilter(result, filters);
     result = dateFilter(result, value);
+    console.log(result, "ff");
     setFileterdPost(result);
   }, [posts, filters, searchedValue, value]);
 
@@ -238,7 +197,7 @@ export default function Home() {
       </div>
 
       <div className="flex flex-col border-[3px] border-gray-200 rounded-md p-4 gap-6 w-fit">
-        <h2 className="text-xl font-semibold">Filters</h2>
+        <h2 className="text-sky-700 text-xl font-semibold">Filters</h2>
         {/* Location Filter */}
         <div className="flex flex-col gap-2 items-start justify-center">
           <span className="text-sm font-medium text-gray-700">Location:</span>
@@ -253,7 +212,7 @@ export default function Home() {
         <div className="flex flex-col gap-2 items-start justify-center">
           <span className="text-sm font-medium text-gray-700">Activities:</span>
           <div className="grid grid-cols-2 gap-2">
-            {selectActivites.map((act, i) => {
+            {selectActivities.map((act, i) => {
               const selected = filters.activities.includes(act.activity);
               return (
                 <button
@@ -302,7 +261,12 @@ export default function Home() {
             />
           </div>
           <div className="flex justify-end w-full mt-2">
-            <Button onClick={handleClearButton} className="w-[150px]">
+            <Button
+              onClick={handleClearButton}
+              variant="ghost"
+              className="text-sky-700 bg-white font-semibold flex items-center gap-1 hover:bg-blue-100"
+            >
+              <RefreshCcw className="w-4 h-4" />
               Clear Filters
             </Button>
           </div>
