@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { Guidemodel } from "../model/Guide";
 import mongoose from "mongoose";
 import { io } from "..";
 import { NotificationModel } from "../model/Notif";
+import { Guidemodel } from "../model/Guide";
 export const createGuideProfile = async (
   req: Request,
   res: Response
@@ -195,10 +195,6 @@ export const updateGuideProfile = async (
   }
 };
 
-import { Request, Response } from "express";
-import mongoose from "mongoose";
-import { Guidemodel } from "../models/GuideModel"; // өөрийн замаа шалгаарай
-
 export const editGuideProfile = async (req: Request, res: Response) => {
   const { guideId } = req.params;
 
@@ -229,7 +225,6 @@ export const editGuideProfile = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Failed to update guide", error });
   }
 };
-
 
 export const saveAvailability = async (
   req: Request,
