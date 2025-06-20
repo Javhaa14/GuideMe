@@ -1,82 +1,91 @@
-// context/NotificationContext.tsx
-"use client";
-
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { useSocket } from "@/app/context/SocketContext"; // your socket context
+import { socket } from "@/lib/socket";
 import { axiosInstance } from "@/lib/utils";
-import { useSession } from "next-auth/react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
-type NotificationContextType = {
-  notificationCount: number;
-  setNotificationCount: React.Dispatch<React.SetStateAction<number>>;
-  fetchNotificationCount: () => Promise<void>;
-};
-
+interface NotificationContextType {
+  unreadCount: number;
+  setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
+  markAsRead: () => Promise<void>;
+}
+interface NotificationProviderProps {
+  userId?: string;
+  children: ReactNode; // children-ийг ReactNode гэж тодорхойлно
+}
 const NotificationContext = createContext<NotificationContextType | undefined>(
   undefined
 );
 
-export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
+export const NotificationProvider = ({
+  userId,
   children,
-}) => {
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
-  const { socket, isConnected } = useSocket();
+}: NotificationProviderProps) => {
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const [notificationCount, setNotificationCount] = useState(0);
+  useEffect(() => {
+    if (!userId) return;
 
-  const fetchNotificationCount = async () => {
+    // Socket room-д join хийх функц
+    const joinRoom = () => {
+      console.log("➡️ Emitting joinNotificationRoom", userId);
+      socket.emit("joinNotificationRoom", userId);
+    };
+
+    // Socket холболт болсон үед room-д орох
+    socket.on("connect", joinRoom);
+    joinRoom();
+
+    // Socket-с realtime мэдэгдэл хүлээн авах
+    socket.on("notify", (data) => {
+      // console.log('✅ Realtime notification:', data);
+      setUnreadCount((prev) => prev + 1);
+    });
+
+    // Серверээс анхдагч unread тоог авах
+    axiosInstance
+      .get(`/notification/unread-count/${userId}`)
+      .then((res) => {
+        console.log("📥 Initial unread:", res.data.count);
+        setUnreadCount(res.data.count || 0);
+      })
+      .catch((err) => console.error("🔴 Failed to fetch unread:", err));
+
+    // Цэвэрлэх
+    return () => {
+      socket.off("connect", joinRoom);
+      socket.off("notify");
+    };
+  }, [userId]);
+
+  // Сервер рүү unread-ийг уншсан гэж тэмдэглэх функц
+  const markAsRead = async () => {
     if (!userId) return;
     try {
-      const res = await axiosInstance.get(`/notif/getall/${userId}`);
-      if (Array.isArray(res.data)) {
-        setNotificationCount(res.data.length);
-      }
+      await axiosInstance.put(`/notification/mark-seen/${userId}`);
+      setUnreadCount(0);
     } catch (error) {
-      console.error("❌ Failed to fetch notifications:", error);
+      console.error("🔴 Failed to mark notifications as read:", error);
     }
   };
 
-  // Fetch on mount or user change
-  useEffect(() => {
-    fetchNotificationCount();
-  }, [userId]);
-
-  // Listen for socket notification updates
-  useEffect(() => {
-    if (!socket || !isConnected || !userId) return;
-
-    socket.emit("joinNotificationRoom", userId);
-
-    const handleNotify = (data: any) => {
-      console.log("🔔 Notification update received:", data);
-      setNotificationCount((prev) => prev + 1);
-    };
-
-    socket.on("notify", handleNotify);
-
-    return () => {
-      socket.off("notify", handleNotify);
-      socket.emit("leaveNotificationRoom", userId);
-    };
-  }, [socket, isConnected, userId]);
-
   return (
     <NotificationContext.Provider
-      value={{
-        notificationCount,
-        setNotificationCount,
-        fetchNotificationCount,
-      }}>
+      value={{ unreadCount, setUnreadCount, markAsRead }}
+    >
       {children}
     </NotificationContext.Provider>
   );
 };
 
-export const useNotification = () => {
+// Hook хэлбэрээр ашиглахад хялбар болгох
+export const useLikeNotification = (): NotificationContextType => {
   const context = useContext(NotificationContext);
-  if (context === undefined) {
+  if (!context)
     throw new Error("useNotification must be used within NotificationProvider");
-  }
   return context;
 };
