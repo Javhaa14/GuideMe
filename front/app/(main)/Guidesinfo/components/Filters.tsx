@@ -115,7 +115,7 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
   }, [guides, filters, searchedValue, priceRange, reviewNumber]);
 
   return (
-    <div className="flex flex-col border-[3px] border-gray-200 rounded-md p-4 gap-6 w-fit">
+    <div className="flex flex-col bg-white rounded-3xl shadow-md p-5 space-y-4 border border-gray-200 hover:shadow-lg transition-all duration-300 gap-6 w-fit sticky top-0">
       <h2 className="text-gray-800 text-xl font-semibold">Filters</h2>
 
       {/* Location Filter */}
@@ -210,7 +210,7 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
           onValueChange={(value) => setIsExpanded(value === "more-languages")}
         >
           <AccordionItem value="more-languages">
-            <AccordionTrigger className="flex items-center gap-1 text-sm text-amber-900 hover:underline px-0 group">
+            <AccordionTrigger className="flex items-center gap-1 text-sm text-sky-700 hover:underline px-0 group">
               {isExpanded ? "Show Less Languages" : "Show More Languages"}
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-300 ${
@@ -241,7 +241,7 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
       <div className="flex justify-end items-center mt-4">
         <Button
           variant="ghost"
-          className="text-amber-800 font-semibold flex items-center gap-1"
+          className="text-sky-700 font-semibold flex items-center gap-1"
           onClick={handleAllClearButton}
         >
           <RefreshCw className="w-4 h-4" />

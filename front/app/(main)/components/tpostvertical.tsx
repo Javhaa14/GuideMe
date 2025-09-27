@@ -99,7 +99,7 @@ export default function TpostCard({ post, onclick, user }: any) {
     setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
 
   return (
-    <div className="flex flex-col justify-between w-full max-w-md mx-auto bg-white rounded-3xl shadow-md p-5 space-y-4 border border-gray-200 hover:shadow-lg transition-all duration-300">
+    <div className="flex flex-col justify-between w-full max-w-[448px]  bg-white rounded-3xl shadow-md p-5 space-y-4 border border-gray-200 hover:shadow-lg transition-all duration-300">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">

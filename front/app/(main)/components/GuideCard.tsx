@@ -57,7 +57,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide }) => {
                   </div>
                   <button
                     onClick={handleLike}
-                    className="p-3 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-300 hover:scale-110">
+                    className="p-3 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-300 hover:scale-110"
+                  >
                     <Heart
                       size={20}
                       className={`transition-all duration-300 ${
@@ -117,7 +118,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide }) => {
               className="flex-1 bg-red-500/80 backdrop-blur-sm hover:bg-red-500 text-white border border-red-400/50 hover:border-red-400 transition-all duration-300 font-bold"
               onClick={(e) => {
                 e.stopPropagation();
-              }}>
+              }}
+            >
               <MessageCircle size={16} className="mr-2" />
               Chat with {guide.firstName}
             </Button>

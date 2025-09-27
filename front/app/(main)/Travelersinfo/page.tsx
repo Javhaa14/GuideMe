@@ -184,8 +184,8 @@ export default function Home() {
   };
 
   return (
-    <div className="flex w-screen h-full items-start justify-between bg-white gap-5 py-[40px] px-[300px]">
-      <div className="grid sm:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-5 auto-rows-max">
+    <div className="flex w-screen h-full items-start justify-between bg-white gap-5 py-[40px] px-[250px]">
+      <div className="flex flex-wrap gap-10 auto-rows-max">
         {filteredPost.map((v, i) => {
           return (
             <TpostCard
