@@ -1,11 +1,11 @@
 "use client";
 
-import React, { Dispatch, SetStateAction, useMemo } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { Star, TentTree } from "lucide-react";
+import { TentTree } from "lucide-react";
 import { axiosInstance } from "@/lib/utils";
 import {
   Card,
@@ -46,24 +46,11 @@ export function SignUpUsername({
 
   const router = useRouter();
 
-  const stars = useMemo(
-    () =>
-      Array.from({ length: 20 }).map((_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-        delay: `${Math.random() * 5}s`,
-        duration: `${3 + Math.random() * 4}s`,
-      })),
-    []
-  );
-
   const onSubmit = async (values: FormValues) => {
     try {
-      const res = await axiosInstance.post("/auth/check-user", {
+      await axiosInstance.post("/auth/check-user", {
         username: values.username,
       });
-
       setUsername(values.username);
       setStep((prev) => prev + 1);
     } catch (error: any) {
@@ -85,44 +72,21 @@ export function SignUpUsername({
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <div className="absolute inset-0">
-        <div className="absolute rounded-full w-72 h-72 top-1/4 left-1/4 bg-purple-500/30 blur-3xl animate-pulse" />
-        <div className="absolute w-96 h-96 top-3/4 right-1/4 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-[1000ms]" />
-        <div className="absolute w-80 h-80 bottom-1/4 left-1/3 bg-indigo-500/25 rounded-full blur-3xl animate-pulse delay-[2000ms]" />
-      </div>
-
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {stars.map((star) => (
-          <div
-            key={star.id}
-            className="absolute animate-[float_6s_ease-in-out_infinite]"
-            style={{
-              left: star.left,
-              top: star.top,
-              animationDelay: star.delay,
-              animationDuration: star.duration,
-            }}
-          >
-            <Star className="w-2 h-2 text-white/20" />
-          </div>
-        ))}
-      </div>
-
-      <Card className="relative z-10 w-[440px] backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl">
+    <div className="flex items-center justify-center min-h-screen bg-white">
+      <Card className="w-[440px]">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-6"
           >
             <CardHeader className="text-center">
-              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 animate-bounce">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-2xl bg-sky-500">
                 <TentTree size={32} color="white" />
               </div>
-              <CardTitle className="text-3xl font-bold text-transparent bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text">
+              <CardTitle className="text-3xl font-bold text-black">
                 Let the Journey Begin
               </CardTitle>
-              <CardDescription className="text-white/70">
+              <CardDescription className="text-black/70">
                 Choose a username for your page
               </CardDescription>
             </CardHeader>
@@ -133,15 +97,15 @@ export function SignUpUsername({
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white/90">Username</FormLabel>
+                    <FormLabel className="text-black">Username</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        className="h-12 text-white bg-white/10 border-white/20 placeholder:text-white/50 rounded-xl hover:bg-white/15 focus:border-purple-400 focus:ring-purple-400/20"
+                        className="h-12 text-black"
                         placeholder="Enter your username here"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-black" />
                   </FormItem>
                 )}
               />
@@ -150,17 +114,17 @@ export function SignUpUsername({
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-12 font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-xl hover:shadow-lg"
               >
                 Continue
               </Button>
             </CardFooter>
 
-            <div className="flex justify-center gap-4 pt-4 border-t border-white/10">
-              <p className="text-white/70">Already have an account?</p>
+            <div className="flex justify-center gap-4 pt-4">
+              <p className="text-black/70">Already have an account?</p>
               <button
                 type="button"
-                className="font-semibold text-purple-300 hover:text-purple-200"
+                className="font-semibold text-sky-600 hover:text-sky-500"
                 onClick={() => router.push("/log-in")}
               >
                 Sign in
