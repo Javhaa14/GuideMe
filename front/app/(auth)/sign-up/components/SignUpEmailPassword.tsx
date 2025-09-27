@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { Star } from "lucide-react";
 import { axiosInstance, cn } from "@/lib/utils";
 import {
   Card,
@@ -40,61 +39,20 @@ interface SignUpEmailPasswordProps {
   username: string;
 }
 
-const FloatingStars = ({ count = 20 }: { count?: number }) => {
-  const stars = useMemo(
-    () =>
-      Array.from({ length: count }).map((_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-        delay: `${Math.random() * 5}s`,
-        duration: `${3 + Math.random() * 4}s`,
-      })),
-    [count]
-  );
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {stars.map((star) => (
-        <div
-          key={star.id}
-          className="absolute animate-[float_6s_ease-in-out_infinite]"
-          style={{
-            left: star.left,
-            top: star.top,
-            animationDelay: star.delay,
-            animationDuration: star.duration,
-          }}
-        >
-          <Star className="w-2 h-2 text-white/20" />
-        </div>
-      ))}
-    </div>
-  );
-};
-
 export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
   const router = useRouter();
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
   });
 
   const onSubmit = async (values: SignUpFormValues) => {
     try {
       const { data } = await axiosInstance.post(
         "/auth/signup",
-        {
-          ...values,
-          username,
-        },
-        {
-          withCredentials: true,
-        }
+        { ...values, username },
+        { withCredentials: true }
       );
 
       if (data.message === "email already registered") {
@@ -111,15 +69,12 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
     } catch (error: any) {
       const msg =
         error?.response?.data?.message || "Something went wrong. Try again.";
-      form.setError("email", {
-        type: "manual",
-        message: msg,
-      });
+      form.setError("email", { type: "manual", message: msg });
     }
   };
 
   const inputStyle =
-    "h-12 text-white bg-white/10 border-white/20 placeholder:text-white/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-xl hover:bg-white/15";
+    "h-12 text-black bg-white border-gray-300 placeholder:text-black/50 focus:border-sky-500 focus:ring-sky-500/20 rounded-xl hover:bg-gray-50";
 
   const handleSocialSignIn = (provider: string) => {
     signIn(provider, {
@@ -128,26 +83,18 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <div className="absolute inset-0">
-        <div className="absolute rounded-full w-72 h-72 top-1/4 left-1/4 bg-purple-500/30 blur-3xl animate-pulse" />
-        <div className="absolute delay-1000 rounded-full w-96 h-96 top-3/4 right-1/4 bg-blue-500/20 blur-3xl animate-pulse" />
-        <div className="absolute rounded-full w-80 h-80 bottom-1/4 left-1/3 bg-indigo-500/25 blur-3xl animate-pulse delay-2000" />
-      </div>
-
-      <FloatingStars />
-
-      <Card className="relative z-10 w-[440px] backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl">
+    <div className="flex items-center justify-center min-h-screen bg-white">
+      <Card className="w-[440px] bg-white border border-gray-200 shadow-md">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-6"
           >
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold text-white">
+              <CardTitle className="text-2xl font-bold text-black">
                 Welcome, {username}
               </CardTitle>
-              <CardDescription className="text-white/70">
+              <CardDescription className="text-black/70">
                 Connect your email and create a password or use a social login
               </CardDescription>
             </CardHeader>
@@ -158,7 +105,7 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white/90">Email</FormLabel>
+                    <FormLabel className="text-black/90">Email</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter your email"
@@ -166,7 +113,7 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-black" />
                   </FormItem>
                 )}
               />
@@ -176,7 +123,7 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white/90">Password</FormLabel>
+                    <FormLabel className="text-black/90">Password</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
@@ -185,7 +132,7 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-black" />
                   </FormItem>
                 )}
               />
@@ -194,7 +141,7 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
             <CardFooter>
               <Button
                 type="submit"
-                className="w-full h-12 font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:from-purple-600 hover:to-blue-600 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-12 font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-xl hover:shadow-lg"
               >
                 Create Account
               </Button>
@@ -202,13 +149,12 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
           </form>
         </Form>
 
-        {/* Social sign up */}
-        <div className="px-6 pb-6 pt-2 text-center">
-          <p className="mb-3 text-white/70">Or sign up with</p>
-          <div className="flex justify-center gap-4">
+        <div className="px-6 pb-6 pt-4 text-center">
+          <p className="mb-4 text-gray-500 text-sm">Or sign up with</p>
+          <div className="flex justify-center gap-4 items-center">
             <Button
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-gray-700 border border-gray-300 rounded-xl px-5 py-2 shadow-sm transition-all duration-200 hover:shadow-md hover:bg-gray-50 hover:scale-105"
               onClick={() => handleSocialSignIn("google")}
             >
               <img
@@ -217,7 +163,7 @@ export function SignUpEmailPassword({ username }: SignUpEmailPasswordProps) {
                 className="w-5 h-5"
                 loading="lazy"
               />
-              Google
+              <span>Google</span>
             </Button>
           </div>
         </div>
