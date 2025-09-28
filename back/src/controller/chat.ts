@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { NotificationModel } from "../model/Notification";
 import { UserModel } from "../model/User";
 import { MessageModel } from "../model/Message";
 import { ChatRoomModel } from "../model/ChatRoom";
 import { Guidemodel } from "../model/Guide";
 import { Touristmodel } from "../model/Tourist";
+import { NotificationModel } from "../model/Notification";
 
 export const sendMessage = async (
   req: Request,
