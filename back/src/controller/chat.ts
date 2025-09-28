@@ -4,7 +4,7 @@ import { MessageModel } from "../model/Message";
 import { ChatRoomModel } from "../model/ChatRoom";
 import { Guidemodel } from "../model/Guide";
 import { Touristmodel } from "../model/Tourist";
-import { NotificationModel } from "../model/Notification";
+import { NotificationModel } from "../model/NotifModel";
 
 export const sendMessage = async (
   req: Request,
