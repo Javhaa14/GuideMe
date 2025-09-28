@@ -76,7 +76,7 @@ export default function TravelerProfile() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {/* Chat Component */}
       {chat && (
-        <div className="fixed bottom-6 right-6 z-50 w-80 h-110 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4">
+        <div className="fixed bottom-6 right-6 z-50 w-80 h-120 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4">
           <div className="h-full w-full flex flex-col">
             <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 pb-0 text-white">
               <div className="flex items-center justify-between">
@@ -85,19 +85,14 @@ export default function TravelerProfile() {
                 </h3>
                 <button
                   onClick={() => setChat(false)}
-                  className="text-white hover:text-gray-200 transition-colors">
+                  className="text-white hover:text-gray-200 transition-colors cursor-pointer"
+                >
                   x
                 </button>
               </div>
             </div>
             <div className="flex w-full">
-              <Chat
-                profileId={
-                  params.id && typeof params.id === "string" ? params.id : ""
-                }
-                onlineUsers={onlineUsers}
-                user={user!}
-              />
+              <Chat onlineUsers={onlineUsers} user={user!} />
             </div>
           </div>
         </div>

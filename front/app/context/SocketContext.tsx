@@ -13,7 +13,8 @@ const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
 });
-
+//https://guideme-8o9f.onrender.com
+//http://localhost:8080
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: session } = useSession();
   const userId = session?.user?.id;

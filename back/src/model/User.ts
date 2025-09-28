@@ -41,10 +41,8 @@ const userSchema = new mongoose.Schema(
     },
     notifications: [
       {
-        sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        notifications: [
-          { type: mongoose.Schema.Types.ObjectId, ref: "Notification" },
-        ],
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Notification",
       },
     ],
   },

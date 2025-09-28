@@ -73,17 +73,18 @@ export default function GuideMainProfile() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
       {/* Chat Box */}
       {chat && user && (
-        <div className="fixed z-50 bottom-6 right-6 w-80 h-[28rem] rounded-2xl shadow-2xl bg-white border border-gray-200 overflow-hidden">
+        <div className="fixed z-50 bottom-6 right-6 w-80 h-fit rounded-2xl shadow-2xl bg-white border border-gray-200 overflow-hidden">
           <div className="flex flex-col h-full">
             <div className="p-4 pb-0 text-white bg-gradient-to-r from-green-500 to-emerald-600 flex justify-between items-center">
               <h3 className="font-semibold">Chat with {guide.username}</h3>
               <button
                 onClick={() => setChat(false)}
-                className="hover:text-gray-200">
+                className="hover:text-gray-200 cursor-pointer"
+              >
                 x
               </button>
             </div>
-            <Chat profileId={profileId} onlineUsers={onlineUsers} user={user} />
+            <Chat onlineUsers={onlineUsers} user={user} />
           </div>
         </div>
       )}

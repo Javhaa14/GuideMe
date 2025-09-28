@@ -1,22 +1,36 @@
-import { Schema, model, Document } from "mongoose";
+import mongoose from "mongoose";
 
-export interface INotification extends Document {
-  sender: Schema.Types.ObjectId;
-  receiver: Schema.Types.ObjectId;
-  message: string;
-  seen: boolean;
-  createdAt: Date;
-}
-
-const notificationSchema = new Schema<INotification>({
-  sender: { type: Schema.Types.ObjectId, ref: "User" },
-  receiver: { type: Schema.Types.ObjectId, ref: "User" },
-  message: { type: String },
-  seen: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now },
-});
-
-export const Notification = model<INotification>(
-  "Notification",
-  notificationSchema
+const notificationSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: ["message", "like"],
+      required: true,
+    },
+    message: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Message",
+    },
+    isSaw: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    timestamps: { createdAt: "created_at", updatedAt: false },
+  }
 );
+
+export const NotificationModel =
+  mongoose.models.Notification ||
+  mongoose.model("Notification", notificationSchema);

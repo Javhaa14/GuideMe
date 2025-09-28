@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { io } from "..";
-import { NotificationModel } from "../model/Notif";
 import { Guidemodel } from "../model/Guide";
 export const createGuideProfile = async (
   req: Request,
@@ -132,66 +131,6 @@ export const getGuides = async (_: Request, res: Response): Promise<void> => {
     } else {
       res.status(500).send({ error: "Unexpected error occurred" });
     }
-  }
-};
-
-export const updateGuideProfile = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
-  const { userId, guideId } = req.body;
-
-  if (
-    !mongoose.Types.ObjectId.isValid(userId) ||
-    !mongoose.Types.ObjectId.isValid(guideId)
-  ) {
-    return res.status(400).json({ message: "Invalid userId or guideId" });
-  }
-
-  try {
-    const guideProfile = await Guidemodel.findById(guideId);
-    if (!guideProfile) {
-      return res.status(404).json({ message: "Guide profile not found" });
-    }
-
-    const alreadyLiked = guideProfile.likedBy.some(
-      (id) => id.toString() === userId
-    );
-
-    if (alreadyLiked) {
-      guideProfile.likedBy = guideProfile.likedBy.filter(
-        (id) => id.toString() !== userId
-      );
-    } else {
-      guideProfile.likedBy.push(new mongoose.Types.ObjectId(userId));
-
-      // ✅ 1. Notification model-д хадгалах
-      await NotificationModel.create({
-        toUserId: guideProfile._id,
-        fromUserId: userId,
-        postId: guideId,
-        type: "like",
-        message: "Someone liked your guide profile!",
-        read: false,
-      });
-
-      // ✅ 2. Socket.io ашиглан мэдэгдэл real-time илгээх
-      io.to(`notify_${guideProfile._id.toString()}`).emit("notify", {
-        type: "like",
-        fromUserId: userId,
-        postId: guideId,
-        message: "Someone liked your guide profile!",
-      });
-    }
-
-    await guideProfile.save();
-
-    return res.status(200).json({
-      message: "Profile updated",
-      likedBy: guideProfile.likedBy,
-    });
-  } catch (error) {
-    return res.status(500).json({ success: false, error });
   }
 };
 

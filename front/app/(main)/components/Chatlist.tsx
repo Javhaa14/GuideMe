@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useUser } from "@/app/context/Usercontext";
-import Chat from "./Chat";
 import { useOnlineStatus } from "@/app/context/Onlinestatus";
 import { axiosInstance } from "@/lib/utils";
+import HybridChat from "./Chat";
 
 interface ChatListProps {
   receiverId?: string;
@@ -34,24 +34,50 @@ export const ChatList: React.FC<ChatListProps> = ({
   const { onlineUsers } = useOnlineStatus();
   const currentUser = user;
 
-  if (loading) return <p>Loading chats...</p>;
-  if (error) return <p>{error}</p>;
-  if (!currentUser) return <p>Loading user info...</p>;
-  if (conversations.length === 0) return <p>No chats found.</p>;
+  if (loading)
+    return (
+      <div className="p-4 text-center text-gray-500">Loading chats...</div>
+    );
+  if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
+  if (!currentUser)
+    return (
+      <div className="p-4 text-center text-gray-500">Loading user info...</div>
+    );
+  if (conversations.length === 0)
+    return <div className="p-4 text-center text-gray-500">No chats found.</div>;
 
   const handleChatOpen = async (conv: any) => {
-    setSelectedChat(conv);
-    onConversationOpen(conv.user.id);
+    // Find the other user in the conversation (not the current user)
+    const otherUser = conv.participants.find(
+      (p: any) => p._id !== currentUser.id
+    );
+
+    if (!otherUser) {
+      console.error("Could not find other user in conversation");
+      return;
+    }
+
+    const conversationData = {
+      ...conv,
+      user: {
+        id: otherUser._id,
+        name: otherUser.username,
+        profileImage: otherUser.profileimage,
+      },
+    };
+
+    setSelectedChat(conversationData);
+    onConversationOpen(otherUser._id);
 
     try {
       await axiosInstance.put("/notif/seen", {
-        senderId: conv.user.id,
+        senderId: otherUser._id,
         receiverId: currentUser.id,
       });
 
       setNotificationCounts((prev) => ({
         ...prev,
-        [conv.user.id]: 0,
+        [otherUser._id]: 0,
       }));
     } catch (error) {
       console.error("❌ Failed to mark as seen:", error);
@@ -59,95 +85,123 @@ export const ChatList: React.FC<ChatListProps> = ({
   };
 
   return (
-    <div className="mt-4 max-h-[80vh] overflow-y-auto pr-2 space-y-4 bg-gradient-to-br from-blue-950 via-blue-900 to-blue-950 rounded-2xl p-2 shadow-xl">
-      {conversations.map((conv) => {
-        if (!conv.user) return null;
-        const senderId = conv.user.id;
-        const count = notificationCounts[senderId] || 0;
-        const lastMsg = conv.lastMessage || {
-          text: "No messages yet",
-          createdAt: new Date(),
-          userId: "",
-        };
-        const isCurrentUserSender = lastMsg.userId === currentUser.name;
-        const dateString = new Date(lastMsg.createdAt).toLocaleString(
-          undefined,
-          {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
+    <>
+      <div className="max-h-[80vh] overflow-y-auto pr-2 space-y-3 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-4 shadow-lg border border-gray-200">
+        {conversations.map((conv) => {
+          // Find the other user (not the current user)
+          const otherUser = conv.participants?.find(
+            (p: any) => p._id !== currentUser.id
+          );
+
+          if (!otherUser) {
+            console.warn("No other user found in conversation:", conv);
+            return null;
           }
-        );
-        const isOnline = onlineUsers[senderId]?.isOnline;
 
-        return (
-          <div
-            key={conv.roomId}
-            className="cursor-pointer flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-blue-900 to-blue-800 shadow-md hover:scale-[1.03] hover:shadow-xl transition-all border border-blue-800 relative group"
-            onClick={() => handleChatOpen(conv)}>
-            <div className="relative">
-              <img
-                src={conv.user.profileImage || "/user.jpg"}
-                alt={conv.user.name}
-                className="w-14 h-14 rounded-full object-cover border-2 border-blue-700 shadow-lg"
-              />
-              {isOnline && (
-                <span className="absolute bottom-1 right-1 w-4 h-4 bg-green-400 border-2 border-blue-900 rounded-full"></span>
-              )}
-            </div>
+          const otherUserId = otherUser._id;
+          const count = notificationCounts[otherUserId] || 0;
 
-            <div className="flex-1 min-w-0">
-              <h2 className="font-semibold text-base text-blue-100 truncate flex items-center gap-2">
-                {conv.user.name}
+          // Handle last message display
+          const lastMsg = conv.lastMessage || null;
+          let lastMessageText = "No messages yet";
+          let isCurrentUserSender = false;
+          let dateString = "Just now";
+
+          if (lastMsg) {
+            // Check if lastMessage is populated or just an ID
+            if (typeof lastMsg === "object" && lastMsg.content) {
+              lastMessageText = lastMsg.content;
+              isCurrentUserSender = lastMsg.sender === currentUser.id;
+              dateString = new Date(
+                lastMsg.created_at || lastMsg.createdAt
+              ).toLocaleString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+            } else {
+              // If lastMessage is just an ID, show generic message
+              lastMessageText = "Message";
+              dateString = new Date(conv.updatedAt).toLocaleString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+            }
+          }
+
+          const isOnline = onlineUsers[otherUserId]?.isOnline;
+
+          return (
+            <div
+              key={conv._id}
+              className="cursor-pointer flex items-center gap-4 p-4 rounded-xl bg-white shadow-md hover:shadow-lg hover:scale-[1.02] transition-all border border-gray-200 relative group"
+              onClick={() => handleChatOpen(conv)}
+            >
+              <div className="relative">
+                <img
+                  src={otherUser.profileimage || "/user.jpg"}
+                  alt={otherUser.username}
+                  className="w-14 h-14 rounded-full object-cover border-2 border-gray-200 shadow-sm"
+                />
                 {isOnline && (
-                  <span className="ml-1 text-xs text-green-400">●</span>
+                  <span className="absolute bottom-1 right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></span>
                 )}
-              </h2>
-              <p className="text-xs text-blue-300 truncate mt-1">
-                {isCurrentUserSender ? "You: " : ""}
-                {lastMsg.text}
-              </p>
-            </div>
+              </div>
 
-            <div className="flex flex-col items-end min-w-[70px]">
-              <span className="text-xs text-blue-400">{dateString}</span>
-              {count > 0 && (
-                <span className="text-xs bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center mt-2 font-bold shadow-lg">
-                  {count}
-                </span>
-              )}
-            </div>
-          </div>
-        );
-      })}
+              <div className="flex-1 min-w-0">
+                <h2 className="font-semibold text-base text-gray-800 truncate flex items-center gap-2">
+                  {otherUser.username}
+                  {isOnline && (
+                    <span className="ml-1 text-xs text-green-500">●</span>
+                  )}
+                </h2>
+                <p className="text-sm text-gray-600 truncate mt-1">
+                  {isCurrentUserSender ? "You: " : ""}
+                  {lastMessageText}
+                </p>
+              </div>
 
-      {selectedChat && (
-        <div className="fixed z-50 overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 border border-blue-800 shadow-2xl bottom-6 right-6 w-[420px] h-[600px] rounded-3xl animate-in slide-in-from-bottom-4">
-          <div className="flex flex-col w-full h-full">
-            <div className="p-6 pb-0 text-white bg-gradient-to-r from-blue-800 to-blue-700 rounded-t-3xl shadow-md">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg">
-                  Chat with {selectedChat.user.name}
-                </h3>
-                <button
-                  onClick={() => setSelectedChat(null)}
-                  className="text-white text-2xl transition-colors hover:text-blue-300 font-bold">
-                  ×
-                </button>
+              <div className="flex flex-col items-end min-w-[70px]">
+                {/* <span className="text-xs text-gray-500">{dateString}</span>
+                {count > 0 && (
+                  <span className="text-xs bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center mt-2 font-bold shadow-md">
+                    {count}
+                  </span>
+                )} */}
               </div>
             </div>
-            <div className="flex w-full h-full">
-              <Chat
-                profileId={selectedChat.user.id}
-                onlineUsers={onlineUsers}
-                user={user}
-              />
+          );
+        })}
+      </div>
+
+      {/* Chat Modal */}
+      {selectedChat && (
+        <div className="fixed z-50 bottom-22 right-6 w-80 h-120 rounded-2xl shadow-2xl bg-white border border-gray-200 overflow-hidden">
+          <div className="flex flex-col h-full">
+            <div className="p-4 pb-0 text-white bg-gradient-to-r from-green-500 to-emerald-600 flex justify-between items-center">
+              <h3 className="font-semibold">
+                Chat with {selectedChat.user.name}
+              </h3>
+              <button
+                onClick={() => setSelectedChat(null)}
+                className="hover:text-gray-200 cursor-pointer"
+              >
+                x
+              </button>
             </div>
+            <HybridChat
+              profileId={selectedChat.user.id}
+              user={currentUser}
+              onlineUsers={onlineUsers}
+            />
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
