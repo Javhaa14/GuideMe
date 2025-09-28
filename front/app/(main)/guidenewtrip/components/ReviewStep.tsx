@@ -289,7 +289,7 @@ export default function ReviewStep({ formData }: ReviewStepProps) {
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <Lightbulb className="w-5 h-5 text-amber-500" />
+                    <Lightbulb className="w-5 h-5 text-blue-500" />
                     <h4 className="text-lg font-semibold">Highlights</h4>
                   </div>
 
@@ -298,7 +298,7 @@ export default function ReviewStep({ formData }: ReviewStepProps) {
                       (highlight: string, index: number) =>
                         highlight ? (
                           <li key={index} className="flex items-start gap-2">
-                            <span className="mt-1 text-amber-500">•</span>
+                            <span className="mt-1 text-blue-500">•</span>
                             <span>{highlight}</span>
                           </li>
                         ) : null

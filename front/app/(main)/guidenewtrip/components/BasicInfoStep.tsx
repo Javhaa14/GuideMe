@@ -231,7 +231,7 @@ export default function BasicInfoStep({
             <span className="font-semibold text-gray-700">
               Photos (You need 3 images)
             </span>
-            <label className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl cursor-pointer hover:scale-105 transition">
+            <label className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-xl cursor-pointer">
               <Camera size={18} />
               Add Photo
               <input

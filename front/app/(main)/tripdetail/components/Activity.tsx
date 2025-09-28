@@ -14,9 +14,11 @@ import { useParams } from "next/navigation";
 import { axiosInstance } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@/app/context/Usercontext";
 
 interface TripItem {
   _id: string;
+  userId: string; // Хэн үүсгэсэн
   date: string;
   groupSize: number;
   duration: string;
@@ -28,9 +30,11 @@ export const Activity = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState<TripItem | null>(null);
 
+  const { user } = useUser();
   const params = useParams();
   const tripId = typeof params.id === "string" ? params.id : params.id?.[0];
 
+  // Trip ачаалах
   const fetchTrip = async () => {
     if (!tripId) return toast.error("Аяллын ID олдсонгүй");
 
@@ -47,11 +51,17 @@ export const Activity = () => {
     }
   };
 
+  // Save хийх
   const handleSave = async () => {
-    if (!editValues || !tripId) return;
+    if (!editValues || !trip) return;
+
+    // Зөвхөн аяллыг үүсгэсэн хэрэглэгч засах боломжтой
+    if (user?.id !== trip.userId) {
+      return toast.error("Та энэ аяллыг засах эрхгүй байна");
+    }
 
     try {
-      const res = await axiosInstance.put(`/tripPlan/${tripId}`, {
+      const res = await axiosInstance.put(`/tripPlan/${trip._id}`, {
         date: editValues.date,
         groupSize: editValues.groupSize,
         duration: editValues.duration,
@@ -88,37 +98,41 @@ export const Activity = () => {
         <h2 className="text-3xl font-bold text-gray-900">
           About this activity
         </h2>
-        <div className="flex gap-2">
-          {isEditing ? (
-            <>
-              <button
-                onClick={handleSave}
-                className="inline-flex items-center gap-1 px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded hover:bg-green-700"
+
+        {user?.id === trip.userId && (
+          <div className="flex gap-2">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleSave}
+                  className="inline-flex items-center gap-1 px-4 py-2 text-sm rounded-lg font-semibold text-white bg-green-600 hover:bg-green-700"
+                >
+                  <Save size={16} /> Save
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditValues(trip);
+                  }}
+                  className="inline-flex items-center gap-1 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
+                  <X size={16} /> Cancel
+                </button>
+              </>
+            ) : (
+              <Button
+                onClick={() => setIsEditing(true)}
+                className="bg-blue-600"
               >
-                <Save size={16} /> Save
-              </button>
-              <button
-                onClick={() => {
-                  setIsEditing(false);
-                  setEditValues(trip);
-                }}
-                className="inline-flex items-center gap-1 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
-              >
-                <X size={16} /> Cancel
-              </button>
-            </>
-          ) : (
-            <Button onClick={() => setIsEditing(true)} className="bg-blue-600">
-              <Pencil size={16} /> Edit
-            </Button>
-          )}
-        </div>
+                <Pencil size={16} /> Edit
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 border-b border-gray-200 pb-6">
-        {/* Left Column */}
         <div className="space-y-4">
-          {/* Date */}
           <div className="flex items-start gap-4">
             <CalendarDays className="w-6 h-6 text-gray-800 mt-1" />
             <div>
@@ -140,9 +154,8 @@ export const Activity = () => {
             </div>
           </div>
 
-          {/* Group Size */}
           <div className="flex items-start gap-4">
-            <Users className="w-6 h-6 text-emerald-500 mt-1" />
+            <Users className="w-6 h-6 text-blue-600 mt-1" />
             <div>
               <h3 className="text-lg font-semibold text-gray-800">
                 Group size
@@ -166,9 +179,7 @@ export const Activity = () => {
           </div>
         </div>
 
-        {/* Right Column */}
         <div className="space-y-4">
-          {/* Duration */}
           <div className="flex items-start gap-4">
             <TimerReset className="w-6 h-6 text-gray-800 mt-1" />
             <div>
@@ -178,10 +189,7 @@ export const Activity = () => {
                   type="text"
                   value={editValues.duration}
                   onChange={(e) =>
-                    setEditValues({
-                      ...editValues,
-                      duration: e.target.value,
-                    })
+                    setEditValues({ ...editValues, duration: e.target.value })
                   }
                   className="w-full p-2 mt-1 border rounded"
                 />
@@ -191,7 +199,6 @@ export const Activity = () => {
             </div>
           </div>
 
-          {/* Languages */}
           <div className="flex items-start gap-4">
             <Globe className="w-6 h-6 text-blue-500 mt-1" />
             <div>

@@ -33,6 +33,7 @@ export interface GuideCardProps {
   chat: boolean;
   setChat: (state: boolean) => void;
   onlineStatus: boolean;
+  currentUserId?: string; // 🔑 нэмсэн
 }
 
 export const GuideCard: React.FC<GuideCardProps> = ({
@@ -41,9 +42,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({
   chat,
   setChat,
   onlineStatus,
+  currentUserId,
 }) => {
-  console.log(guideId);
-
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
@@ -66,7 +66,6 @@ export const GuideCard: React.FC<GuideCardProps> = ({
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const form = new FormData();
     form.append("file", file);
     form.append("upload_preset", "guideme");
@@ -75,16 +74,13 @@ export const GuideCard: React.FC<GuideCardProps> = ({
     try {
       const res = await fetch(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: form,
-        }
+        { method: "POST", body: form }
       );
       const result = await res.json();
       if (result.secure_url) {
         handleInput("profileimage", result.secure_url);
       }
-    } catch (err) {
+    } catch {
       alert("Image upload failed");
     } finally {
       setImageLoading(false);
@@ -96,7 +92,6 @@ export const GuideCard: React.FC<GuideCardProps> = ({
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const form = new FormData();
     form.append("file", file);
     form.append("upload_preset", "guideme");
@@ -105,16 +100,13 @@ export const GuideCard: React.FC<GuideCardProps> = ({
     try {
       const res = await fetch(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: form,
-        }
+        { method: "POST", body: form }
       );
       const result = await res.json();
       if (result.secure_url) {
         handleInput("backgroundimage", result.secure_url);
       }
-    } catch (err) {
+    } catch {
       alert("Background image upload failed");
     } finally {
       setBackgroundImageLoading(false);
@@ -139,11 +131,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({
           .map((lang: string) => lang.trim())
           .filter((lang: string) => lang.length > 0),
       };
-      const response = await axiosInstance.put(
-        `/gprofile/edit/${guideId}`,
-        dataToSend
-      );
-      console.log("Updated:", response.data);
+      await axiosInstance.put(`/gprofile/edit/${guideId}`, dataToSend);
       alert("Profile saved successfully!");
       setIsEditing(false);
     } catch (err: any) {
@@ -157,9 +145,10 @@ export const GuideCard: React.FC<GuideCardProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}>
+      transition={{ duration: 0.5 }}
+    >
       <Card className="max-w-6xl mx-auto shadow-2xl rounded-4xl overflow-hidden border-0">
-        {/* Background Image Section */}
+        {/* Background Image */}
         <div className="relative w-full h-64 md:h-80">
           {editedGuide.backgroundimage ? (
             <Image
@@ -174,24 +163,24 @@ export const GuideCard: React.FC<GuideCardProps> = ({
             </div>
           )}
 
+          {/* Upload/Edit Background when editing */}
           {isEditing && (
-            <div className="absolute inset-0 bg-black/60 flex items-center justify-center transition-opacity duration-300">
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
               <div className="text-center">
                 {editedGuide.backgroundimage ? (
-                  <div className="space-y-2">
-                    <Button
-                      onClick={handleDeleteBackgroundImage}
-                      variant="destructive"
-                      size="sm"
-                      disabled={backgroundImageLoading}
-                      className="rounded-full">
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Remove
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={handleDeleteBackgroundImage}
+                    variant="destructive"
+                    size="sm"
+                    disabled={backgroundImageLoading}
+                    className="rounded-full"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Remove
+                  </Button>
                 ) : (
                   <label className="cursor-pointer">
-                    <div className="bg-white/20 backdrop-blur-md rounded-xl p-6 hover:bg-white/30 transition-colors shadow-lg">
+                    <div className="bg-white/20 backdrop-blur-md rounded-xl p-6 hover:bg-white/30 shadow-lg">
                       {backgroundImageLoading ? (
                         <div className="text-white font-semibold">
                           Uploading...
@@ -220,32 +209,38 @@ export const GuideCard: React.FC<GuideCardProps> = ({
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
-          {/* Edit Button */}
-          <div className="absolute top-6 right-6">
-            {isEditing ? (
-              <Button
-                onClick={handleSave}
-                disabled={loading}
-                size="lg"
-                className="rounded-full bg-green-600 hover:bg-green-700">
-                <Save className="w-5 h-5 mr-2" />{" "}
-                {loading ? "Saving..." : "Save"}
-              </Button>
-            ) : (
-              <Button
-                onClick={() => setIsEditing(true)}
-                size="lg"
-                className="rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30">
-                <Pencil className="w-5 h-5 mr-2" /> Edit
-              </Button>
-            )}
-          </div>
+          {/* Edit button зөвхөн өөрийн profile үед харагдана */}
+          {currentUserId === guideId && (
+            <div className="absolute top-6 right-6">
+              {isEditing ? (
+                <Button
+                  onClick={handleSave}
+                  disabled={loading}
+                  size="lg"
+                  className="rounded-full bg-green-600 hover:bg-green-700"
+                >
+                  <Save className="w-5 h-5 mr-2" />
+                  {loading ? "Saving..." : "Save"}
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  size="lg"
+                  className="rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30"
+                >
+                  <Pencil className="w-5 h-5 mr-2" />
+                  Edit
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
+        {/* Profile Section */}
         <div className="relative p-6 -mt-24">
           <div className="flex flex-col md:flex-row items-center md:items-end md:gap-8">
             {/* Profile Image */}
-            <div className="relative w-40 h-40 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-white -mt-4 md:mt-0 flex-shrink-0">
+            <div className="relative w-40 h-40 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-white flex-shrink-0">
               {isEditing ? (
                 <div className="relative w-full h-full">
                   {editedGuide.profileimage ? (
@@ -256,17 +251,18 @@ export const GuideCard: React.FC<GuideCardProps> = ({
                         fill
                         className="object-cover"
                       />
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 hover:opacity-100">
                         <button
                           onClick={handleDeleteImage}
-                          className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
-                          disabled={imageLoading}>
+                          className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                          disabled={imageLoading}
+                        >
                           <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     </>
                   ) : (
-                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center text-center p-2 bg-gray-100 hover:bg-gray-200 transition">
+                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center text-center bg-gray-100 hover:bg-gray-200">
                       {imageLoading ? (
                         "Uploading..."
                       ) : (
@@ -302,13 +298,13 @@ export const GuideCard: React.FC<GuideCardProps> = ({
               />
             </div>
 
-            {/* Name and Actions */}
+            {/* Name & Rating */}
             <div className="flex-1 mt-4 md:mt-0 text-center md:text-left">
               {isEditing ? (
                 <Input
                   value={editedGuide.username}
                   onChange={(e) => handleInput("username", e.target.value)}
-                  className="text-4xl font-bold text-gray-800 bg-gray-100 border-2 border-gray-200 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg"
+                  className="text-4xl font-bold text-gray-800 bg-gray-100 border-2 border-gray-200"
                 />
               ) : (
                 <h1 className="text-4xl font-bold text-gray-800">
@@ -326,9 +322,10 @@ export const GuideCard: React.FC<GuideCardProps> = ({
           </div>
         </div>
 
+        {/* Content */}
         <CardContent className="px-6 py-8 md:px-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {/* Left Column: About and Details */}
+            {/* About & Details */}
             <div>
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">
@@ -392,7 +389,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({
               </div>
             </div>
 
-            {/* Right Column: Actions */}
+            {/* Actions */}
             <div className="bg-gray-50 rounded-2xl p-8 flex flex-col justify-between shadow-inner">
               <div>
                 <h3 className="text-2xl font-bold text-gray-800 mb-6">
@@ -401,7 +398,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({
                 <div className="space-y-4">
                   <button
                     onClick={() => setChat(!chat)}
-                    className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
+                    className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
                     <MessageCircle className="w-6 h-6" />
                     Start Conversation
                   </button>

@@ -9,14 +9,21 @@ import { toast } from "react-hot-toast";
 import { useProfile } from "@/app/context/ProfileContext";
 import { Button } from "@/components/ui/button";
 
-interface TripItem {
-  id: string;
+// TripItem интерфейс
+export interface TripItem {
   _id: string;
-  images: string | string[];
   title: string;
+  about: string;
   date: string;
+  duration: string;
   groupSize: number;
   price: number;
+  images: string | string[];
+  userId: string;
+  location?: string;
+  category?: string;
+  // шаардлагатай бол бусад талбарууд
+  [key: string]: any;
 }
 
 export const GuideTrips = () => {
@@ -26,16 +33,22 @@ export const GuideTrips = () => {
   const { user } = useUser();
   const { requireAuth } = useProfile();
 
+  // Аяллуудыг авах
   const fetchTrips = async () => {
     try {
       const res = await axiosInstance.get(`/tripPlan/${params.id}`);
-      setTrips(res.data.tripPlans);
+      if (res.data.tripPlans) {
+        setTrips(res.data.tripPlans);
+      } else {
+        toast.error("Аяллын жагсаалтыг авахад алдаа гарлаа");
+      }
     } catch (err) {
       console.error("❌ Post fetch failed:", err);
       toast.error("Аяллын жагсаалтыг авахад алдаа гарлаа");
     }
   };
 
+  // Аялалыг устгах
   const handleDelete = async (id: string) => {
     const confirmed = confirm("Та энэ аяллыг устгахдаа итгэлтэй байна уу?");
     if (!confirmed) return;
@@ -54,6 +67,7 @@ export const GuideTrips = () => {
     }
   };
 
+  // Аялал дээр дарах үед дэлгэрэнгүй рүү шилжих
   const handleTripClick = (tripId: string) => {
     if (requireAuth("view trip details")) {
       router.push(`/tripdetail/${tripId}`);
@@ -67,14 +81,14 @@ export const GuideTrips = () => {
   return (
     <div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {trips?.map((trip) => (
+        {trips.map((trip) => (
           <div
             key={trip._id}
             className="relative w-full overflow-hidden transition duration-300 transform bg-white shadow rounded-xl hover:shadow-xl hover:scale-[1.02] cursor-pointer"
             onClick={() => handleTripClick(trip._id)}
           >
-            {/* Edit Button */}
-            {user?.id?.toString() === params.id?.toString() && (
+            {/* Edit Button зөвхөн эзэмшигчдэд */}
+            {user?.id === trip.userId && (
               <Button
                 size="icon"
                 variant="secondary"
@@ -102,21 +116,23 @@ export const GuideTrips = () => {
               <Trash2 size={18} />
             </button>
 
-            {/* Image and info */}
+            {/* Зураг */}
             <div className="relative w-full h-48">
               <img
                 src={
                   typeof trip.images === "string"
                     ? trip.images
-                    : trip.images?.[0]
+                    : trip.images?.[0] || ""
                 }
                 alt={`Trip image: ${trip.title}`}
                 className="object-cover w-full h-full"
               />
             </div>
 
+            {/* Гарчиг */}
             <h3 className="px-5 pt-3 text-xl font-semibold">{trip.title}</h3>
 
+            {/* Мэдээлэл */}
             <div className="px-5 py-3">
               <div className="flex items-center gap-2 mb-1 text-gray-600">
                 <Calendar size={18} />
