@@ -26,6 +26,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+import { useUser } from "@/app/context/Usercontext"; // 🟢 хэрэглэгчийн hook
 
 const iconComponents = {
   location: MapPin,
@@ -45,6 +46,7 @@ type RouteItem = {
 
 type TripItem = {
   _id: string;
+  userId: string; // 🟢 Үүсгэсэн хэрэглэгч
   title: string;
   route: RouteItem[];
   highlights: string[];
@@ -60,6 +62,8 @@ export default function RoutEditor() {
   const [isEditing, setIsEditing] = useState(false);
   const [newHighlight, setNewHighlight] = useState("");
   const [newTip, setNewTip] = useState("");
+
+  const { user } = useUser(); // 🟢 Одоогийн хэрэглэгч
 
   useEffect(() => {
     if (tripId) fetchTrip();
@@ -80,6 +84,12 @@ export default function RoutEditor() {
 
   async function saveTrip() {
     if (!trip) return;
+
+    // 🟢 Зөвхөн үүсгэсэн хэрэглэгч хадгалах боломжтой
+    if (trip.userId !== user?.id) {
+      return toast.error("Та энэ аяллыг засах эрхгүй байна");
+    }
+
     try {
       const res = await axiosInstance.put(`/tripPlan/${tripId}`, trip);
       if (res.data.success) {
@@ -167,6 +177,8 @@ export default function RoutEditor() {
       </p>
     );
 
+  const canEdit = trip.userId === user?.id; // 🟢 Засах эрхийг шалгах
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-10">
       <div className="flex items-center justify-between">
@@ -180,22 +192,31 @@ export default function RoutEditor() {
           <h1 className="text-3xl font-bold">{trip.title}</h1>
         )}
 
-        <div className="flex gap-2">
-          {isEditing ? (
-            <>
-              <Button variant="secondary" onClick={() => setIsEditing(false)}>
-                Cancel
+        {/* 🟢 Засах эрхтэй хэрэглэгчид л товч харуулах */}
+        {canEdit && (
+          <div className="flex gap-2">
+            {isEditing ? (
+              <>
+                <Button variant="secondary" onClick={() => setIsEditing(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={saveTrip}
+                >
+                  <Save className="w-4 h-4 mr-1" /> Save
+                </Button>
+              </>
+            ) : (
+              <Button
+                className="bg-blue-600 hover:bg-blue-700"
+                onClick={() => setIsEditing(true)}
+              >
+                <Pencil className="w-4 h-4 mr-1" /> Edit
               </Button>
-              <Button onClick={saveTrip}>
-                <Save className="w-4 h-4 mr-1" /> Save
-              </Button>
-            </>
-          ) : (
-            <Button onClick={() => setIsEditing(true)}>
-              <Pencil className="w-4 h-4 mr-1" /> Edit
-            </Button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {trip.route.map((item, idx) => {
@@ -216,7 +237,7 @@ export default function RoutEditor() {
                     unoptimized
                   />
                 )}
-                {isEditing && (
+                {isEditing && canEdit && (
                   <input
                     type="file"
                     accept="image/*"
@@ -231,7 +252,7 @@ export default function RoutEditor() {
                 )}
               </div>
               <div className="flex-1 space-y-2">
-                {isEditing ? (
+                {isEditing && canEdit ? (
                   <>
                     <Input
                       value={item.title}
@@ -289,9 +310,12 @@ export default function RoutEditor() {
         );
       })}
 
-      {isEditing && (
+      {isEditing && canEdit && (
         <div className="flex justify-center">
-          <Button onClick={addRouteItem}>
+          <Button
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={addRouteItem}
+          >
             <Plus className="w-4 h-4 mr-1" /> Add Stop
           </Button>
         </div>
@@ -299,14 +323,17 @@ export default function RoutEditor() {
 
       <div className="bg-white shadow rounded-2xl p-6">
         <h3 className="text-lg font-semibold mb-4">🌟 Highlights</h3>
-        {isEditing && (
+        {isEditing && canEdit && (
           <div className="flex gap-2 mb-4">
             <Input
               value={newHighlight}
               onChange={(e) => setNewHighlight(e.target.value)}
               placeholder="Add highlight"
             />
-            <Button onClick={addHighlight}>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={addHighlight}
+            >
               <Plus />
             </Button>
           </div>
@@ -315,7 +342,7 @@ export default function RoutEditor() {
           {trip.highlights.map((hl, i) => (
             <li key={i} className="flex justify-between items-center">
               {hl}
-              {isEditing && (
+              {isEditing && canEdit && (
                 <X
                   className="text-red-500 cursor-pointer"
                   onClick={() => removeHighlight(i)}
@@ -328,14 +355,14 @@ export default function RoutEditor() {
 
       <div className="bg-white shadow rounded-2xl p-6">
         <h3 className="text-lg font-semibold mb-4">💡 Tips</h3>
-        {isEditing && (
+        {isEditing && canEdit && (
           <div className="flex gap-2 mb-4">
             <Input
               value={newTip}
               onChange={(e) => setNewTip(e.target.value)}
               placeholder="Add tip"
             />
-            <Button onClick={addTip}>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={addTip}>
               <Plus />
             </Button>
           </div>
@@ -344,7 +371,7 @@ export default function RoutEditor() {
           {trip.tips.map((tip, i) => (
             <li key={i} className="flex justify-between items-center">
               {tip}
-              {isEditing && (
+              {isEditing && canEdit && (
                 <X
                   className="text-red-500 cursor-pointer"
                   onClick={() => removeTip(i)}

@@ -58,7 +58,7 @@ export default function TourBookingPage({ trip }: TourBookingPageProps) {
         trip={trip}
         alreadyBooked={alreadyBooked}
         checkingOpen={checkingOpen}
-        setCheckingOpen={toggleChecking} // ✅ Fix toggle behavior
+        setCheckingOpen={toggleChecking}
         bookingStatus={bookingStatus}
         refreshBooking={refreshBooking}
       />

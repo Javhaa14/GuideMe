@@ -37,7 +37,7 @@ export default function TripsPagination() {
           setTrips([]);
         }
       } catch (err) {
-        console.error("❌ Error fetching trip plans:", err);
+        console.error("Error fetching trip plans:", err);
         setTrips([]);
       } finally {
         setLoading(false);
@@ -80,7 +80,7 @@ export default function TripsPagination() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-15">
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">Adventure Trips</h1>
         <p className="text-muted-foreground">
@@ -93,7 +93,8 @@ export default function TripsPagination() {
           <Card
             key={trip._id}
             className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
-            onClick={() => handleTripClick(trip._id)}>
+            onClick={() => handleTripClick(trip._id)}
+          >
             <div className="relative overflow-hidden">
               <Image
                 src={
@@ -161,7 +162,8 @@ export default function TripsPagination() {
                         e.preventDefault();
                         handlePageChange(page);
                       }}
-                      isActive={currentPage === page}>
+                      isActive={currentPage === page}
+                    >
                       {page}
                     </PaginationLink>
                   </PaginationItem>

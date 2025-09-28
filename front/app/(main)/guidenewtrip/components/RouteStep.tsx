@@ -295,7 +295,7 @@ export default function RouteStep({
                           <span className="font-semibold">
                             Upload image for this location
                           </span>
-                          <label className="cursor-pointer px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:scale-105 transition">
+                          <label className="cursor-pointer px-4 py-2 bg-sky-600 text-white rounded-xl">
                             <Camera size={18} className="mr-2 inline" />
                             Upload
                             <input

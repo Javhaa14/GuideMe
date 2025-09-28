@@ -142,8 +142,8 @@ export default function TripPlanForm() {
                     isActive
                       ? "bg-primary text-white"
                       : isCompleted
-                      ? "bg-green-500 text-white"
-                      : "bg-white dark:bg-gray-800 text-gray-400 border border-gray-300 dark:border-gray-600"
+                      ? "bg-blue-500 text-white"
+                      : "bg-white dark:bg-sky-600 text-gray-400 border border-gray-300"
                   }`}
                 >
                   {isCompleted ? (
@@ -160,7 +160,7 @@ export default function TripPlanForm() {
                     isActive
                       ? "text-primary"
                       : isCompleted
-                      ? "text-green-500"
+                      ? "text-black-500"
                       : "text-gray-500 dark:text-gray-400"
                   }`}
                 >
@@ -172,7 +172,7 @@ export default function TripPlanForm() {
         </div>
       </div>
 
-      <Card className="overflow-hidden border-none shadow-xl bg-white/90 backdrop-blur-sm dark:bg-gray-800/90">
+      <Card className="overflow-hidden border-none shadow-xl bg-white">
         <CardContent className="p-0">
           <form className="space-y-8" onSubmit={handleSubmit}>
             <div className="p-6 md:p-8">
@@ -221,7 +221,7 @@ export default function TripPlanForm() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-8 text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  className="px-8 text-white bg-sky-600 hover:bg-sky-700"
                 >
                   {isSubmitting ? (
                     <>
@@ -255,7 +255,7 @@ export default function TripPlanForm() {
                 <Button
                   type="button"
                   onClick={nextStep}
-                  className="gap-2 px-8 text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  className="gap-2 px-8 text-white bg-sky-600 hover:bg-sky-700"
                 >
                   Continue
                   <ArrowRight className="w-4 h-4" />

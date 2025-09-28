@@ -71,7 +71,7 @@ export default function HighlightsStep({
       <motion.div variants={item} className="space-y-6">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-300">
+            <div className="p-2 rounded-full bg-blue-100 text-blue-600 dark:bg-amber-900 dark:text-blue-300">
               <Lightbulb className="w-5 h-5" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -98,9 +98,9 @@ export default function HighlightsStep({
                     placeholder="Enter a highlight"
                     value={highlight}
                     onChange={(e) => updateHighlight(index, e.target.value)}
-                    className="pl-8 transition-all focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    className="pl-8 transition-all focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
-                  <span className="absolute -translate-y-1/2 left-3 top-1/2 text-amber-500">
+                  <span className="absolute -translate-y-1/2 left-3 top-1/2 text-blue-500">
                     •
                   </span>
                 </div>
@@ -121,7 +121,7 @@ export default function HighlightsStep({
           <Button
             type="button"
             variant="outline"
-            className="w-full border-dashed border-amber-300 text-amber-600 hover:bg-amber-50 hover:text-amber-700 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-900/50"
+            className="w-full text-blue-600 border-blue-300 border-dashed hover:bg-blue-50 hover:text-blue-700 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/50"
             onClick={addHighlight}
           >
             <Plus className="w-4 h-4 mr-2" />
