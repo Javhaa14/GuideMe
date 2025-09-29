@@ -394,9 +394,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({
             <div className="flex flex-col justify-between">
               <div className="grid grid-cols-3 gap-4 mb-8">
                 <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl">
-                  <div className="text-3xl font-bold text-blue-900">
-                    {guide.postCount || 0}
-                  </div>
+                  <div className="text-3xl font-bold text-blue-900">{0}</div>
                   <div className="text-sm text-blue-700 mt-1">Posts</div>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
