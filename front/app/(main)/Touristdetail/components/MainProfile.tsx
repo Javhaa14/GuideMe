@@ -12,7 +12,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PostType } from "../../Travelersinfo/page";
 import { OnlineUsers } from "./TouristMainProfile";
 import { useParams } from "next/navigation";
@@ -21,6 +21,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { axiosInstance } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
+import { GuideProfile } from "../../components/Guides";
 
 export type TouristProfile = {
   _id: {
@@ -47,7 +49,19 @@ type MainProfileProps = {
   setChat: React.Dispatch<React.SetStateAction<boolean>>;
   onlineUsers: OnlineUsers;
 };
-
+type TouristDataProps = {
+  about: string;
+  backgroundimage: string;
+  gender: string;
+  languages: string[];
+  length: number;
+  location: string;
+  profileimage: string;
+  socialAddress: string;
+  _id: { email: string; role: string; username: string; _id: string };
+  createdAt: string;
+  updatedAt: string;
+};
 export const MainProfile = ({
   tourist,
   post,
@@ -61,15 +75,44 @@ export const MainProfile = ({
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
   const [backgroundImageLoading, setBackgroundImageLoading] = useState(false);
+  const [touristData, setTouristData] = useState<TouristDataProps>();
+  useEffect(() => {
+    if (!profileId) return;
 
+    const fetchProfile = async () => {
+      try {
+        const res = await axiosInstance.get(`/tprofile/${profileId}`);
+        setTouristData(res.data);
+      } catch (err) {
+        console.error("❌ Post fetch failed:", err);
+      }
+    };
+    fetchProfile();
+  }, [profileId]);
+  useEffect(() => {
+    if (!touristData) return;
+    setEditedTourist({
+      username: touristData._id.username ?? "",
+      profileimage: touristData.profileimage ?? "",
+      backgroundimage: touristData.backgroundimage ?? "",
+      about: touristData.about ?? "",
+      location: touristData.location ?? "",
+      languages: Array.isArray(touristData.languages)
+        ? touristData.languages.join(", ")
+        : "",
+      gender: touristData.gender ?? "",
+    });
+  }, [touristData]);
+
+  console.log(touristData, "qqqqqqqqq");
   const [editedTourist, setEditedTourist] = useState({
-    username: tourist?._id.username || "",
-    profileimage: tourist?.profileimage || "",
-    backgroundimage: tourist?.backgroundimage || "",
-    about: tourist?.about || "",
-    location: tourist?.location || "",
-    languages: tourist?.languages?.join(", ") || "",
-    gender: tourist?.gender || "",
+    username: touristData?._id.username || "",
+    profileimage: touristData?.profileimage || "",
+    backgroundimage: touristData?.backgroundimage || "",
+    about: touristData?.about || "",
+    location: touristData?.location || "",
+    languages: touristData?.languages?.join(", ") || "",
+    gender: touristData?.gender || "",
   });
 
   const handleInput = (field: keyof typeof editedTourist, value: string) => {
@@ -169,18 +212,41 @@ export const MainProfile = ({
   if (!profileId) {
     return <p>User ID not found in URL params.</p>;
   }
+  const { data: session, status } = useSession();
+  const canEdit = status === "authenticated" && session?.user?.id === profileId;
+  const displayValue = (field: string) => {
+    if (!touristData) return "Not specified";
+    switch (field) {
+      case "createdAt":
+        return new Date(touristData.createdAt).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+        });
+      case "languages":
+        return Array.isArray(touristData.languages)
+          ? touristData.languages.join(", ")
+          : "Not specified";
+      case "gender":
+        return touristData.gender || "Not specified";
+      case "location":
+        return touristData.location || "Not specified";
+      default:
+        return "Not specified";
+    }
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}>
+      transition={{ duration: 0.5 }}
+    >
       <div className="bg-white rounded-4xl overflow-hidden shadow-2xl border-0">
         {/* Cover Image */}
         <div className="relative w-full h-64 md:h-80 lg:h-96">
           {editedTourist.backgroundimage ? (
             <Image
-              src={editedTourist.backgroundimage}
+              src={editedTourist.backgroundimage?.toString() || ""}
               alt="Cover"
               fill
               className="object-cover"
@@ -201,7 +267,8 @@ export const MainProfile = ({
                     variant="destructive"
                     size="sm"
                     disabled={backgroundImageLoading}
-                    className="rounded-full">
+                    className="rounded-full"
+                  >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Remove
                   </Button>
@@ -233,29 +300,44 @@ export const MainProfile = ({
               </div>
             </div>
           )}
-
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
           {/* Edit Button */}
-          <div className="absolute top-6 right-6">
-            {isEditing ? (
-              <Button
-                onClick={handleSave}
-                disabled={loading}
-                size="lg"
-                className="rounded-full bg-green-600 hover:bg-green-700">
-                <Save className="w-5 h-5 mr-2" />{" "}
-                {loading ? "Saving..." : "Save"}
-              </Button>
-            ) : (
-              <Button
-                onClick={() => setIsEditing(true)}
-                size="lg"
-                className="rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30">
-                <Pencil className="w-5 h-5 mr-2" /> Edit
-              </Button>
-            )}
-          </div>
+          {canEdit === true && (
+            <div className="absolute top-6 right-6">
+              {isEditing ? (
+                <div className="flex justify-center items-center gap-4">
+                  <Button
+                    onClick={handleSave}
+                    disabled={loading}
+                    size="lg"
+                    className="rounded-full bg-green-600 hover:bg-green-700"
+                  >
+                    <Save className="w-5 h-5 mr-2" />{" "}
+                    {loading ? "Saving..." : "Save"}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setIsEditing(!isEditing);
+                    }}
+                    disabled={loading}
+                    size="lg"
+                    className="rounded-full bg-green-600 hover:bg-red-700"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  size="lg"
+                  className="rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30"
+                >
+                  <Pencil className="w-5 h-5 mr-2" /> Edit
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Profile Content */}
@@ -268,7 +350,7 @@ export const MainProfile = ({
                   {editedTourist.profileimage ? (
                     <>
                       <Image
-                        src={editedTourist.profileimage}
+                        src={editedTourist.profileimage?.toString() || ""}
                         alt="Profile"
                         fill
                         className="object-cover"
@@ -277,7 +359,8 @@ export const MainProfile = ({
                         <button
                           onClick={handleDeleteImage}
                           className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
-                          disabled={imageLoading}>
+                          disabled={imageLoading}
+                        >
                           <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
@@ -380,6 +463,7 @@ export const MainProfile = ({
                       </div>
                       <div>
                         <p className="font-semibold text-gray-500">{label}</p>
+
                         {isEditing && field !== "createdAt" ? (
                           <Input
                             value={
@@ -388,7 +472,7 @@ export const MainProfile = ({
                                   typeof editedTourist,
                                   "createdAt"
                                 >
-                              ]
+                              ] as string
                             }
                             onChange={(e) =>
                               handleInput(
@@ -402,17 +486,8 @@ export const MainProfile = ({
                             }
                           />
                         ) : (
-                          <p className="text-lg font-medium text-gray-800 capitalize">
-                            {field === "createdAt"
-                              ? new Date(
-                                  tourist?.createdAt ?? ""
-                                ).toLocaleDateString("en-US", {
-                                  year: "numeric",
-                                  month: "long",
-                                })
-                              : editedTourist[
-                                  field as keyof typeof editedTourist
-                                ] || "Not specified"}
+                          <p className="text-lg font-medium text-gray-800">
+                            {displayValue(field)}
                           </p>
                         )}
                       </div>
@@ -423,26 +498,6 @@ export const MainProfile = ({
 
               {/* Right Column */}
               <div>
-                {/* Quick Stats */}
-                <div className="grid grid-cols-3 gap-4 mb-8">
-                  <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl">
-                    <div className="text-3xl font-bold text-blue-900">
-                      {post.length}
-                    </div>
-                    <div className="text-sm text-blue-700 mt-1">Posts</div>
-                  </div>
-                  <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
-                    <div className="text-3xl font-bold text-green-900">{2}</div>
-                    <div className="text-sm text-green-700 mt-1">Liked by</div>
-                  </div>
-                  <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl">
-                    <div className="text-3xl font-bold text-purple-900">
-                      {1}
-                    </div>
-                    <div className="text-sm text-purple-700 mt-1">Liked</div>
-                  </div>
-                </div>
-
                 {/* Action Buttons */}
                 <div className="p-8 bg-gray-50 rounded-2xl shadow-inner">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">
@@ -450,7 +505,8 @@ export const MainProfile = ({
                   </h3>
                   <button
                     onClick={() => setChat(!chat)}
-                    className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
+                    className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-sky-700 rounded-2xl text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
                     <MessageCircle className="w-6 h-6" />
                     Start Conversation
                   </button>

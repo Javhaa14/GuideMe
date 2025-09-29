@@ -10,7 +10,7 @@ import { SearchLocationProvider } from "./context/SearchLocationContext";
 import { FilteredDataProvider } from "./context/FilteredDataContext";
 import OnlineTracker from "@/components/OnlineTracker";
 import { SocketProvider } from "./context/SocketContext";
-import { NotificationProvider } from "./context/NotificationContext";
+// import { NotificationProvider } from "./context/NotificationContext";
 import { LanguageProvider } from "./context/LanguageContext";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -23,11 +23,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <SearchLocationProvider>
               <PriceRangeProvider>
                 <SocketProvider>
-                  <NotificationProvider>
-                    <UserProvider>
-                      <ProfileProvider>{children}</ProfileProvider>
-                    </UserProvider>
-                  </NotificationProvider>
+                  {/* <NotificationProvider> */}
+                  <UserProvider>
+                    <ProfileProvider>{children}</ProfileProvider>
+                  </UserProvider>
+                  {/* </NotificationProvider> */}
                 </SocketProvider>
               </PriceRangeProvider>
             </SearchLocationProvider>

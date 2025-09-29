@@ -160,7 +160,8 @@ export const Navigation = () => {
     }
   };
 
-  const profileImage = profileData?.profileimage || session.user.image;
+  const profileImage =
+    profileData?.profileimage || session?.user?.image || undefined;
   const displayName = profileData?.username || session.user.name;
 
   return (
@@ -294,13 +295,16 @@ export const Navigation = () => {
                     className="flex items-center gap-2 p-0 rounded-full hover:bg-white/20 transition-all duration-200 hover:scale-105"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage
-                        src={profileImage ?? ""}
-                        alt={displayName ?? "User"}
-                      />
-                      <AvatarFallback className="bg-white/30 text-white">
-                        {getInitials(displayName || "")}
-                      </AvatarFallback>
+                      {profileImage ? (
+                        <AvatarImage
+                          src={profileImage}
+                          alt={displayName ?? "User"}
+                        />
+                      ) : (
+                        <AvatarFallback className="bg-white/30 text-white">
+                          {getInitials(displayName || "")}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>

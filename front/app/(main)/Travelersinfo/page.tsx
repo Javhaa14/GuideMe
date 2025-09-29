@@ -14,6 +14,7 @@ import { useSearchLocation } from "@/app/context/SearchLocationContext";
 import TpostCard from "../components/tpostvertical";
 import { RefreshCcw } from "lucide-react";
 import { useProfile } from "@/app/context/ProfileContext";
+import { Loader2 } from "lucide-react";
 
 export interface PostType {
   _id: string;
@@ -185,94 +186,102 @@ export default function Home() {
 
   return (
     <div className="flex w-screen h-full items-start justify-between bg-white gap-5 py-[40px] px-[250px]">
-      <div className="flex flex-wrap gap-10 auto-rows-max">
-        {filteredPost.map((v, i) => {
-          return (
-            <TpostCard
-              onclick={() => {
-                todetail(v.userId);
-              }}
-              post={v}
-              key={i}
-              user={user}
-            />
-          );
-        })}
-      </div>
-
-      <div className="flex flex-col bg-white rounded-3xl shadow-md p-5 space-y-4 border border-gray-200  gap-6 w-fit sticky top-[90px]">
-        <h2 className="text-gray-800 text-xl font-semibold">Filters</h2>
-        {/* Location Filter */}
-        <div className="flex flex-col gap-2 items-start justify-center">
-          <span className="text-sm font-medium text-gray-700">Location:</span>
-          <LocationFilterCard
-            isFilter={true}
-            placeholder="Search Location ..."
-            className="h-[40px] justify-center items-center"
-          />
+      {filteredPost.length !== 0 ? (
+        <div className="flex flex-wrap gap-10 auto-rows-max">
+          {filteredPost.map((v, i) => {
+            return (
+              <TpostCard
+                onclick={() => {
+                  todetail(v.userId);
+                }}
+                post={v}
+                key={i}
+                user={user}
+              />
+            );
+          })}
         </div>
+      ) : (
+        <Loader2 className="h-10 w-full flex justify-center items-center animate-spin text-gray-500 mt-3" />
+      )}
+      {/* Filters Section */}
+      <div className="flex-none sticky top-4 self-start w-fit">
+        <div className="flex flex-col bg-white rounded-3xl shadow-md p-5 space-y-4 border border-gray-200  gap-6 w-fit sticky top-[90px]">
+          <h2 className="text-gray-800 text-xl font-semibold">Filters</h2>
+          {/* Location Filter */}
+          <div className="flex flex-col gap-2 items-start justify-center">
+            <span className="text-sm font-medium text-gray-700">Location:</span>
+            <LocationFilterCard
+              isFilter={true}
+              placeholder="Search Location ..."
+              className="h-[40px] justify-center items-center"
+            />
+          </div>
 
-        {/* Activity Filter */}
-        <div className="flex flex-col gap-2 items-start justify-center">
-          <span className="text-sm font-medium text-gray-700">Activities:</span>
-          <div className="grid grid-cols-2 gap-2">
-            {selectActivities.map((act, i) => {
-              const selected = filters.activities.includes(act.activity);
-              return (
-                <button
-                  key={i}
-                  onClick={() => handleSelectedActivites(act.activity)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition
+          {/* Activity Filter */}
+          <div className="flex flex-col gap-2 items-start justify-center">
+            <span className="text-sm font-medium text-gray-700">
+              Activities:
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              {selectActivities.map((act, i) => {
+                const selected = filters.activities.includes(act.activity);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => handleSelectedActivites(act.activity)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition
               ${
                 selected
                   ? "bg-black text-white border-black"
                   : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
               }`}
-                >
-                  <span>{act.icon}</span>
-                  <span className="text-sm font-medium">{act.activity}</span>
-                  {selected && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  )}
-                </button>
-              );
-            })}
+                  >
+                    <span>{act.icon}</span>
+                    <span className="text-sm font-medium">{act.activity}</span>
+                    {selected && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className="flex flex-col gap-2 items-start justify-center">
-          <span className="text-sm font-medium text-gray-700">Date:</span>
-          <div className="p-3 flex flex-col items-center">
-            <DateRange
-              ranges={[value] as any}
-              onChange={(item) => setValue(item.selection)}
-              moveRangeOnFirstSelection={false}
-              editableDateInputs={true}
-              minDate={new Date()}
-            />
-          </div>
-          <div className="flex justify-end w-full mt-2">
-            <Button
-              onClick={handleClearButton}
-              variant="ghost"
-              className="text-sky-700 bg-white font-semibold flex items-center gap-1 hover:bg-blue-100"
-            >
-              <RefreshCcw className="w-4 h-4" />
-              Clear Filters
-            </Button>
+          <div className="flex flex-col gap-2 items-start justify-center">
+            <span className="text-sm font-medium text-gray-700">Date:</span>
+            <div className="p-3 flex flex-col items-center">
+              <DateRange
+                ranges={[value] as any}
+                onChange={(item) => setValue(item.selection)}
+                moveRangeOnFirstSelection={false}
+                editableDateInputs={true}
+                minDate={new Date()}
+              />
+            </div>
+            <div className="flex justify-end w-full mt-2">
+              <Button
+                onClick={handleClearButton}
+                variant="ghost"
+                className="text-sky-700 bg-white font-semibold flex items-center gap-1 hover:bg-blue-100"
+              >
+                <RefreshCcw className="w-4 h-4" />
+                Clear Filters
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -161,19 +161,13 @@ export const MessengerButton = () => {
 
       <SheetContent
         side="right"
-        className="w-[300px] top-15 [&>button]:hidden bg-black/30 backdrop-blur-xl border-white/10"
+        className="w-[300px] top-15 [&>button]:hidden bg-white rounded-2xl"
       >
         <SheetHeader>
           <SheetTitle>Chat</SheetTitle>
         </SheetHeader>
 
         {error && <div className="text-red-400 text-sm mb-2">{error}</div>}
-
-        {loading && (
-          <div className="text-gray-400 text-sm mb-2">
-            Loading conversations...
-          </div>
-        )}
 
         <ChatList
           onConversationOpen={onConversationOpen}

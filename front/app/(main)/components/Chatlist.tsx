@@ -86,7 +86,7 @@ export const ChatList: React.FC<ChatListProps> = ({
 
   return (
     <>
-      <div className="max-h-[80vh] overflow-y-auto pr-2 space-y-3 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-4 shadow-lg border border-gray-200">
+      <div className="max-h-[80vh] overflow-y-auto pr-2 space-y-3 bg-white border-t-[1px] p-3">
         {conversations.map((conv) => {
           // Find the other user (not the current user)
           const otherUser = conv.participants?.find(

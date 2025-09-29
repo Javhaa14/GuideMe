@@ -34,6 +34,7 @@ export type GuideProfile = {
   car: string;
   location: string;
   Trip: TourPost[];
+  likedBy: number[];
 };
 
 export default function GuideMainProfile() {

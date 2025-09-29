@@ -115,7 +115,7 @@ export const Filters = ({ guides }: { guides: Guide[] }) => {
   }, [guides, filters, searchedValue, priceRange, reviewNumber]);
 
   return (
-    <div className="flex flex-col bg-white rounded-3xl shadow-md p-5 space-y-4 border border-gray-200 hover:shadow-lg transition-all duration-300 gap-6 w-fit sticky top-0">
+    <div className="flex flex-col bg-white rounded-3xl shadow-md p-5 space-y-4 border border-gray-200  gap-6 w-fit sticky top-[90px]">
       <h2 className="text-gray-800 text-xl font-semibold">Filters</h2>
 
       {/* Location Filter */}

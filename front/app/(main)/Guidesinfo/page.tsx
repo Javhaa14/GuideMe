@@ -8,7 +8,7 @@ import { useFilteredData } from "@/app/context/FilteredDataContext";
 import { GuideProfile } from "./components/GuideProfile";
 import { useTranslation } from "@/lib/translationHelpers";
 import { useProfile } from "@/app/context/ProfileContext";
-
+import { Loader2 } from "lucide-react";
 export interface Guide {
   _id: string;
   location: string;
@@ -63,8 +63,8 @@ export default function Home() {
   };
 
   return (
-    <div className="flex w-fit h-screen items-start justify-center bg-white gap-5 py-[50px] px-[250px]">
-      <div className=" flex flex-wrap gap-10 h-fit pb-3 overflow-x-scroll ">
+    <div className="flex items-start justify-center bg-white gap-5 py-[50px] px-[250px]">
+      <div className="flex-1 flex flex-wrap gap-10 h-fit pb-3 overflow-x-auto [scrollbar-gutter:stable]">
         {filteredData.length !== 0 ? (
           filteredData
             ?.sort((a, b) => b.rating - a.rating)
@@ -87,10 +87,12 @@ export default function Home() {
               </div>
             ))
         ) : (
-          <p>{t("noResults")}</p>
+          <Loader2 className="h-10 w-full flex justify-center items-center animate-spin text-gray-500" />
         )}
       </div>
-      <Filters guides={guides} />
+      <div className="flex-none sticky top-4 self-start w-fit">
+        <Filters guides={guides} />
+      </div>
     </div>
   );
 }

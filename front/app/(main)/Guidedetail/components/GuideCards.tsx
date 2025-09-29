@@ -120,6 +120,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({
   const handleDeleteBackgroundImage = () => {
     handleInput("backgroundimage", "");
   };
+  console.log(guide.likedBy, " likedBy");
 
   const handleSave = async () => {
     setLoading(true);
@@ -390,25 +391,40 @@ export const GuideCard: React.FC<GuideCardProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="bg-gray-50 rounded-2xl p-8 flex flex-col justify-between shadow-inner">
-              <div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-6">
-                  Connect
-                </h3>
-                <div className="space-y-4">
-                  <button
-                    onClick={() => setChat(!chat)}
-                    className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
-                  >
-                    <MessageCircle className="w-6 h-6" />
-                    Start Conversation
-                  </button>
-                  <Ebooking />
-                  <Review userId={guideId} />
+            <div className="flex flex-col justify-between">
+              <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl">
+                  <div className="text-3xl font-bold text-blue-900">
+                    {guide.postCount || 0}
+                  </div>
+                  <div className="text-sm text-blue-700 mt-1">Posts</div>
+                </div>
+                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
+                  <div className="text-3xl font-bold text-green-900">
+                    {guide.likedBy.length || 0}
+                  </div>
+                  <div className="text-sm text-green-700 mt-1">Liked by</div>
                 </div>
               </div>
-              <div className="mt-8">
-                <Subscription />
+              <div className="bg-gray-50 rounded-2xl p-8 flex flex-col justify-between items-center shadow-inner">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-6">
+                    Connect
+                  </h3>
+                  <div className="space-y-4">
+                    <button
+                      onClick={() => setChat(!chat)}
+                      className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-sky-700 rounded-2xl text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                    >
+                      <MessageCircle className="w-6 h-6" />
+                      Start Conversation
+                    </button>
+                    <Ebooking />
+                  </div>
+                </div>
+              </div>
+              <div className="mt-8 w-full h-auto flex items-center justify-center">
+                <Review userId={guideId} />
               </div>
             </div>
           </div>
