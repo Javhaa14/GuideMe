@@ -2,20 +2,17 @@
 
 import React from "react";
 import { PlusCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useProfile } from "@/app/context/ProfileContext";
 import { useUser } from "@/app/context/Usercontext";
 
-interface NewTripProps {
-  profileId: string;
-}
-
-export const NewTrip: React.FC<NewTripProps> = ({ profileId }) => {
+export const NewTrip: React.FC = () => {
   const router = useRouter();
+  const params = useParams(); // route params авах
   const { requireAuth } = useProfile();
   const { user } = useUser();
 
-  const isOwner = user?._id === profileId;
+  const isOwner = String(user?.id || user?._id) === String(params.id);
 
   if (!isOwner) return null;
 

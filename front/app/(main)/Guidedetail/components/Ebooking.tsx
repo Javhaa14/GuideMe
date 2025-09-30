@@ -189,7 +189,6 @@ export default function Ebooking() {
       {user.id == params.id ? (
         <div className="text-center">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <div></div>
             <DialogTrigger asChild>
               <Button
                 size="lg"

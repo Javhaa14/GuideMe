@@ -113,7 +113,7 @@ export default function TravelerProfile() {
               ? "Your posts"
               : `${tourist?._id.username}'s posts`}
           </h2>
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-5">
             {post.map((v, i) => {
               return (
                 <Travelerpost

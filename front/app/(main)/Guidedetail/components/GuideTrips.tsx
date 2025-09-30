@@ -105,7 +105,7 @@ export const GuideTrips = () => {
             )}
 
             {/* Delete Button */}
-            <button
+            {/* <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleDelete(trip._id);
@@ -114,7 +114,7 @@ export const GuideTrips = () => {
               title="Устгах"
             >
               <Trash2 size={18} />
-            </button>
+            </button> */}
 
             {/* Зураг */}
             <div className="relative w-full h-48">

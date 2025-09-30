@@ -101,7 +101,7 @@ export default function GuideMainProfile() {
         />
 
         <div className="pb-4 mt-8">
-          <NewTrip profileId={guide._id} />
+          <NewTrip />
         </div>
 
         <GuideTrips />
