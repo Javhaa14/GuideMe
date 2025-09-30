@@ -195,12 +195,13 @@ export default function TpostCard({ post, onclick, user }: any) {
 
       {/* Image Carousel */}
       <div className="relative w-full h-64 rounded-2xl overflow-hidden bg-gray-100">
-        <Image
+        {images[currentImageIndex] ? <Image
           src={images[currentImageIndex]}
           alt={`Post image ${currentImageIndex + 1}`}
           fill
           className="object-cover transition-opacity duration-300"
-        />
+        /> : null}
+       
         {images.length > 1 && (
           <>
             <button
