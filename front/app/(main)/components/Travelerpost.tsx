@@ -28,7 +28,7 @@ export default function Travelerpost({ post, onclick, user }: any) {
   };
 
   return (
-    <div className="max-w-xl w-[800px] mx-auto bg-gradient-to-r from-blue-50 to-white rounded-xl shadow-xl border border-blue-200 p-6 my-6 transition-transform hover:scale-[1.02]">
+    <div className="max-w-full w-full mx-auto bg-white rounded-3xl shadow-md p-4 sm:p-5 space-y-4 border border-gray-200">
       {/* User info */}
       <div className="flex items-center space-x-4 mb-5">
         <Image
