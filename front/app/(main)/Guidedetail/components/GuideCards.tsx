@@ -312,12 +312,17 @@ export const GuideCard: React.FC<GuideCardProps> = ({
                   {guide.username}
                 </h1>
               )}
-              <div className="flex gap-3 items-center text-md text-gray-500 mt-2 justify-center md:justify-start">
-                <BadgeCheck className="w-5 h-5 text-blue-500" />
-                <span>Verified Guide</span>
-                <span className="text-gray-300">|</span>
-                <Star className="w-5 h-5 text-yellow-400" />
-                <span>{guide.rating || "No ratings"}</span>
+              <div className="flex w-fit h-fit">
+                <div className="flex gap-3 items-center text-md text-gray-500 mt-2 justify-center md:justify-start">
+                  <BadgeCheck className="w-5 h-5 text-blue-500" />
+                  <span>Verified Guide</span>
+                  <span className="text-gray-300">|</span>
+                  <Star className="w-5 h-5 text-yellow-400" />
+                  <span>{guide.rating || "No ratings"}</span>
+                </div>
+                <div className="mt-8 w-full h-auto flex items-center justify-center">
+                  <Review userId={guideId} />
+                </div>
               </div>
             </div>
           </div>
@@ -392,7 +397,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({
 
             {/* Actions */}
             <div className="flex flex-col justify-between">
-              <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="grid grid-cols-2 gap-4 mb-8">
                 <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl">
                   <div className="text-3xl font-bold text-blue-900">{0}</div>
                   <div className="text-sm text-blue-700 mt-1">Posts</div>
@@ -420,9 +425,6 @@ export const GuideCard: React.FC<GuideCardProps> = ({
                     <Ebooking />
                   </div>
                 </div>
-              </div>
-              <div className="mt-8 w-full h-auto flex items-center justify-center">
-                <Review userId={guideId} />
               </div>
             </div>
           </div>

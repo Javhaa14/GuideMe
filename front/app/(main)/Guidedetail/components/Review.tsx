@@ -94,8 +94,8 @@ export const Review = ({ userId }: ReviewProps) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <Toaster />
 
-      <DialogTrigger>
-        <Button>Review Guide</Button>
+      <DialogTrigger className="w-[160px] h-[40px] flex items-center justify-center gap-3 px-8 py-4 bg-sky-700 rounded-xl text-[14px] font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
+        Review Guide
       </DialogTrigger>
       <DialogContent className="w-full max-w-md">
         <DialogHeader>

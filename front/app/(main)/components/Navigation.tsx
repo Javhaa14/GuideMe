@@ -274,7 +274,7 @@ export const Navigation = () => {
               </DropdownMenu>
             </div>
 
-            <Button
+            {/* <Button
               variant="ghost"
               className="p-2 rounded-full hover:bg-white/10 transition-all duration-200 hover:scale-105"
               onClick={() => {
@@ -284,7 +284,7 @@ export const Navigation = () => {
               }}
             >
               <Bell className="h-6 w-6 text-white" />
-            </Button>
+            </Button> */}
             <MessengerButton />
 
             <div className="ml-3 relative">
@@ -336,7 +336,7 @@ export const Navigation = () => {
                     </span>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem
+                  {/* <DropdownMenuItem
                     onClick={() => {
                       if (requireAuth("access settings")) {
                         router.push("/Settings");
@@ -346,7 +346,7 @@ export const Navigation = () => {
                   >
                     <Settings className="mr-2 h-4 w-4" />
                     <span>{t("settings")}</span>
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
 
                   <DropdownMenuSeparator className="bg-white/10" />
 
